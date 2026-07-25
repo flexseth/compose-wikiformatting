@@ -2,6 +2,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .App-header {
@@ -24,7 +25,35 @@
 .App-main {
   flex: 1;
   padding: 2rem;
-  max-width: 1400px;
   width: 100%;
   margin: 0 auto;
+  /* Add padding-right to prevent content from going under the sidebar */
+  padding-right: calc(2rem + 320px);
+  transition: padding-right 0.3s ease;
+}
+
+.content-area {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .App-main {
+    padding-right: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .App-header {
+    padding: 1.5rem 1rem;
+  }
+
+  .App-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .App-main {
+    padding: 1rem;
+  }
 }
