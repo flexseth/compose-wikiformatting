@@ -1,5 +1,6 @@
 import React from 'react';
 import './App.css';
+import Sidebar from './components/Sidebar';
 
 /**
  * Main Application Component
@@ -15,8 +16,11 @@ function App() {
         <p>Convert Markdown to WikiFormatting for WordPress Trac</p>
       </header>
       <main className="App-main">
-        <p>Editor and preview components will be added here.</p>
+        <div className="content-area">
+          <p>Editor and preview components will be added here.</p>
+        </div>
       </main>
+      <Sidebar />
     </div>
   );
 }
