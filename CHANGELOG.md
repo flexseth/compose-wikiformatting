@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Collapsible documentation sidebar component
+  - Quick links to all WikiFormatting documentation sections
+  - 5 expandable categories: Basics, Lists & Structure, Text Formatting, Links & References, Advanced Features
+  - 20+ direct links to specific anchors on https://trac.ffmpeg.org/wiki/WikiFormatting
+  - Toggle open/closed functionality (320px ↔ 50px)
+  - Smooth animations and transitions
+  - Responsive design for desktop, tablet, and mobile
+  - Accessibility features (ARIA labels, keyboard navigation)
+  - External link indicators on hover
+  - 100% test coverage with 13 test cases
+
 ### Planned
 - Basic Editor Component with controlled textarea
 - LocalStorage persistence for editor content
@@ -15,7 +27,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Debounced update (3-second delay)
 - Keyboard shortcuts (Tab, Escape, CMD+S)
 - Copy to clipboard functionality
-- Documentation sidebar with WikiFormatting reference links
 
 ---
 
