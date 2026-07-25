@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import Sidebar from './components/Sidebar';
+import Editor from './components/Editor';
 
 /**
  * Main Application Component
@@ -9,6 +10,12 @@ import Sidebar from './components/Sidebar';
  * and localStorage persistence.
  */
 function App() {
+  const [editorContent, setEditorContent] = useState('');
+
+  const handleEditorChange = (value) => {
+    setEditorContent(value);
+  };
+
   return (
     <div className="App">
       <header className="App-header">
@@ -17,7 +24,12 @@ function App() {
       </header>
       <main className="App-main">
         <div className="content-area">
-          <p>Editor and preview components will be added here.</p>
+          <div className="editor-section">
+            <Editor
+              value={editorContent}
+              onChange={handleEditorChange}
+            />
+          </div>
         </div>
       </main>
       <Sidebar />
