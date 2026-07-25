@@ -18,9 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Accessibility features (ARIA labels, keyboard navigation)
   - External link indicators on hover
   - 100% test coverage with 13 test cases
+- Editor component with controlled textarea and real-time word/character counting
 
 ### Planned
-- Basic Editor Component with controlled textarea
 - LocalStorage persistence for editor content
 - Preview Component for WikiFormatting display
 - Markdown to WikiFormatting converter
