@@ -50,13 +50,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Defense-in-depth: escaping at converter level + React's built-in XSS protection
 
 ### Planned
-- Phase 2: Text Formatting conversion (bold, italic, code)
-- Phase 3: Lists conversion
-- Phase 4: Links conversion
-- Phase 5: Code blocks conversion
-- Phase 6: Blockquotes conversion
-- Phase 7: Tables conversion
-- Phase 8: Images conversion
+- Phase 2: WikiFormatting Renderer (parse WikiFormatting to HTML, 3-column layout)
+- Phase 3: Text Formatting conversion (bold, italic, code)
+- Phase 4: Lists conversion
+- Phase 5: Links conversion
+- Phase 6: Code blocks conversion
+- Phase 7: Blockquotes conversion
+- Phase 8: Tables conversion
+- Phase 9: Images conversion
 - LocalStorage persistence for editor content
 - Debounced update (3-second delay)
 - Keyboard shortcuts (Tab, Escape, CMD+S)
