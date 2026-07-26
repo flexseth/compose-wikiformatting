@@ -95,12 +95,21 @@ describe('convertHeader - Special Characters', () => {
     expect(convertHeader("# It's working")).toBe("= It's working =");
   });
 
-  test('preserves WikiFormatting italic syntax in headers', () => {
-    expect(convertHeader("# heading with ''emphasis''")).toBe("= heading with ''emphasis'' =");
+  // NOTE: Inline formatting conversion not implemented yet (Phase 3 feature)
+  // Currently, Markdown formatting markers (__emphasis__, **bold**) are preserved as-is
+  // TODO Phase 3: Convert __emphasis__ → ''emphasis'' and **bold** → '''bold'''
+  test('preserves Markdown emphasis markers in headers (awaiting Phase 3)', () => {
+    // Input: Markdown header with emphasis markers
+    // Current output: Converts header, preserves inline Markdown
+    // Future output (Phase 3): "= heading with ''emphasis'' ="
+    expect(convertHeader("# heading with __emphasis__")).toBe("= heading with __emphasis__ =");
   });
 
-  test('preserves WikiFormatting bold syntax in headers', () => {
-    expect(convertHeader("# heading with '''bold'''")).toBe("= heading with '''bold''' =");
+  test('preserves Markdown bold markers in headers (awaiting Phase 3)', () => {
+    // Input: Markdown header with bold markers
+    // Current output: Converts header, preserves inline Markdown
+    // Future output (Phase 3): "= heading with '''bold''' ="
+    expect(convertHeader("# heading with **bold**")).toBe("= heading with **bold** =");
   });
 
   test('handles multiple special characters', () => {
