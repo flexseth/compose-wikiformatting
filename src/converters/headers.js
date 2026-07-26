@@ -15,18 +15,19 @@
  * @param {string} text - Text to escape
  * @returns {string} Escaped text safe for display
  *
- * @security Prevents XSS by escaping <, >, &, ", and '
+ * @security Prevents XSS by escaping <, >, &, and "
+ * @note Single quotes (') are NOT escaped because they're valid WikiFormatting
+ *       syntax for italic (''). React handles attribute escaping automatically.
  */
 function escapeHtml(text) {
   const entityMap = {
     '&': '&amp;',
     '<': '&lt;',
     '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;'
+    '"': '&quot;'
   };
 
-  return String(text).replace(/[&<>"']/g, (char) => entityMap[char]);
+  return String(text).replace(/[&<>"]/g, (char) => entityMap[char]);
 }
 
 /**

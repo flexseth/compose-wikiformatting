@@ -1,0 +1,211 @@
+.rendered-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 500px;
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.rendered-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.rendered-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #282c34;
+}
+
+.rendered-label {
+  display: flex;
+  align-items: center;
+}
+
+.label-text {
+  font-size: 0.75rem;
+  color: #28a745;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.rendered-content {
+  flex: 1;
+  padding: 1.25rem;
+  overflow-y: auto;
+  background-color: #ffffff;
+}
+
+/* Trac-like styling for rendered elements */
+.rendered-elements {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  line-height: 1.6;
+  color: #333;
+}
+
+/* Trac heading styles */
+.rendered-elements h1.section,
+.rendered-elements h2.section,
+.rendered-elements h3.section,
+.rendered-elements h4.section,
+.rendered-elements h5.section,
+.rendered-elements h6.section {
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: #222;
+  border-bottom: 1px solid #e1e4e8;
+  padding-bottom: 0.3rem;
+}
+
+.rendered-elements h1.section {
+  font-size: 2rem;
+  margin-top: 0;
+}
+
+.rendered-elements h2.section {
+  font-size: 1.5rem;
+}
+
+.rendered-elements h3.section {
+  font-size: 1.25rem;
+}
+
+.rendered-elements h4.section {
+  font-size: 1.1rem;
+}
+
+.rendered-elements h5.section {
+  font-size: 1rem;
+}
+
+.rendered-elements h6.section {
+  font-size: 0.9rem;
+}
+
+/* Anchor links (¶ symbol) */
+.rendered-elements a.anchor {
+  color: #adb5bd;
+  text-decoration: none;
+  margin-left: 0.5rem;
+  font-size: 0.85em;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.rendered-elements h1:hover a.anchor,
+.rendered-elements h2:hover a.anchor,
+.rendered-elements h3:hover a.anchor,
+.rendered-elements h4:hover a.anchor,
+.rendered-elements h5:hover a.anchor,
+.rendered-elements h6:hover a.anchor {
+  opacity: 1;
+}
+
+.rendered-elements a.anchor:hover {
+  color: #495057;
+}
+
+/* Paragraphs */
+.rendered-elements p {
+  margin: 0.75rem 0;
+  line-height: 1.6;
+}
+
+/* Italic text */
+.rendered-elements em {
+  font-style: italic;
+}
+
+/* Line breaks */
+.rendered-elements br {
+  display: block;
+  content: "";
+  margin: 0.5rem 0;
+}
+
+/* Placeholder when no content */
+.rendered-placeholder {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: #6c757d;
+}
+
+.rendered-placeholder p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+}
+
+.placeholder-hint {
+  font-size: 0.875rem;
+  font-style: italic;
+  color: #adb5bd;
+}
+
+.rendered-footer {
+  padding: 0.75rem 1.25rem;
+  background-color: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+}
+
+.rendered-hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #6c757d;
+  text-align: center;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .rendered-container {
+    min-height: 400px;
+  }
+
+  .rendered-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .rendered-content {
+    padding: 1rem;
+  }
+
+  .rendered-elements h1.section {
+    font-size: 1.75rem;
+  }
+
+  .rendered-elements h2.section {
+    font-size: 1.35rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .rendered-container {
+    min-height: 300px;
+  }
+
+  .rendered-header h3 {
+    font-size: 0.95rem;
+  }
+
+  .rendered-hint {
+    font-size: 0.75rem;
+  }
+
+  .rendered-elements h1.section {
+    font-size: 1.5rem;
+  }
+}

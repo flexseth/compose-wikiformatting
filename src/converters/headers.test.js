@@ -92,7 +92,15 @@ describe('convertHeader - Special Characters', () => {
   });
 
   test('handles headers with apostrophes', () => {
-    expect(convertHeader("# It's working")).toBe("= It&#39;s working =");
+    expect(convertHeader("# It's working")).toBe("= It's working =");
+  });
+
+  test('preserves WikiFormatting italic syntax in headers', () => {
+    expect(convertHeader("# heading with ''emphasis''")).toBe("= heading with ''emphasis'' =");
+  });
+
+  test('preserves WikiFormatting bold syntax in headers', () => {
+    expect(convertHeader("# heading with '''bold'''")).toBe("= heading with '''bold''' =");
   });
 
   test('handles multiple special characters', () => {

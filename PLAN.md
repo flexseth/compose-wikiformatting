@@ -56,37 +56,79 @@
 
 ---
 
-### Phase 2: WikiFormatting Renderer 🎨
+### Phase 2: WikiFormatting Renderer 🎨 ✅
 **Branch:** `feature/wiki-renderer` (from trunk after Phase 1)
 
-- [ ] Parse WikiFormatting to HTML
-- [ ] Render headers (= syntax)
-- [ ] Third view: Rendered output panel
-- [ ] **SECURITY: Sanitize HTML output**
-- [ ] **SECURITY: Prevent XSS in rendered HTML**
-- [ ] **SECURITY: Safe anchor links only**
-- [ ] Layout: Editor | WikiFormatting | Rendered (3 columns)
-- [ ] Responsive: stack on mobile/tablet
-- [ ] Styles match WordPress Trac theme
+- [x] Parse WikiFormatting to React components (better than HTML!)
+- [x] Render headers (= syntax) with all variations
+- [x] Third view: Rendered output panel
+- [x] **SECURITY: NO dangerouslySetInnerHTML - pure React rendering**
+- [x] **SECURITY: React auto-escaping prevents XSS**
+- [x] **SECURITY: Safe anchor links (regex-validated IDs)**
+- [x] Layout: Editor | WikiFormatting | Rendered (3 columns)
+- [x] Responsive: 3 cols → 2 cols → 1 col (desktop → tablet → mobile)
+- [x] Styles match WordPress Trac theme
+- [x] 100% coverage (41 new tests)
+- [x] JSDoc complete
+- [x] **SECURITY REVIEW PASSED**
+
+**Purpose:** Show users what their WikiFormatting will look like on WordPress Trac
+
+**Implementation:**
+- ✅ `src/renderers/wikiToReact.js` - WikiFormatting → React elements (PRIMARY)
+- ✅ `src/renderers/wikiToHtml.js` - WikiFormatting → HTML strings (reference, not used)
+- ✅ `src/components/RenderedView.jsx` - Displays React elements (NO dangerouslySetInnerHTML)
+- ✅ Trac-like styling: proper heading hierarchy, anchor links with ¶ symbol
+- ✅ All heading variations: with/without trailing =, explicit IDs, inline formatting
+
+**Status:** ✅ Complete (198 tests passing, security review passed, React-safe rendering)
+
+---
+
+### Phase 2.5: LocalStorage Persistence 💾
+**Branch:** `feature/localstorage` (from trunk after Phase 2)
+
+- [ ] Save editor content to localStorage on change
+- [ ] Restore editor content on page load
+- [ ] Clear storage functionality
+- [ ] **WordPress-ready**: Use attribute-like structure for easy conversion to block attributes
+- [ ] Debounced saves (avoid excessive writes)
+- [ ] Storage key namespacing
 - [ ] 100% coverage
 - [ ] JSDoc complete
 - [ ] **SECURITY REVIEW PASSED**
 
-**Purpose:** Show users what their WikiFormatting will look like on WordPress Trac
+**Purpose:** Persist user work across page reloads - essential for testing and user experience
 
 **Implementation Notes:**
-- Create `src/renderers/wikiToHtml.js` for WikiFormatting → HTML conversion
-- Create `src/components/RenderedView.jsx` for HTML display
-- Use `dangerouslySetInnerHTML` ONLY after thorough sanitization
-- Each WikiFormatting element gets its own parser (headers first, expand with each phase)
-- Trac-like styling: monospace fonts for code, proper heading hierarchy, etc.
+- Use patterns that map to WordPress block attributes (attribute-like structure)
+- Save format: `{ editorContent: string, timestamp: number }`
+- Storage key: `compose-wikiformatting-v1`
+- Debounce saves (500ms) to avoid excessive localStorage writes
+- Clear button in UI for privacy
+- This will translate to WordPress as block attributes when converting to plugin
 
-**Status:** ⏳ Planned (next phase)
+**WordPress Conversion Path:**
+```javascript
+// Current (localStorage):
+const saved = localStorage.getItem('compose-wikiformatting-v1');
+const { editorContent } = JSON.parse(saved);
+
+// Future (WordPress block attributes):
+attributes: {
+  editorContent: {
+    type: 'string',
+    default: ''
+  }
+}
+```
+
+**Status:** ⏳ Next (after Phase 2 merged)
 
 ---
 
 ### Phase 3: Text Formatting
-**Branch:** `feature/convert-text` (from trunk after Phase 2)
+**Branch:** `feature/convert-text` (from trunk after Phase 2.5)
 
 - [ ] Bold ** → '''
 - [ ] Italic * → ''
@@ -191,8 +233,8 @@
 
 ## Progress
 
-**Completed:** 1/9 phases  
-**Security Reviews Passed:** 1/9  
-**Current:** Phase 1 complete, ready for review/merge. Phase 2 (Renderer) next.
+**Completed:** 2/10 phases (added Phase 2.5 for localStorage)  
+**Security Reviews Passed:** 2/10  
+**Current:** Phase 2 complete, ready for review/merge. Phase 2.5 (LocalStorage) next.
 
-**Last Updated:** 2026-07-25
+**Last Updated:** 2026-07-26

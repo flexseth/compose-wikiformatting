@@ -6,23 +6,39 @@ A React-based web application for composing documents in WikiFormatting syntax f
 
 WordPress core uses [Trac](https://core.trac.wordpress.org) for issue tracking, which uses [WikiFormatting](https://core.trac.wordpress.org/wiki/WikiFormatting) - a syntax significantly different from Markdown. This tool helps users familiar with Markdown/GitHub easily compose and convert documents to WikiFormatting.
 
-## Features (v1.0.0)
+## Features
 
-- ✏️ **Live Editor**: Type or paste Markdown content
-- 🔄 **Real-time Preview**: See WikiFormatting output with 3-second debounce
-- ⚡ **Quick Update**: Press Tab or Escape for instant preview update
-- 📋 **Copy to Clipboard**: One-click copy of formatted WikiFormatting
-- 💾 **Auto-save**: Content persists using localStorage
-- ⌨️ **Keyboard Shortcuts**: Tab navigation, Escape to unfocus, CMD/CTRL+S to save
-- 📚 **Documentation Sidebar**: Quick links to WikiFormatting reference
+### Phase 1: Header Conversion ✅
+- ✏️ **Live Editor**: Type Markdown with real-time word/character counting
+- 🔄 **Header Conversion**: ATX-style headers (# to ######) → WikiFormatting (= to ======)
+- 🔒 **Security**: XSS prevention via HTML entity escaping
+- 📊 **Two Views**: Side-by-side Editor and WikiFormatting Preview
+
+### Phase 2: WikiFormatting Renderer ✅
+- 🎨 **Three-Column Layout**: Editor | WikiFormatting Syntax | Rendered Preview
+- 🖼️ **Live Rendering**: See how WikiFormatting appears on WordPress Trac
+- ⚡ **Instant Updates**: Real-time conversion pipeline (Markdown → WikiFormatting → Rendered HTML)
+- 🎯 **Trac-Accurate Styling**: Matches WordPress Trac theme with proper heading hierarchy
+- 📱 **Fully Responsive**: 3 columns on desktop → 2 on tablet → 1 on mobile
+- 🔒 **React-Safe Rendering**: Pure React components (no dangerouslySetInnerHTML)
+- 🔗 **Section Anchors**: Click-to-link ¶ symbols on headings
+
+### Coming Soon
+- 📋 **Copy to Clipboard**: One-click copy of WikiFormatting
+- 💾 **Auto-save**: Content persistence using localStorage
+- ⌨️ **Keyboard Shortcuts**: Tab, Escape, CMD/CTRL+S
+- 📚 **Documentation Sidebar**: Collapsible quick reference (already implemented, needs integration)
+- **Phase 3+**: Text formatting, lists, links, code blocks, tables, images
 
 ## Technology Stack
 
-- **React 18+**: UI components
-- **Marked**: Markdown parsing
-- **Turndown**: HTML to Markdown conversion
-- **Jest & Testing Library**: Comprehensive testing (80%+ coverage)
-- **LocalStorage**: Client-side persistence
+- **React 18.3+**: UI components with functional components & hooks
+- **Custom Converters**: Pure JavaScript converters (WordPress-portable)
+  - `converters/` - Markdown → WikiFormatting
+  - `renderers/` - WikiFormatting → React components
+- **Jest & @testing-library/react**: 198 tests, 100% coverage on converters
+- **CSS Grid**: Responsive three-column layout
+- **No external parsing libraries**: All conversion logic custom-built
 
 ## Getting Started
 
@@ -52,9 +68,10 @@ npm test
 npm run test:coverage
 ```
 
-**Coverage Requirements:**
-- Minimum 80% coverage across all metrics
-- 100% coverage for conversion functions
+**Current Status:**
+- ✅ 198 tests passing (9 test suites)
+- ✅ 100% coverage on converter functions
+- ✅ 2 security reviews passed (0 vulnerabilities)
 
 ### Building for Production
 
@@ -64,21 +81,37 @@ npm run build
 
 ## Development Workflow
 
-This project follows test-driven development:
+This project follows **test-driven development** with strict security requirements:
 
-1. Each feature is developed on its own commit
-2. Tests must pass before committing
-3. Coverage requirements must be met
-4. One feature at a time, iterative approach
+1. **Incremental Phases**: 9 phases planned, 2 completed (see PLAN.md)
+2. **Security First**: Every commit must pass `/security-review`
+3. **100% Test Coverage**: All converter functions fully tested
+4. **Branch Strategy**: Sequential merge-then-branch (feature → trunk → new feature)
+5. **Quality Gates**: 
+   - All tests pass (`npm test`)
+   - Security review passes
+   - 100% JSDoc documentation
+   - ESLint clean
 
 ## Roadmap
 
-- **v1.0.0** (Current): React POC with live editor and preview
+### Current Progress (2/9 phases complete)
+- ✅ **Phase 1**: Headers conversion (Markdown → WikiFormatting)
+- ✅ **Phase 2**: WikiFormatting renderer (three-column layout)
+- ⏳ **Phase 3**: Text formatting (bold, italic, code)
+- ⏳ **Phase 4**: Lists (ordered, unordered, nested)
+- ⏳ **Phase 5**: Links (external, wiki, automatic)
+- ⏳ **Phase 6**: Code blocks (fenced, syntax highlighting)
+- ⏳ **Phase 7**: Blockquotes
+- ⏳ **Phase 8**: Tables
+- ⏳ **Phase 9**: Images
+
+### Future Versions
 - **v1.0.1**: WordPress plugin - Convert Gutenberg blocks
-- **v1.1.0**: Multi-format conversion (doc, txt, Markdown)
+- **v1.1.0**: Multi-format conversion (doc, txt, Markdown files)
 - **v1.2.0**: Document upload and conversion
 - **v1.3.0**: Trac Preferences integration
-- **v2.0.0**: Public website with advertisements
+- **v2.0.0**: Public website deployment
 
 ## Project Structure
 
@@ -86,13 +119,22 @@ This project follows test-driven development:
 compose-wikiformatting/
 ├── src/
 │   ├── components/      # React components
-│   ├── converters/      # Markdown to WikiFormatting conversion
-│   ├── utils/           # Utility functions (storage, etc.)
-│   ├── App.jsx          # Main application component
+│   │   ├── Editor.jsx           # Markdown input with word/char count
+│   │   ├── Preview.jsx          # WikiFormatting syntax display
+│   │   ├── RenderedView.jsx     # Rendered HTML preview (Trac-style)
+│   │   └── Sidebar.jsx          # Documentation links
+│   ├── converters/      # Markdown → WikiFormatting
+│   │   ├── headers.js           # Header conversion logic
+│   │   └── markdownToWiki.js    # Main converter orchestrator
+│   ├── renderers/       # WikiFormatting → Display
+│   │   ├── wikiToReact.js       # WikiFormatting → React components
+│   │   └── wikiToHtml.js        # WikiFormatting → HTML (reference)
+│   ├── App.jsx          # Three-column layout & state management
 │   └── index.js         # Entry point
-├── tests/               # Test files mirroring src/ structure
 ├── public/              # Static assets
-└── docs/                # Documentation and cheatsheets
+├── docs/                # WikiFormatting cheatsheet
+├── PLAN.md              # 9-phase implementation plan
+└── CHANGELOG.md         # Detailed feature changelog
 ```
 
 ## Contributing
