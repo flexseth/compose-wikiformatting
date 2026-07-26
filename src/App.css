@@ -33,35 +33,50 @@
 }
 
 .content-area {
-  max-width: 1200px;
+  max-width: 100%;
   margin: 0 auto;
   width: 100%;
 }
 
-.editor-preview-container {
+/* Three-column layout: Editor | WikiFormatting | Rendered */
+.editor-preview-rendered-container {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1.5rem;
   height: calc(100vh - 200px);
   min-height: 500px;
 }
 
 .editor-column,
-.preview-column {
+.preview-column,
+.rendered-column {
   display: flex;
   flex-direction: column;
 }
 
+/* Responsive: 2 columns on tablets */
+@media (max-width: 1440px) {
+  .editor-preview-rendered-container {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .rendered-column {
+    grid-column: 1 / -1;
+  }
+}
+
 /* Responsive: Stack on smaller screens */
 @media (max-width: 1024px) {
-  .editor-preview-container {
+  .editor-preview-rendered-container {
     grid-template-columns: 1fr;
     gap: 1.5rem;
     height: auto;
   }
 
   .editor-column,
-  .preview-column {
+  .preview-column,
+  .rendered-column {
     min-height: 400px;
   }
 }
