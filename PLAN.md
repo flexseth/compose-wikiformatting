@@ -85,8 +85,50 @@
 
 ---
 
+### Phase 2.5: LocalStorage Persistence 💾
+**Branch:** `feature/localstorage` (from trunk after Phase 2)
+
+- [ ] Save editor content to localStorage on change
+- [ ] Restore editor content on page load
+- [ ] Clear storage functionality
+- [ ] **WordPress-ready**: Use attribute-like structure for easy conversion to block attributes
+- [ ] Debounced saves (avoid excessive writes)
+- [ ] Storage key namespacing
+- [ ] 100% coverage
+- [ ] JSDoc complete
+- [ ] **SECURITY REVIEW PASSED**
+
+**Purpose:** Persist user work across page reloads - essential for testing and user experience
+
+**Implementation Notes:**
+- Use patterns that map to WordPress block attributes (attribute-like structure)
+- Save format: `{ editorContent: string, timestamp: number }`
+- Storage key: `compose-wikiformatting-v1`
+- Debounce saves (500ms) to avoid excessive localStorage writes
+- Clear button in UI for privacy
+- This will translate to WordPress as block attributes when converting to plugin
+
+**WordPress Conversion Path:**
+```javascript
+// Current (localStorage):
+const saved = localStorage.getItem('compose-wikiformatting-v1');
+const { editorContent } = JSON.parse(saved);
+
+// Future (WordPress block attributes):
+attributes: {
+  editorContent: {
+    type: 'string',
+    default: ''
+  }
+}
+```
+
+**Status:** ⏳ Next (after Phase 2 merged)
+
+---
+
 ### Phase 3: Text Formatting
-**Branch:** `feature/convert-text` (from trunk after Phase 2)
+**Branch:** `feature/convert-text` (from trunk after Phase 2.5)
 
 - [ ] Bold ** → '''
 - [ ] Italic * → ''
@@ -191,8 +233,8 @@
 
 ## Progress
 
-**Completed:** 2/9 phases  
-**Security Reviews Passed:** 2/9  
-**Current:** Phase 2 complete, ready for review/merge. Phase 3 (Text Formatting) next.
+**Completed:** 2/10 phases (added Phase 2.5 for localStorage)  
+**Security Reviews Passed:** 2/10  
+**Current:** Phase 2 complete, ready for review/merge. Phase 2.5 (LocalStorage) next.
 
-**Last Updated:** 2026-07-25
+**Last Updated:** 2026-07-26
