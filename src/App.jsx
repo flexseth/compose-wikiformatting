@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import './App.css';
 import Sidebar from './components/Sidebar';
 import Editor from './components/Editor';
+import Preview from './components/Preview';
+import { convertMarkdownToWiki } from './converters';
 
 /**
  * Main Application Component
@@ -11,9 +13,14 @@ import Editor from './components/Editor';
  */
 function App() {
   const [editorContent, setEditorContent] = useState('');
+  const [wikiOutput, setWikiOutput] = useState('');
 
   const handleEditorChange = (value) => {
     setEditorContent(value);
+
+    // Convert Markdown to WikiFormatting
+    const converted = convertMarkdownToWiki(value);
+    setWikiOutput(converted);
   };
 
   return (
@@ -24,11 +31,19 @@ function App() {
       </header>
       <main className="App-main">
         <div className="content-area">
-          <div className="editor-section">
-            <Editor
-              value={editorContent}
-              onChange={handleEditorChange}
-            />
+          <div className="editor-preview-container">
+            <div className="editor-column">
+              <Editor
+                value={editorContent}
+                onChange={handleEditorChange}
+              />
+            </div>
+            <div className="preview-column">
+              <Preview
+                value={wikiOutput}
+                title="WikiFormatting Output"
+              />
+            </div>
           </div>
         </div>
       </main>
