@@ -1,0 +1,110 @@
+.preview-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 500px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background-color: #e9ecef;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.preview-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #282c34;
+}
+
+.preview-label {
+  display: flex;
+  align-items: center;
+}
+
+.label-text {
+  font-size: 0.75rem;
+  color: #6c757d;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.preview-textarea {
+  flex: 1;
+  padding: 1.25rem;
+  border: none;
+  outline: none;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #495057;
+  resize: none;
+  background-color: #f8f9fa;
+  cursor: default;
+}
+
+.preview-textarea::placeholder {
+  color: #adb5bd;
+  font-style: italic;
+}
+
+.preview-textarea:focus {
+  background-color: #f1f3f5;
+  outline: 2px solid #4a90e2;
+  outline-offset: -2px;
+}
+
+.preview-footer {
+  padding: 0.75rem 1.25rem;
+  background-color: #e9ecef;
+  border-top: 1px solid #dee2e6;
+}
+
+.preview-hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #6c757d;
+  text-align: center;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .preview-container {
+    min-height: 400px;
+  }
+
+  .preview-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .preview-textarea {
+    font-size: 0.9rem;
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .preview-container {
+    min-height: 300px;
+  }
+
+  .preview-header h3 {
+    font-size: 0.95rem;
+  }
+
+  .preview-hint {
+    font-size: 0.75rem;
+  }
+}
