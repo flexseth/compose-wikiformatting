@@ -72,6 +72,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Type safety validation
   - Real-time rendering pipeline: Markdown → WikiFormatting → React → Display
 
+  - Real-time rendering pipeline: Markdown → WikiFormatting → React → Display
+
+- **Phase 2.5: LocalStorage Persistence - Auto-Save & Restore**
+  - Storage utility: `src/utils/storage.js`
+    - WordPress-ready storage format: `{ editorContent: string, timestamp: number }`
+    - Storage key: `compose-wikiformatting-v1`
+    - Five functions: save, load, get full data, clear, check availability
+    - Type safety with TypeError for non-string content
+    - Graceful error handling (returns false on failure, empty string on missing data)
+    - 100% JSDoc documentation coverage
+  - Custom debounce hook: `src/utils/useDebounce.js`
+    - Generic debounce hook for any value
+    - Default 500ms delay (configurable)
+    - Prevents excessive localStorage writes on every keystroke
+    - Clean timeout management with proper cleanup
+  - App integration:
+    - Auto-restore content on page load (useEffect on mount)
+    - Debounced auto-save (500ms after typing stops)
+    - Clear storage function with confirmation prompt
+    - Preserves full conversion pipeline on load
+  - Comprehensive test suite (23 new tests for storage utilities)
+    - 100% test coverage on storage functions
+    - WordPress attribute compatibility tests
+    - Error handling and edge case testing
+    - Mock restoration to prevent test pollution
+  - WordPress conversion path documented for Phase 1.0.1 (plugin)
+
 ### Fixed
 - **Phase 2 Bug Fix**: Preserve WikiFormatting syntax in headers
   - Removed single quote escaping from `headers.js` escapeHtml function
@@ -82,6 +109,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Updated tests to verify WikiFormatting syntax preservation
   - Issue discovered during Phase 2 testing, fixed before merge
 
+### Security
 ### Security
 - HTML entity escaping in header converter prevents XSS attacks
 - Security review passed with zero vulnerabilities (Phase 1 & 2)

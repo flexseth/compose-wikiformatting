@@ -23,9 +23,15 @@ WordPress core uses [Trac](https://core.trac.wordpress.org) for issue tracking, 
 - 🔒 **React-Safe Rendering**: Pure React components (no dangerouslySetInnerHTML)
 - 🔗 **Section Anchors**: Click-to-link ¶ symbols on headings
 
+### Phase 2.5: LocalStorage Persistence ✅
+- 💾 **Auto-Save**: Content automatically saved to localStorage
+- 🔄 **Auto-Restore**: Content restored on page load
+- ⚡ **Debounced Saves**: 500ms delay prevents excessive writes
+- 🔧 **WordPress-Ready**: Storage format maps to block attributes for easy plugin conversion
+- 🧹 **Clear Storage**: Confirmation prompt before clearing saved data
+
 ### Coming Soon
 - 📋 **Copy to Clipboard**: One-click copy of WikiFormatting
-- 💾 **Auto-save**: Content persistence using localStorage
 - ⌨️ **Keyboard Shortcuts**: Tab, Escape, CMD/CTRL+S
 - 📚 **Documentation Sidebar**: Collapsible quick reference (already implemented, needs integration)
 - **Phase 3+**: Text formatting, lists, links, code blocks, tables, images
@@ -36,7 +42,7 @@ WordPress core uses [Trac](https://core.trac.wordpress.org) for issue tracking, 
 - **Custom Converters**: Pure JavaScript converters (WordPress-portable)
   - `converters/` - Markdown → WikiFormatting
   - `renderers/` - WikiFormatting → React components
-- **Jest & @testing-library/react**: 198 tests, 100% coverage on converters
+- **Jest & @testing-library/react**: 223 tests, 100% coverage on converters
 - **CSS Grid**: Responsive three-column layout
 - **No external parsing libraries**: All conversion logic custom-built
 
@@ -69,9 +75,9 @@ npm run test:coverage
 ```
 
 **Current Status:**
-- ✅ 198 tests passing (9 test suites)
+- ✅ 223 tests passing (10 test suites)
 - ✅ 100% coverage on converter functions
-- ✅ 2 security reviews passed (0 vulnerabilities)
+- ✅ 3 security reviews passed (0 vulnerabilities)
 
 ### Building for Production
 
@@ -83,7 +89,7 @@ npm run build
 
 This project follows **test-driven development** with strict security requirements:
 
-1. **Incremental Phases**: 9 phases planned, 2 completed (see PLAN.md)
+1. **Incremental Phases**: 10 phases planned, 2.5 completed (see PLAN.md)
 2. **Security First**: Every commit must pass `/security-review`
 3. **100% Test Coverage**: All converter functions fully tested
 4. **Branch Strategy**: Sequential merge-then-branch (feature → trunk → new feature)
@@ -95,9 +101,10 @@ This project follows **test-driven development** with strict security requiremen
 
 ## Roadmap
 
-### Current Progress (2/9 phases complete)
+### Current Progress (2.5/10 phases complete)
 - ✅ **Phase 1**: Headers conversion (Markdown → WikiFormatting)
 - ✅ **Phase 2**: WikiFormatting renderer (three-column layout)
+- ✅ **Phase 2.5**: LocalStorage persistence (auto-save/restore)
 - ⏳ **Phase 3**: Text formatting (bold, italic, code)
 - ⏳ **Phase 4**: Lists (ordered, unordered, nested)
 - ⏳ **Phase 5**: Links (external, wiki, automatic)
@@ -129,6 +136,9 @@ compose-wikiformatting/
 │   ├── renderers/       # WikiFormatting → Display
 │   │   ├── wikiToReact.js       # WikiFormatting → React components
 │   │   └── wikiToHtml.js        # WikiFormatting → HTML (reference)
+│   ├── utils/           # Utilities
+│   │   ├── storage.js           # LocalStorage with WordPress-ready format
+│   │   └── useDebounce.js       # Custom debounce hook
 │   ├── App.jsx          # Three-column layout & state management
 │   └── index.js         # Entry point
 ├── public/              # Static assets
