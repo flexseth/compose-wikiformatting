@@ -5,9 +5,10 @@
 **Sequential Merge-then-Branch:**
 1. ✅ Merge `add/editor` → `trunk` first
 2. Create `feature/convert-headers` from `trunk` (Phase 1)
-3. After Phase 1 merged: Create `feature/convert-text` from `trunk` (Phase 2)
-4. After Phase 2 merged: Create `feature/convert-lists` from `trunk` (Phase 3)
-... continue for all 8 phases
+3. After Phase 1 merged: Create `feature/wiki-renderer` from `trunk` (Phase 2)
+4. After Phase 2 merged: Create `feature/convert-text` from `trunk` (Phase 3)
+5. After Phase 3 merged: Create `feature/convert-lists` from `trunk` (Phase 4)
+... continue for all 9 phases
 
 **Benefits:** Clean history, individual reviews, easy reverts
 
@@ -55,8 +56,37 @@
 
 ---
 
-### Phase 2: Text Formatting
-**Branch:** `feature/convert-text` (from trunk after Phase 1)
+### Phase 2: WikiFormatting Renderer 🎨
+**Branch:** `feature/wiki-renderer` (from trunk after Phase 1)
+
+- [ ] Parse WikiFormatting to HTML
+- [ ] Render headers (= syntax)
+- [ ] Third view: Rendered output panel
+- [ ] **SECURITY: Sanitize HTML output**
+- [ ] **SECURITY: Prevent XSS in rendered HTML**
+- [ ] **SECURITY: Safe anchor links only**
+- [ ] Layout: Editor | WikiFormatting | Rendered (3 columns)
+- [ ] Responsive: stack on mobile/tablet
+- [ ] Styles match WordPress Trac theme
+- [ ] 100% coverage
+- [ ] JSDoc complete
+- [ ] **SECURITY REVIEW PASSED**
+
+**Purpose:** Show users what their WikiFormatting will look like on WordPress Trac
+
+**Implementation Notes:**
+- Create `src/renderers/wikiToHtml.js` for WikiFormatting → HTML conversion
+- Create `src/components/RenderedView.jsx` for HTML display
+- Use `dangerouslySetInnerHTML` ONLY after thorough sanitization
+- Each WikiFormatting element gets its own parser (headers first, expand with each phase)
+- Trac-like styling: monospace fonts for code, proper heading hierarchy, etc.
+
+**Status:** ⏳ Planned (next phase)
+
+---
+
+### Phase 3: Text Formatting
+**Branch:** `feature/convert-text` (from trunk after Phase 2)
 
 - [ ] Bold ** → '''
 - [ ] Italic * → ''
@@ -69,8 +99,8 @@
 
 ---
 
-### Phase 3: Lists  
-**Branch:** `feature/convert-lists` (from trunk after Phase 2)
+### Phase 4: Lists  
+**Branch:** `feature/convert-lists` (from trunk after Phase 3)
 
 - [ ] Unordered lists
 - [ ] Ordered lists
@@ -83,8 +113,8 @@
 
 ---
 
-### Phase 4: Links
-**Branch:** `feature/convert-links` (from trunk after Phase 3)
+### Phase 5: Links
+**Branch:** `feature/convert-links` (from trunk after Phase 4)
 
 - [ ] External links [text](url) → [url text]
 - [ ] **SECURITY: URL validation**
@@ -97,8 +127,8 @@
 
 ---
 
-### Phase 5: Code Blocks
-**Branch:** `feature/convert-code-blocks` (from trunk after Phase 4)
+### Phase 6: Code Blocks
+**Branch:** `feature/convert-code-blocks` (from trunk after Phase 5)
 
 - [ ] Fenced blocks ```lang
 - [ ] **SECURITY: Escape all code**
@@ -110,8 +140,8 @@
 
 ---
 
-### Phase 6: Blockquotes
-**Branch:** `feature/convert-blockquotes` (from trunk after Phase 5)
+### Phase 7: Blockquotes
+**Branch:** `feature/convert-blockquotes` (from trunk after Phase 6)
 
 - [ ] > quote → indent
 - [ ] **SECURITY: Sanitize content**
@@ -122,8 +152,8 @@
 
 ---
 
-### Phase 7: Tables
-**Branch:** `feature/convert-tables` (from trunk after Phase 6)
+### Phase 8: Tables
+**Branch:** `feature/convert-tables` (from trunk after Phase 7)
 
 - [ ] Pipe tables → ||
 - [ ] **SECURITY: Escape cells**
@@ -134,8 +164,8 @@
 
 ---
 
-### Phase 8: Images
-**Branch:** `feature/convert-images` (from trunk after Phase 7)
+### Phase 9: Images
+**Branch:** `feature/convert-images` (from trunk after Phase 8)
 
 - [ ] ![alt](url) → [[Image()]]
 - [ ] **SECURITY: URL validation**
@@ -161,8 +191,8 @@
 
 ## Progress
 
-**Completed:** 1/8 phases  
-**Security Reviews Passed:** 1/8  
-**Current:** Phase 1 complete, ready for review/merge
+**Completed:** 1/9 phases  
+**Security Reviews Passed:** 1/9  
+**Current:** Phase 1 complete, ready for review/merge. Phase 2 (Renderer) next.
 
 **Last Updated:** 2026-07-25
