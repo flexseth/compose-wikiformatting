@@ -50,7 +50,11 @@ export function convertLinks(text) {
   // Convert Markdown external links: [text](url) → [url text]
   // Non-greedy matching to handle multiple links per line
   // Matches: [any text](any url)
-  result = result.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '[$2 $1]');
+  // Convert Markdown external links [text](url) → WikiFormatting [url text]
+  // Lazy match (.*?) with lookahead for space/punctuation/bracket/end
+  // This handles URLs with parentheses (Wikipedia-style) while stopping at the right )
+  // Skip conversion if URL is empty (keeps malformed [text]() as-is)
+  result = result.replace(/\[([^\]]+)\]\((.+?)\)(?=\s|[,.\]!?;:]|\[|$)/g, '[$2 $1]');
 
   // Wiki links [[WikiPage]] and automatic URLs are already compatible
   // No conversion needed - they use the same syntax in both formats

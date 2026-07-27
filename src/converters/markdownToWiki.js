@@ -65,13 +65,15 @@ export function convertMarkdownToWiki(markdown, options = {}) {
   // Must be done line-by-line to avoid conflicts with other syntax
   result = convertHeaders(result);
 
-  // Phase 3: Convert text formatting (bold, italic)
-  // Applied line-by-line to handle formatting within headers and content
-  result = result.split('\n').map(line => convertTextFormatting(line)).join('\n');
-
-  // Phase 4: Convert links
-  // Applied line-by-line after text formatting (links can contain formatted text)
+  // Phase 4: Convert links FIRST (before text formatting)
+  // This prevents text formatting from mangling URLs with underscores
+  // Example: Object-oriented_programming would become Object-oriented''programming''
   result = result.split('\n').map(line => convertLinks(line)).join('\n');
+
+  // Phase 3: Convert text formatting (bold, italic)
+  // Applied AFTER links so formatting can be applied to link text
+  // Links are now in WikiFormatting [url text] format, safe from underscore conversion
+  result = result.split('\n').map(line => convertTextFormatting(line)).join('\n');
 
   // Future phases: Additional conversions will be added here
   // - Code blocks
