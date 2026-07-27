@@ -72,8 +72,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Type safety validation
   - Real-time rendering pipeline: Markdown → WikiFormatting → React → Display
 
-  - Real-time rendering pipeline: Markdown → WikiFormatting → React → Display
-
 - **Phase 2.5: LocalStorage Persistence - Auto-Save & Restore**
   - Storage utility: `src/utils/storage.js`
     - WordPress-ready storage format: `{ editorContent: string, timestamp: number }`
@@ -108,8 +106,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Column 3 (Rendered View) now properly renders italic/bold in headers
   - Updated tests to verify WikiFormatting syntax preservation
   - Issue discovered during Phase 2 testing, fixed before merge
+- **Phase 2 Test Fix**: Correct test syntax in headers.test.js
+  - Tests now use Markdown syntax as input (not WikiFormatting)
+  - Lines 99 & 103: Changed from WikiFormatting markers to Markdown markers
+  - Added comments documenting Phase 3 inline formatting pending
+  - Updated test names to reflect current behavior (preserve markers until Phase 3)
 
-### Security
 ### Security
 - HTML entity escaping in header converter prevents XSS attacks
 - Security review passed with zero vulnerabilities (Phase 1 & 2)
