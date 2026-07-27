@@ -97,6 +97,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Mock restoration to prevent test pollution
   - WordPress conversion path documented for Phase 1.0.1 (plugin)
 
+- **Phase 3: Text Formatting Conversion - Bold & Italic**
+  - Core module: `src/converters/textFormatting.js`
+    - Converts Markdown bold (**text** or __text__) to WikiFormatting ('''text''')
+    - Converts Markdown italic (*text* or _text_) to WikiFormatting (''text'')
+    - Converts bold+italic (***text***) to WikiFormatting ('''''text''''')
+    - Regex-based conversion with boundary detection (no spaces after/before markers)
+    - Handles nested and mixed formatting
+    - Type safety with TypeError for non-string inputs
+    - 100% JSDoc documentation coverage
+  - Integration into `markdownToWiki.js` pipeline
+    - Applied line-by-line after header conversion
+    - Works in both headers and body text
+    - Preserves inline code and strikethrough (same syntax in both formats)
+  - Comprehensive test suite (40 text formatting tests + 9 integration tests)
+    - 100% test coverage on textFormatting.js
+    - Real-world examples tested (documentation, bug reports, mixed formatting)
+    - Edge cases: unpaired markers, special characters, Unicode, emojis
+    - Type safety validation
+  - Security review passed (0 vulnerabilities)
+    - Text-to-text transformation (no HTML escaping required)
+    - React rendering layer provides XSS protection
+    - No dangerouslySetInnerHTML usage
+
 ### Fixed
 - **Phase 2 Bug Fix**: Preserve WikiFormatting syntax in headers
   - Removed single quote escaping from `headers.js` escapeHtml function

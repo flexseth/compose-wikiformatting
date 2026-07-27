@@ -30,6 +30,14 @@ WordPress core uses [Trac](https://core.trac.wordpress.org) for issue tracking, 
 - 🔧 **WordPress-Ready**: Storage format maps to block attributes for easy plugin conversion
 - 🧹 **Clear Storage**: Confirmation prompt before clearing saved data
 
+### Phase 3: Text Formatting ✅
+- **Bold**: `**text**` or `__text__` → `'''text'''`
+- **Italic**: `*text*` or `_text_` → `''text''`
+- **Bold+Italic**: `***text***` → `'''''text'''''`
+- 🔄 **Full Pipeline**: Formatting converts in headers and body text
+- 🎯 **Smart Boundaries**: Proper detection (no spaces after/before markers)
+- 🧪 **40 Tests**: 100% coverage on text formatting conversion
+
 ### Coming Soon
 - 📋 **Copy to Clipboard**: One-click copy of WikiFormatting
 - ⌨️ **Keyboard Shortcuts**: Tab, Escape, CMD/CTRL+S
@@ -42,7 +50,7 @@ WordPress core uses [Trac](https://core.trac.wordpress.org) for issue tracking, 
 - **Custom Converters**: Pure JavaScript converters (WordPress-portable)
   - `converters/` - Markdown → WikiFormatting
   - `renderers/` - WikiFormatting → React components
-- **Jest & @testing-library/react**: 223 tests, 100% coverage on converters
+- **Jest & @testing-library/react**: 272 tests, 100% coverage on converters
 - **CSS Grid**: Responsive three-column layout
 - **No external parsing libraries**: All conversion logic custom-built
 
@@ -75,9 +83,9 @@ npm run test:coverage
 ```
 
 **Current Status:**
-- ✅ 223 tests passing (10 test suites)
+- ✅ 272 tests passing (11 test suites)
 - ✅ 100% coverage on converter functions
-- ✅ 3 security reviews passed (0 vulnerabilities)
+- ✅ 4 security reviews passed (0 vulnerabilities)
 
 ### Building for Production
 
@@ -89,7 +97,7 @@ npm run build
 
 This project follows **test-driven development** with strict security requirements:
 
-1. **Incremental Phases**: 10 phases planned, 2.5 completed (see PLAN.md)
+1. **Incremental Phases**: 10 phases planned, 3 completed (see PLAN.md)
 2. **Security First**: Every commit must pass `/security-review`
 3. **100% Test Coverage**: All converter functions fully tested
 4. **Branch Strategy**: Sequential merge-then-branch (feature → trunk → new feature)
@@ -101,11 +109,12 @@ This project follows **test-driven development** with strict security requiremen
 
 ## Roadmap
 
-### Current Progress (2.5/10 phases complete)
+### Current Progress (3/10 phases complete)
 - ✅ **Phase 1**: Headers conversion (Markdown → WikiFormatting)
 - ✅ **Phase 2**: WikiFormatting renderer (three-column layout)
 - ✅ **Phase 2.5**: LocalStorage persistence (auto-save/restore)
-- ⏳ **Phase 3**: Text formatting (bold, italic, code)
+- ✅ **Phase 3**: Text formatting (bold, italic)
+- ⏳ **Phase 4**: Lists (ordered, unordered, nested)
 - ⏳ **Phase 4**: Lists (ordered, unordered, nested)
 - ⏳ **Phase 5**: Links (external, wiki, automatic)
 - ⏳ **Phase 6**: Code blocks (fenced, syntax highlighting)
