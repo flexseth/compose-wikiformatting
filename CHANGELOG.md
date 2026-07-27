@@ -120,6 +120,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - React rendering layer provides XSS protection
     - No dangerouslySetInnerHTML usage
 
+- **Phase 3.5: Text Formatting Renderer - Bold & Italic Display**
+  - Enhanced renderer module: `src/renderers/wikiToReact.js`
+    - Extended `parseInlineFormatting()` to handle all text formatting
+    - Bold rendering: `'''text'''` → `<strong>text</strong>`
+    - Italic rendering: `''text''` → `<em>text</em>`
+    - Bold+Italic rendering: `'''''text'''''` → `<strong><em>text</em></strong>`
+    - Regex matching priority: bold+italic (5 quotes) before bold (3) or italic (2)
+  - Updated paragraph rendering to parse inline formatting (not just headers)
+  - Completes text formatting cycle: conversion (Phase 3) + rendering (Phase 3.5)
+  - Fixes gap identified in testing: Column 3 now displays bold/italic in body text
+  - Security review passed (0 vulnerabilities)
+    - React auto-escaping active (all content as text nodes)
+    - No dangerouslySetInnerHTML usage
+    - Hardcoded element types
+    - Consistent with Phase 2 security patterns
+  - All 272 tests passing
+  - Renderer extends existing Phase 2 pattern (already tested)
+
 ### Fixed
 - **Phase 2 Bug Fix**: Preserve WikiFormatting syntax in headers
   - Removed single quote escaping from `headers.js` escapeHtml function

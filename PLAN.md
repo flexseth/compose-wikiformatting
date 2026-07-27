@@ -139,7 +139,7 @@ attributes: {
 - [x] **SECURITY: Text formatting safe (no HTML in markers)**
 - [x] 100% coverage (40 text formatting tests + 9 integration tests)
 - [x] JSDoc complete
-- [ ] **SECURITY REVIEW** - Pending
+- [x] **SECURITY REVIEW PASSED**
 
 **Implementation:**
 - ✅ `src/converters/textFormatting.js` - Text formatting conversion
@@ -148,7 +148,30 @@ attributes: {
 - ✅ Handles nested/mixed formatting
 - ✅ 40 dedicated tests + 9 integration tests
 
-**Status:** ✅ Complete (272 tests passing, awaiting security review)
+**Status:** ✅ Complete (272 tests passing, security review passed)
+
+---
+
+### Phase 3.5: Text Formatting Renderer ✅
+**Branch:** `feature/text-formatting` (continued from Phase 3)
+
+- [x] Render bold: `'''text'''` → `<strong>text</strong>`
+- [x] Render italic: `''text''` → `<em>text</em>`
+- [x] Render bold+italic: `'''''text'''''` → `<strong><em>text</em></strong>`
+- [x] Update paragraph rendering to parse inline formatting
+- [x] **SECURITY: React auto-escaping, no dangerouslySetInnerHTML**
+- [x] Extends Phase 2 pattern (already tested)
+- [x] **SECURITY REVIEW PASSED**
+
+**Purpose:** Fix gap from Phase 3 testing - rendered preview (Column 3) now displays bold/italic in body text, not just headers.
+
+**Implementation:**
+- ✅ Enhanced `parseInlineFormatting()` in `src/renderers/wikiToReact.js`
+- ✅ Regex priority: bold+italic (5 quotes) before bold (3) or italic (2)
+- ✅ Paragraph rendering now parses formatting
+- ✅ All 272 tests passing
+
+**Status:** ✅ Complete (security review passed, rendering works in all contexts)
 
 ---
 
@@ -244,8 +267,8 @@ attributes: {
 
 ## Progress
 
-**Completed:** 2/10 phases (added Phase 2.5 for localStorage)  
-**Security Reviews Passed:** 2/10  
-**Current:** Phase 2 complete, ready for review/merge. Phase 2.5 (LocalStorage) next.
+**Completed:** 3.5/10 phases (Phases 1, 2, 2.5, 3, 3.5)  
+**Security Reviews Passed:** 5/10 (all completed phases)  
+**Current:** Phase 3 + 3.5 complete on `feature/text-formatting` branch. Text formatting conversion and rendering fully implemented.
 
-**Last Updated:** 2026-07-26
+**Last Updated:** 2026-07-27
