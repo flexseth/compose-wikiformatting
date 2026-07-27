@@ -2,15 +2,39 @@
 
 ## 🔀 Branching Strategy
 
-**Sequential Merge-then-Branch:**
-1. ✅ Merge `add/editor` → `trunk` first
-2. Create `feature/convert-headers` from `trunk` (Phase 1)
-3. After Phase 1 merged: Create `feature/wiki-renderer` from `trunk` (Phase 2)
-4. After Phase 2 merged: Create `feature/convert-text` from `trunk` (Phase 3)
-5. After Phase 3 merged: Create `feature/convert-lists` from `trunk` (Phase 4)
-... continue for all 9 phases
+### Portfolio Approach: Feature Branch Development
 
-**Benefits:** Clean history, individual reviews, easy reverts
+**Two Patterns:**
+
+**Pattern 1: Sequential Merge-then-Branch** (Simple phases)
+1. Create `feature/phase-name` from `trunk`
+2. Implement, test, security review
+3. Merge to `trunk`
+4. Create next feature branch from `trunk`
+
+**Pattern 2: Base Feature Branch** (Complex/related phases) ⭐ **CURRENT**
+1. Create base feature branch (e.g., `feature/text-formatting`)
+2. Build initial implementation directly on base branch
+3. **For additional functionality:**
+   - Create sub-branch from base feature: `feature/sub-functionality`
+   - Implement, test, security review on sub-branch
+   - Create PR: `feature/sub-functionality` → `feature/base-feature`
+   - Merge to base feature (keep sub-branch)
+   - Continue building on base feature or create new sub-branch
+4. When feature complete, merge base feature → `trunk`
+
+**Current Example: Text Formatting (Phases 3 + 3.5)**
+- Base: `feature/text-formatting` (Phase 3 conversion)
+- Sub: `feature/rendered-preview` (Phase 3.5 rendering) → merged back to base
+- Result: Complete text formatting implementation on one feature branch
+- Next: Continue with Phase 4 on `feature/text-formatting`, or merge to trunk first
+
+**Benefits:** 
+- Related work stays together
+- Sub-branches allow focused PRs and reviews
+- Base branch becomes integration point for a feature area
+- All branches preserved (portfolio approach - never delete)
+- Flexible: can add functionality incrementally before merging to trunk
 
 ---
 
@@ -175,40 +199,32 @@ attributes: {
 
 ---
 
-### Phase 4: Lists  
-**Branch:** `feature/convert-lists` (from trunk after Phase 3)
+### Phase 4: Links
+**Branch:** `feature/links` (sub-branch from `feature/text-formatting`)
 
-- [ ] Unordered lists
-- [ ] Ordered lists
-- [ ] Nested lists
-- [ ] **SECURITY: Sanitize items**
-- [ ] 100% coverage
-- [ ] **SECURITY REVIEW PASSED**
-
-**Status:** ⏳ Planned
-
----
-
-### Phase 5: Links
-**Branch:** `feature/convert-links` (from trunk after Phase 4)
-
-- [ ] External links [text](url) → [url text]
+- [ ] External links: `[text](url)` → `[url text]`
+- [ ] Wiki links: `[[WikiPage]]` → `[[WikiPage]]`  
+- [ ] Automatic URL detection
+- [ ] Link rendering: `<a href="...">` elements
 - [ ] **SECURITY: URL validation**
 - [ ] **SECURITY: Prevent javascript: URLs**
 - [ ] **SECURITY: Malicious URL tests**
 - [ ] 100% coverage
 - [ ] **SECURITY REVIEW PASSED**
 
-**Status:** ⏳ Planned
+**Status:** ⏳ Next (simpler than lists, tackle first)
 
 ---
 
-### Phase 6: Code Blocks
-**Branch:** `feature/convert-code-blocks` (from trunk after Phase 5)
+### Phase 5: Code Blocks
+**Branch:** `feature/code-blocks` (sub-branch from `feature/text-formatting`)
 
-- [ ] Fenced blocks ```lang
-- [ ] **SECURITY: Escape all code**
-- [ ] Language detection
+- [ ] Fenced code blocks: ` ```lang ` → `{{{#!lang `
+- [ ] Inline code: `` `code` `` → `` `code` `` (no change)
+- [ ] Language detection (JavaScript, PHP, HTML, CSS, Markdown)
+- [ ] Code block rendering: `<pre><code>` elements
+- [ ] Syntax highlighting consideration (Trac-compatible)
+- [ ] **SECURITY: Escape all code content**
 - [ ] 100% coverage
 - [ ] **SECURITY REVIEW PASSED**
 
@@ -216,10 +232,12 @@ attributes: {
 
 ---
 
-### Phase 7: Blockquotes
-**Branch:** `feature/convert-blockquotes` (from trunk after Phase 6)
+### Phase 6: Blockquotes
+**Branch:** `feature/blockquotes` (sub-branch from `feature/text-formatting`)
 
-- [ ] > quote → indent
+- [ ] Blockquote: `> text` → indentation
+- [ ] Nested blockquotes
+- [ ] Blockquote rendering: `<blockquote>` elements
 - [ ] **SECURITY: Sanitize content**
 - [ ] 100% coverage
 - [ ] **SECURITY REVIEW PASSED**
@@ -228,11 +246,14 @@ attributes: {
 
 ---
 
-### Phase 8: Tables
-**Branch:** `feature/convert-tables` (from trunk after Phase 7)
+### Phase 7: Tables
+**Branch:** `feature/tables` (sub-branch from `feature/text-formatting`)
 
-- [ ] Pipe tables → ||
-- [ ] **SECURITY: Escape cells**
+- [ ] Pipe tables: `| col |` → `|| col ||`
+- [ ] Header rows
+- [ ] Cell alignment
+- [ ] Table rendering: `<table><tr><td>` elements
+- [ ] **SECURITY: Escape cell content**
 - [ ] 100% coverage
 - [ ] **SECURITY REVIEW PASSED**
 
@@ -240,16 +261,43 @@ attributes: {
 
 ---
 
-### Phase 9: Images
-**Branch:** `feature/convert-images` (from trunk after Phase 8)
+### Phase 8: Images
+**Branch:** `feature/images` (sub-branch from `feature/text-formatting`)
 
-- [ ] ![alt](url) → [[Image()]]
+- [ ] Image syntax: `![alt](url)` → `[[Image(url)]]`
+- [ ] Alt text handling
+- [ ] Image rendering: `<img>` elements
 - [ ] **SECURITY: URL validation**
-- [ ] **SECURITY: Sanitize alt**
+- [ ] **SECURITY: Sanitize alt text**
 - [ ] 100% coverage
 - [ ] **SECURITY REVIEW PASSED**
 
 **Status:** ⏳ Planned
+
+---
+
+### Phase 9: Lists (MOVED - Complex, implement last)
+**Branch:** `feature/lists` (sub-branch from `feature/text-formatting`)
+
+📋 **[→ Detailed Implementation Plan](./PLAN_phase9-lists.md)** - Comprehensive 8-part plan covering all Markdown list syntaxes, nesting strategies, rendering algorithms, 100+ test cases, and week-by-week implementation schedule.
+
+**Why Last:** Lists are the most complex feature with:
+- Multiple syntax variations (`*`, `-`, `+`, `1.`, `1)`)
+- Complex nesting rules (indentation-based)
+- Mixed list types (ordered inside unordered)
+- Multi-line item handling
+- Loose vs tight list detection
+
+**High-Level Checklist:**
+- [ ] **Conversion:** All Markdown list syntaxes → WikiFormatting
+- [ ] **Nesting:** 2/4-space and tab indentation, mixed list types
+- [ ] **Content:** Single/multi-line items, inline formatting, loose lists
+- [ ] **Rendering:** React `<ul>`/`<ol>`/`<li>` elements with proper nesting
+- [ ] **Tests:** 100+ tests (60+ converter, 40+ renderer), 100% coverage
+- [ ] **Security:** Sanitize content, prevent XSS, React auto-escaping
+- [ ] **SECURITY REVIEW PASSED**
+
+**Status:** ⏳ Planned (implement after Phases 4-8 complete)
 
 ---
 
