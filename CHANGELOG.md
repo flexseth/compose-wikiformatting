@@ -138,6 +138,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - All 272 tests passing
   - Renderer extends existing Phase 2 pattern (already tested)
 
+- **Phase 4a: Links Conversion - Markdown to WikiFormatting**
+  - Core module: `src/converters/links.js`
+    - Converts Markdown external links: `[text](url)` → `[url text]`
+    - Preserves WikiFormatting wiki links: `[[WikiPage]]` (no change)
+    - Preserves automatic URLs: `http://example.com` (no change)
+    - Regex-based conversion with non-greedy matching
+    - Handles multiple links per line
+    - Type safety with TypeError for non-string inputs
+    - 100% JSDoc documentation coverage
+  - Integration into `markdownToWiki.js` pipeline
+    - Applied line-by-line after text formatting
+    - Links can contain formatted text (bold, italic)
+    - Conversion order: Headers → Text Formatting → Links
+  - Comprehensive test suite (42 test cases)
+    - 100% test coverage on links.js
+    - External links: simple, https, paths, queries, fragments
+    - Wiki links and automatic URLs preserved
+    - Edge cases: empty text/URL, malformed links, special characters
+    - Real-world examples: documentation, GitHub links, Trac references
+    - Type safety validation
+  - Security review passed (0 vulnerabilities)
+    - Text-to-text transformation (no HTML generation in conversion phase)
+    - No injection vectors (simple regex replacement)
+    - React rendering layer will provide XSS protection (Phase 4b)
+    - Dangerous URL protocols intentionally not validated (Phase 4b scope)
+  - Known limitations (to be addressed in Phase 4b):
+    - URLs with parentheses (Wikipedia-style) may be truncated
+    - URL scheme validation deferred to rendering phase
+    - Proper URL parsing will use URL constructor in Phase 4b
+
 ### Fixed
 - **Phase 2 Bug Fix**: Preserve WikiFormatting syntax in headers
   - Removed single quote escaping from `headers.js` escapeHtml function
