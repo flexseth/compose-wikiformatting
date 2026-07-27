@@ -15,10 +15,14 @@
  *   - Bold ('''text''')
  *   - Italic (''text'')
  *   - Bold+Italic ('''''text''''')
+ * - Links (Phase 4b):
+ *   - External links: [url text]
+ *   - Wiki links: [[WikiPage]]
+ *   - URL scheme validation (http, https, Trac-specific)
+ *   - Links with inline formatting
  *
  * Future phases will add:
  * - Lists
- * - Links
  * - Code blocks
  * - Blockquotes
  * - Tables
@@ -60,6 +64,143 @@ function generateId(text) {
     .replace(/[^\w\s-]/g, '')
     .replace(/\s+/g, '')
     .replace(/-+/g, '-');
+}
+
+/**
+ * Validate URL scheme for security
+ *
+ * Checks if a URL uses an allowed protocol scheme.
+ * Rejects dangerous protocols like javascript:, data:, vbscript:, file:
+ *
+ * @private
+ * @param {string} url - URL to validate
+ * @returns {boolean} True if URL scheme is safe, false otherwise
+ *
+ * @example
+ * isValidUrlScheme('https://example.com')
+ * // Returns: true
+ *
+ * @example
+ * isValidUrlScheme('wiki:WikiPageName')
+ * // Returns: true
+ *
+ * @example
+ * isValidUrlScheme('javascript:alert(1)')
+ * // Returns: false
+ *
+ * @security Allowlist approach: http, https, and Trac-specific schemes only
+ */
+function isValidUrlScheme(url) {
+  // Allowlist of safe URL schemes
+  // External: http, https
+  // Trac-specific: wiki, ticket, changeset, source, comment
+  const allowedSchemes = ['http:', 'https:', 'wiki:', 'ticket:', 'changeset:', 'source:', 'comment:'];
+
+  try {
+    // Use URL constructor for proper parsing
+    const parsed = new URL(url);
+    return allowedSchemes.includes(parsed.protocol);
+  } catch (e) {
+    // URL constructor doesn't recognize Trac schemes, check manually
+    for (const scheme of allowedSchemes) {
+      if (url.startsWith(scheme)) {
+        return true;
+      }
+    }
+    // If URL parsing fails and it's not a Trac scheme, treat as relative URL (safe)
+    // Relative URLs like "/wiki/Page" don't have a protocol
+    return !url.includes(':') || url.startsWith('/');
+  }
+}
+
+/**
+ * Parse links in WikiFormatting text to React elements
+ *
+ * Handles both external links [url text] and wiki links [[WikiPage]].
+ * Validates URL schemes for security.
+ *
+ * @private
+ * @param {string} text - Text that may contain links
+ * @param {number} keyOffset - Starting key number for React elements
+ * @returns {Array<string|React.Element>} Array of text and React elements
+ *
+ * @example
+ * parseLinks('[https://example.com Example]', 0)
+ * // Returns: [<a href="https://example.com">Example</a>]
+ *
+ * @example
+ * parseLinks('[[WikiPage]]', 0)
+ * // Returns: [<a href="/wiki/WikiPage">WikiPage</a>]
+ *
+ * @security
+ * - Validates URL schemes (http, https, Trac-specific)
+ * - React auto-escapes text content
+ * - href attributes are validated before rendering
+ */
+function parseLinks(text, keyOffset = 0) {
+  const parts = [];
+  let keyCounter = keyOffset;
+
+  // Combined regex for external links [url text] and wiki links [[WikiPage]]
+  // Non-greedy matching for link content
+  const linkRegex = /\[\[([^\]]+)\]\]|\[([^\s\]]+)\s+([^\]]+)\]/g;
+  let match;
+  let lastIndex = 0;
+
+  while ((match = linkRegex.exec(text)) !== null) {
+    // Add text before the match
+    if (match.index > lastIndex) {
+      const beforeText = text.substring(lastIndex, match.index);
+      // Parse inline formatting in the text before the link
+      parts.push(...parseInlineFormatting(beforeText));
+    }
+
+    if (match[1] !== undefined) {
+      // Wiki link: [[WikiPage]]
+      const pageName = match[1];
+      parts.push(
+        <a
+          key={`wikilink-${keyCounter++}`}
+          href={`/wiki/${pageName}`}
+        >
+          {pageName}
+        </a>
+      );
+    } else if (match[2] !== undefined && match[3] !== undefined) {
+      // External link: [url text]
+      const url = match[2];
+      const linkText = match[3];
+
+      // Validate URL scheme
+      if (isValidUrlScheme(url)) {
+        // Parse inline formatting in link text (bold/italic)
+        const formattedLinkText = parseInlineFormatting(linkText);
+
+        parts.push(
+          <a
+            key={`link-${keyCounter++}`}
+            href={url}
+          >
+            {formattedLinkText}
+          </a>
+        );
+      } else {
+        // Dangerous URL - render as plain text to preserve content but prevent execution
+        parts.push(`[${url} ${linkText}]`);
+      }
+    }
+
+    lastIndex = match.index + match[0].length;
+  }
+
+  // Add remaining text
+  if (lastIndex < text.length) {
+    const afterText = text.substring(lastIndex);
+    parts.push(...parseInlineFormatting(afterText));
+  }
+
+  // If no matches found, parse for inline formatting
+  return parts.length > 0 ? parts : parseInlineFormatting(text);
 }
 
 /**
@@ -179,8 +320,8 @@ function convertHeaderToReact(line, lineIndex) {
   // Generate ID (explicit or auto-generated)
   const headingId = explicitId || generateId(headerText);
 
-  // Parse inline WikiFormatting in header text
-  const formattedContent = parseInlineFormatting(headerText);
+  // Parse inline WikiFormatting and links in header text
+  const formattedContent = parseLinks(headerText, 0);
 
   // Create the heading element
   const HeadingTag = `h${level}`;
@@ -253,8 +394,8 @@ export function convertWikiToReact(wikiText, options = {}) {
       const element = convertHeaderToReact(line, index);
 
       if (typeof element === 'string') {
-        // Not a header, add as paragraph with inline formatting
-        const formattedContent = parseInlineFormatting(element);
+        // Not a header, add as paragraph with inline formatting and links
+        const formattedContent = parseLinks(element, 0);
         elements.push(
           <p key={`p-${index}`}>{formattedContent}</p>
         );
