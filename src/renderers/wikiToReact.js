@@ -89,6 +89,13 @@ function generateId(text) {
  * // Returns: false
  *
  * @security Allowlist approach: http, https, and Trac-specific schemes only
+ *
+ * @designdecision Protocol-relative URLs (//example.com) are ALLOWED BY DESIGN
+ * Rationale: This is a composition tool for creating Trac content. Trac enforces
+ * security when content is published. No security risk in single-user preview
+ * context. Blocking would prevent legitimate use cases without security benefit.
+ * Security boundary: Trac (publication), not this tool (composition).
+ * See: DECISIONS_phase4b_security.md
  */
 function isValidUrlScheme(url) {
   // Allowlist of safe URL schemes
@@ -109,6 +116,7 @@ function isValidUrlScheme(url) {
     }
     // If URL parsing fails and it's not a Trac scheme, treat as relative URL (safe)
     // Relative URLs like "/wiki/Page" don't have a protocol
+    // Note: This allows protocol-relative URLs (//example.com) - see @designdecision
     return !url.includes(':') || url.startsWith('/');
   }
 }
@@ -158,6 +166,18 @@ function parseLinks(text, keyOffset = 0) {
     if (match[1] !== undefined) {
       // Wiki link: [[WikiPage]]
       const pageName = match[1];
+
+      // User-friendly validation: Reject path traversal sequences in wiki page names
+      // Wiki pages use identifiers, not filesystem paths (../ is not valid wiki syntax)
+      // This helps catch errors and aligns with Trac behavior
+      // See: DECISIONS_phase4b_security.md - Design Decision #2
+      if (pageName.includes('../') || pageName.includes('..\\')) {
+        // Render as plain text to make invalid page name obvious
+        parts.push(`[[${pageName}]]`);
+        lastIndex = match.index + match[0].length;
+        continue;
+      }
+
       parts.push(
         <a
           key={`wikilink-${keyCounter++}`}

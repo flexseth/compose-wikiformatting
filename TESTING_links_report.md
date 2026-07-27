@@ -141,9 +141,9 @@ Text formatting conversion (Phase 3) runs AFTER link conversion (Phase 4a), but 
 
 ---
 
-### 🟡 Issue #2: Protocol-Relative URLs Allowed
+### 🟢 Design Decision #1: Protocol-Relative URLs - ALLOWED BY DESIGN
 
-**Severity:** LOW (security false positive)  
+**Status:** ✅ ALLOWED (Intentional Design Decision)  
 **Component:** Phase 4b (Rendering)  
 **Test Case:** Security Edge Cases - Protocol-Relative URL
 
@@ -152,11 +152,11 @@ Text formatting conversion (Phase 3) runs AFTER link conversion (Phase 4a), but 
 Protocol-relative: [//example.com Site].
 ```
 
-**Current Behavior:**
+**Behavior:**
 ```html
 <a href="//example.com">Site</a>
 ```
-- Link IS rendered (clickable)
+- Link renders as clickable
 - Browser interprets `//example.com` as protocol-relative (uses current protocol)
 
 **Security Analysis:**
@@ -165,21 +165,28 @@ Protocol-relative: [//example.com Site].
 - Reason: Single-user application, no multi-user attack vector
 - User can only create links they will see themselves
 
-**Design Decision Needed:**
-1. **Keep allowing** (current behavior) - URLs like `//example.com` work
-2. **Block** (conservative approach) - Reject protocol-relative URLs
+**Design Decision: ALLOW**
 
-**Recommendation:** Keep allowing. No security risk in this context.
+**Rationale:**
+1. **Tool Purpose**: This is a composition tool for creating Trac content
+2. **Security Boundary**: Trac enforces security at publication, not this preview tool
+3. **Legitimate Use**: Protocol-relative URLs are valid web convention
+4. **User Flexibility**: Don't block potentially intentional input
+5. **Precedent**: Other composition tools (VS Code, Notion) allow all URLs
 
-**Code Location:**
-- `src/renderers/wikiToReact.js` - Line 112 (`isValidUrlScheme()` fallback logic)
-- Currently allows URLs starting with `/`
+**Implementation:**
+- ✅ Keep current behavior (allows `//example.com`)
+- ✅ Add documentation in `isValidUrlScheme()` explaining decision
+- ✅ Document in `DECISIONS_phase4b_security.md`
+
+**Quote from Analysis:**
+> "This is a composition tool. Security is enforced by Trac when content is published, not by this preview tool."
 
 ---
 
-### 🟡 Issue #3: Path Traversal in Wiki Links Allowed
+### 🔵 Design Decision #2: Path Traversal in Wiki Links - BLOCKED
 
-**Severity:** LOW (security false positive)  
+**Status:** ❌ BLOCKED (User-Friendly Validation)  
 **Component:** Phase 4b (Rendering)  
 **Test Case:** Security Edge Cases - Path Traversal
 
@@ -188,28 +195,38 @@ Protocol-relative: [//example.com Site].
 Traversal test: [[../../admin]].
 ```
 
-**Current Behavior:**
-```html
-<a href="/wiki/../../admin">../../admin</a>
+**New Behavior:**
 ```
-- Link IS rendered (clickable)
-- Browser resolves `/wiki/../../admin` to `/admin`
+[[../../admin]]
+```
+- Rendered as plain text (NOT a link)
+- Makes invalid page name immediately obvious
 
 **Security Analysis:**
 - Initial finding: Potential path traversal vulnerability
-- Security review determination: **FALSE POSITIVE**
-- Reason: No backend server, no file system operations
-- Client-side only - just an href string, no security boundary
+- Security review determination: **FALSE POSITIVE** (no actual security threat)
+- But: User-friendly validation appropriate
 
-**Design Decision Needed:**
-1. **Keep allowing** (current behavior) - Links like `[[../../admin]]` work
-2. **Block** (defensive approach) - Reject `../` sequences in wiki links
+**Design Decision: BLOCK**
 
-**Recommendation:** Keep allowing. No security risk in client-side preview tool.
+**Rationale:**
+1. **No Legitimate Use**: Wiki page names don't use filesystem path syntax
+2. **Likely Error**: `../` in wiki link is almost certainly a mistake
+3. **User-Friendly**: Blocking gives immediate feedback, catches errors
+4. **Trac Alignment**: Preview matches expected Trac behavior
+5. **Low Cost**: No valid functionality removed
+
+**Implementation:**
+- ✅ Add validation in `parseLinks()` wiki link section
+- ✅ Reject page names containing `../` or `..\`
+- ✅ Render as plain text when rejected
+- ✅ Document in `DECISIONS_phase4b_security.md`
+
+**Quote from Analysis:**
+> "Wiki page names don't use filesystem paths. Blocking provides clear feedback and aligns with expected Trac behavior."
 
 **Code Location:**
-- `src/renderers/wikiToReact.js` - Line 164 (wiki link rendering)
-- Currently no validation on `pageName`
+- `src/renderers/wikiToReact.js` - Wiki link rendering with validation
 
 ---
 
@@ -236,26 +253,26 @@ Traversal test: [[../../admin]].
 
 ---
 
-## 🎯 Recommendations
+## 🎯 Final Status
 
-### Immediate Actions Required
+### All Issues Resolved ✅
 
-1. **Fix Issue #1 (Wikipedia URLs)** - CRITICAL
-   - Modify text formatting regex to skip link syntax
-   - Add test case for URLs with underscores
-   - Verify fix doesn't break other formatting
+1. **Issue #1 (Wikipedia URLs)** - ✅ FIXED
+   - Modified link conversion regex to handle parentheses
+   - Modified text formatting to skip WikiFormatting links
+   - Reordered conversion pipeline (links before text formatting)
+   - All tests passing
 
-### Design Decisions Needed
+2. **Design Decision #1 (Protocol-Relative URLs)** - ✅ DECIDED
+   - Decision: ALLOW (by design)
+   - Documented in code and DECISIONS_phase4b_security.md
+   - Rationale: Composition tool, Trac is security boundary
 
-2. **Issue #2 (Protocol-Relative URLs)** - LOW PRIORITY
-   - Current behavior: Allowed
-   - Recommendation: Keep allowing (safe in this context)
-   - Document decision in security notes
-
-3. **Issue #3 (Path Traversal)** - LOW PRIORITY
-   - Current behavior: Allowed
-   - Recommendation: Keep allowing (safe in this context)
-   - Document decision in security notes
+3. **Design Decision #2 (Path Traversal)** - ✅ IMPLEMENTED
+   - Decision: BLOCK (user-friendly validation)
+   - Validation added to reject `../` in wiki page names
+   - Documented in code and DECISIONS_phase4b_security.md
+   - Rationale: No legitimate use, helps catch errors
 
 ### Before Production
 
