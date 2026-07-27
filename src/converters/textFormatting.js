@@ -50,17 +50,17 @@ export function convertTextFormatting(text) {
   // Must be before individual bold/italic to avoid double conversion
   // Matches content without leading/trailing spaces (or empty)
   result = result.replace(/\*\*\*(\S(?:.*?\S)?)\*\*\*/g, "'''''$1'''''");
-  result = result.replace(/\_\_\_(\S(?:.*?\S)?)\_\_\_/g, "'''''$1'''''");
+  result = result.replace(/___(\S(?:.*?\S)?)___/g, "'''''$1'''''");
 
   // Convert bold (**text** or __text__) → '''text'''
   // Matches content without leading/trailing spaces (or empty)
   result = result.replace(/\*\*(\S(?:.*?\S)?)\*\*/g, "'''$1'''");
-  result = result.replace(/\_\_(\S(?:.*?\S)?)\_\_/g, "'''$1'''");
+  result = result.replace(/__(\S(?:.*?\S)?)__/g, "'''$1'''");
 
   // Convert italic (*text* or _text_) → ''text''
   // Matches content without leading/trailing spaces (or empty)
   result = result.replace(/\*(\S(?:.*?\S)?)\*/g, "''$1''");
-  result = result.replace(/\_(\S(?:.*?\S)?)\_/g, "''$1''");
+  result = result.replace(/_(\S(?:.*?\S)?)_/g, "''$1''");
 
   return result;
 }
