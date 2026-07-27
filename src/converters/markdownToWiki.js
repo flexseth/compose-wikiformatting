@@ -8,6 +8,7 @@
  */
 
 import { convertHeaders } from './headers.js';
+import { convertTextFormatting } from './textFormatting.js';
 
 /**
  * Convert Markdown text to WikiFormatting
@@ -18,9 +19,9 @@ import { convertHeaders } from './headers.js';
  *
  * Currently supported conversions:
  * - Headers (# syntax → = syntax)
+ * - Text formatting (bold, italic)
  *
  * Future phases will add:
- * - Text formatting (bold, italic, code)
  * - Lists (unordered, ordered, nested)
  * - Links (external, wiki, automatic)
  * - Code blocks (fenced, indented)
@@ -59,12 +60,15 @@ export function convertMarkdownToWiki(markdown, options = {}) {
 
   let result = markdown;
 
-  // Phase 1: Convert headers
+  // Phase 1: Convert headers (# → =)
   // Must be done line-by-line to avoid conflicts with other syntax
   result = convertHeaders(result);
 
-  // Phase 2+: Additional conversions will be added here as we implement them
-  // - Text formatting (bold, italic, code)
+  // Phase 3: Convert text formatting (bold, italic)
+  // Applied line-by-line to handle formatting within headers and content
+  result = result.split('\n').map(line => convertTextFormatting(line)).join('\n');
+
+  // Future phases: Additional conversions will be added here
   // - Lists
   // - Links
   // - Code blocks

@@ -15,3 +15,4 @@
 
 export { convertMarkdownToWiki } from './markdownToWiki.js';
 export { convertHeader, convertHeaders } from './headers.js';
+export { convertTextFormatting } from './textFormatting.js';

@@ -95,20 +95,18 @@ describe('convertHeader - Special Characters', () => {
     expect(convertHeader("# It's working")).toBe("= It's working =");
   });
 
-  // NOTE: Inline formatting conversion not implemented yet (Phase 3 feature)
-  // Currently, Markdown formatting markers (__emphasis__, **bold**) are preserved as-is
-  // TODO Phase 3: Convert __emphasis__ → ''emphasis'' and **bold** → '''bold'''
-  test('preserves Markdown emphasis markers in headers (awaiting Phase 3)', () => {
-    // Input: Markdown header with emphasis markers
-    // Current output: Converts header, preserves inline Markdown
-    // Future output (Phase 3): "= heading with ''emphasis'' ="
+  // NOTE: convertHeader only converts header markers, not inline formatting
+  // Inline formatting conversion is handled by convertTextFormatting (Phase 3)
+  // These tests verify convertHeader's isolated behavior
+  test('preserves Markdown emphasis markers (formatting handled separately)', () => {
+    // convertHeader only converts # → =, not inline formatting
+    // Full pipeline (convertMarkdownToWiki) applies text formatting separately
     expect(convertHeader("# heading with __emphasis__")).toBe("= heading with __emphasis__ =");
   });
 
-  test('preserves Markdown bold markers in headers (awaiting Phase 3)', () => {
-    // Input: Markdown header with bold markers
-    // Current output: Converts header, preserves inline Markdown
-    // Future output (Phase 3): "= heading with '''bold''' ="
+  test('preserves Markdown bold markers (formatting handled separately)', () => {
+    // convertHeader only converts # → =, not inline formatting
+    // Full pipeline (convertMarkdownToWiki) applies text formatting separately
     expect(convertHeader("# heading with **bold**")).toBe("= heading with **bold** =");
   });
 

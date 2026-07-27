@@ -156,3 +156,76 @@ Should log in.`;
     expect(result).toContain('== Expected Behavior ==');
   });
 });
+
+describe('convertMarkdownToWiki - Text Formatting (Phase 3)', () => {
+  test('converts bold in headers', () => {
+    const input = '# Heading with **bold**';
+    const result = convertMarkdownToWiki(input);
+    expect(result).toBe("= Heading with '''bold''' =");
+  });
+
+  test('converts italic in headers', () => {
+    const input = '# Heading with *italic*';
+    const result = convertMarkdownToWiki(input);
+    expect(result).toBe("= Heading with ''italic'' =");
+  });
+
+  test('converts emphasis with underscores in headers', () => {
+    const input = '# Heading with __emphasis__';
+    const result = convertMarkdownToWiki(input);
+    expect(result).toBe("= Heading with '''emphasis''' =");
+  });
+
+  test('converts bold in paragraph text', () => {
+    const input = 'This is **bold** text';
+    const result = convertMarkdownToWiki(input);
+    expect(result).toBe("This is '''bold''' text");
+  });
+
+  test('converts italic in paragraph text', () => {
+    const input = 'This is *italic* text';
+    const result = convertMarkdownToWiki(input);
+    expect(result).toBe("This is ''italic'' text");
+  });
+
+  test('converts both bold and italic', () => {
+    const input = '**bold** and *italic*';
+    const result = convertMarkdownToWiki(input);
+    expect(result).toBe("'''bold''' and ''italic''");
+  });
+
+  test('converts bold+italic combination', () => {
+    const input = 'This is ***important***';
+    const result = convertMarkdownToWiki(input);
+    expect(result).toBe("This is '''''important'''''");
+  });
+
+  test('converts headers with text formatting', () => {
+    const input = `# **Bold** Heading
+
+This is **bold** and *italic* text.
+
+## *Italic* Subheading`;
+
+    const result = convertMarkdownToWiki(input);
+    expect(result).toContain("= '''Bold''' Heading =");
+    expect(result).toContain("This is '''bold''' and ''italic'' text.");
+    expect(result).toContain("== ''Italic'' Subheading ==");
+  });
+
+  test('converts complex document with headers and formatting', () => {
+    const input = `# API **Documentation**
+
+The ***new API*** endpoint returns **JSON** data.
+
+## Usage
+
+Use the \`api.call()\` method with *caution*.`;
+
+    const result = convertMarkdownToWiki(input);
+    expect(result).toContain("= API '''Documentation''' =");
+    expect(result).toContain("The '''''new API''''' endpoint returns '''JSON''' data.");
+    expect(result).toContain("== Usage ==");
+    expect(result).toContain("Use the `api.call()` method with ''caution''.");
+  });
+});
