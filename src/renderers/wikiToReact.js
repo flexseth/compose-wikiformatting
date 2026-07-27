@@ -11,9 +11,12 @@
  *   - Explicit IDs
  *   - Auto-generated IDs
  *   - Section anchors
+ * - Text formatting:
+ *   - Bold ('''text''')
+ *   - Italic (''text'')
+ *   - Bold+Italic ('''''text''''')
  *
  * Future phases will add:
- * - Text formatting (bold, italic, code)
  * - Lists
  * - Links
  * - Code blocks
@@ -62,8 +65,8 @@ function generateId(text) {
 /**
  * Parse inline WikiFormatting to React elements
  *
- * Handles inline formatting like italic, bold, etc. within text.
- * Currently supports italic (''text'') as a basic implementation.
+ * Handles inline formatting like italic, bold, and bold+italic within text.
+ * Supports all WikiFormatting text formatting syntax.
  *
  * @private
  * @param {string} text - Text that may contain WikiFormatting
@@ -73,30 +76,57 @@ function generateId(text) {
  * parseInlineFormatting("About ''this''")
  * // Returns: ['About ', <em key="...">this</em>]
  *
+ * @example
+ * parseInlineFormatting("Use '''bold''' for emphasis")
+ * // Returns: ['Use ', <strong key="...">bold</strong>, ' for emphasis']
+ *
+ * @example
+ * parseInlineFormatting("This is '''''very important'''''")
+ * // Returns: ['This is ', <strong key="..."><em>very important</em></strong>]
+ *
  * @security All text content is rendered as text nodes by React (auto-escaped)
  */
 function parseInlineFormatting(text) {
-  // Phase 2: Basic italic support
-  // Phase 3 will expand with full text formatting
+  // Phase 3.5: Full text formatting support (bold, italic, bold+italic)
+  // Order matters: Must check bold+italic (5 quotes) BEFORE bold (3) or italic (2)
 
   const parts = [];
-  let lastIndex = 0;
+  let remaining = text;
   let keyCounter = 0;
 
-  // Match italic: ''text''
-  const italicRegex = /''(.+?)''/g;
+  // Combined regex that matches in priority order:
+  // 1. Bold+Italic: '''''text'''''
+  // 2. Bold: '''text'''
+  // 3. Italic: ''text''
+  const formattingRegex = /'''''(.+?)'''''|'''(.+?)'''|''(.+?)''/g;
   let match;
+  let lastIndex = 0;
 
-  while ((match = italicRegex.exec(text)) !== null) {
+  while ((match = formattingRegex.exec(text)) !== null) {
     // Add text before the match
     if (match.index > lastIndex) {
       parts.push(text.substring(lastIndex, match.index));
     }
 
-    // Add italic element
-    parts.push(
-      <em key={`italic-${keyCounter++}`}>{match[1]}</em>
-    );
+    // Determine which group matched and create appropriate element
+    if (match[1] !== undefined) {
+      // Bold+Italic (group 1): '''''text'''''
+      parts.push(
+        <strong key={`bold-italic-${keyCounter++}`}>
+          <em>{match[1]}</em>
+        </strong>
+      );
+    } else if (match[2] !== undefined) {
+      // Bold (group 2): '''text'''
+      parts.push(
+        <strong key={`bold-${keyCounter++}`}>{match[2]}</strong>
+      );
+    } else if (match[3] !== undefined) {
+      // Italic (group 3): ''text''
+      parts.push(
+        <em key={`italic-${keyCounter++}`}>{match[3]}</em>
+      );
+    }
 
     lastIndex = match.index + match[0].length;
   }
@@ -175,6 +205,7 @@ function convertHeaderToReact(line, lineIndex) {
  *
  * Currently supported:
  * - Headers (= syntax → <h1> through <h6>) with all variations
+ * - Text formatting (bold, italic, bold+italic) in headers and body text
  *
  * @param {string} wikiText - WikiFormatting text
  * @param {Object} [options] - Rendering options
@@ -185,6 +216,10 @@ function convertHeaderToReact(line, lineIndex) {
  * @example
  * const elements = convertWikiToReact('= Title =\n\n== Subtitle ==');
  * // Returns: [<h1...>Title</h1>, '', <h2...>Subtitle</h2>]
+ *
+ * @example
+ * const elements = convertWikiToReact("Use '''bold''' and ''italic'' text");
+ * // Returns: [<p>['Use ', <strong>bold</strong>, ' and ', <em>italic</em>, ' text']</p>]
  *
  * @security All text content is rendered as React text nodes (auto-escaped)
  */
@@ -218,9 +253,10 @@ export function convertWikiToReact(wikiText, options = {}) {
       const element = convertHeaderToReact(line, index);
 
       if (typeof element === 'string') {
-        // Not a header, add as paragraph
+        // Not a header, add as paragraph with inline formatting
+        const formattedContent = parseInlineFormatting(element);
         elements.push(
-          <p key={`p-${index}`}>{element}</p>
+          <p key={`p-${index}`}>{formattedContent}</p>
         );
       } else {
         // Is a header React element
