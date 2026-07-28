@@ -44,23 +44,75 @@ export function convertTextFormatting(text) {
     throw new TypeError('Text must be a string');
   }
 
+  // Split text into WikiFormatting links and non-links
+  // Links: [url text], [[WikiPage]], or Trac links [scheme:value text]
+  // Process only non-link parts to avoid mangling URLs with underscores
+  const linkPattern = /\[(?:[^\s\]]+)\s+(?:[^\]]+)\]|\[\[[^\]]+\]\]/g;
+  const parts = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = linkPattern.exec(text)) !== null) {
+    // Add non-link text before this match (apply formatting)
+    if (match.index > lastIndex) {
+      const nonLinkText = text.substring(lastIndex, match.index);
+      parts.push(applyTextFormatting(nonLinkText));
+    }
+
+    // Add the link as-is (no formatting on URLs)
+    // But DO format the link text part
+    const link = match[0];
+    const linkWithFormattedText = formatLinkText(link);
+    parts.push(linkWithFormattedText);
+
+    lastIndex = match.index + match[0].length;
+  }
+
+  // Add remaining non-link text
+  if (lastIndex < text.length) {
+    const remainingText = text.substring(lastIndex);
+    parts.push(applyTextFormatting(remainingText));
+  }
+
+  // If no links found, just apply formatting to whole text
+  return parts.length > 0 ? parts.join('') : applyTextFormatting(text);
+}
+
+/**
+ * Apply text formatting to a string (helper function)
+ * @private
+ */
+function applyTextFormatting(text) {
   let result = text;
 
   // Convert bold + italic first (*** or ___) → '''''
-  // Must be before individual bold/italic to avoid double conversion
-  // Matches content without leading/trailing spaces (or empty)
   result = result.replace(/\*\*\*(\S(?:.*?\S)?)\*\*\*/g, "'''''$1'''''");
   result = result.replace(/___(\S(?:.*?\S)?)___/g, "'''''$1'''''");
 
   // Convert bold (**text** or __text__) → '''text'''
-  // Matches content without leading/trailing spaces (or empty)
   result = result.replace(/\*\*(\S(?:.*?\S)?)\*\*/g, "'''$1'''");
   result = result.replace(/__(\S(?:.*?\S)?)__/g, "'''$1'''");
 
   // Convert italic (*text* or _text_) → ''text''
-  // Matches content without leading/trailing spaces (or empty)
   result = result.replace(/\*(\S(?:.*?\S)?)\*/g, "''$1''");
   result = result.replace(/_(\S(?:.*?\S)?)_/g, "''$1''");
 
   return result;
+}
+
+/**
+ * Format the text part of a link while preserving the URL
+ * @private
+ */
+function formatLinkText(link) {
+  // For external links [url text], format only the text part
+  const externalLinkMatch = link.match(/^\[([^\s\]]+)\s+(.+)\]$/);
+  if (externalLinkMatch) {
+    const url = externalLinkMatch[1];
+    const linkText = externalLinkMatch[2];
+    return `[${url} ${applyTextFormatting(linkText)}]`;
+  }
+
+  // For wiki links [[WikiPage]], no formatting needed
+  return link;
 }

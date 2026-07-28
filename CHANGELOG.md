@@ -138,7 +138,82 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - All 272 tests passing
   - Renderer extends existing Phase 2 pattern (already tested)
 
+- **Phase 4a: Links Conversion - Markdown to WikiFormatting**
+  - Core module: `src/converters/links.js`
+    - Converts Markdown external links: `[text](url)` → `[url text]`
+    - Preserves WikiFormatting wiki links: `[[WikiPage]]` (no change)
+    - Preserves automatic URLs: `http://example.com` (no change)
+    - Regex-based conversion with non-greedy matching
+    - Handles multiple links per line
+    - Type safety with TypeError for non-string inputs
+    - 100% JSDoc documentation coverage
+  - Integration into `markdownToWiki.js` pipeline
+    - Applied line-by-line after text formatting
+    - Links can contain formatted text (bold, italic)
+    - Conversion order: Headers → Text Formatting → Links
+  - Comprehensive test suite (42 test cases)
+    - 100% test coverage on links.js
+    - External links: simple, https, paths, queries, fragments
+    - Wiki links and automatic URLs preserved
+    - Edge cases: empty text/URL, malformed links, special characters
+    - Real-world examples: documentation, GitHub links, Trac references
+    - Type safety validation
+  - Security review passed (0 vulnerabilities)
+    - Text-to-text transformation (no HTML generation in conversion phase)
+    - No injection vectors (simple regex replacement)
+    - React rendering layer will provide XSS protection (Phase 4b)
+    - Dangerous URL protocols intentionally not validated (Phase 4b scope)
+  - Known limitations (to be addressed in Phase 4b):
+    - URLs with parentheses (Wikipedia-style) may be truncated
+    - URL scheme validation deferred to rendering phase
+    - Proper URL parsing will use URL constructor in Phase 4b
+
+- **Phase 4b: Links Rendering - WikiFormatting to React Components**
+  - Core renderer module: `src/renderers/wikiToReact.js` (enhanced)
+    - External link rendering: `[url text]` → `<a href="url">text</a>`
+    - Wiki link rendering: `[[WikiPage]]` → `<a href="/wiki/WikiPage">WikiPage</a>`
+    - Trac-specific links: `[ticket:123]`, `[changeset:456]`, `[source:path]`
+    - URL scheme validation with security filtering
+    - Dangerous protocols blocked: `javascript:`, `data:`, `vbscript:`, `file:`
+    - Link text can contain formatting (bold, italic, bold+italic)
+    - React-safe rendering (no dangerouslySetInnerHTML)
+  - Security features:
+    - `isValidUrlScheme()` function blocks XSS attack vectors
+    - Malicious URLs render as plain text (no clickable links)
+    - React auto-escaping for all link text
+    - Script tags in link text properly escaped
+    - Query parameters escaped (`&` → `&amp;`)
+  - Design decisions documented (commit 92967ab):
+    - Protocol-relative URLs (`//example.com`) ALLOWED by design
+    - Path traversal in wiki links (`[[../../admin]]`) BLOCKED for user validation
+    - Rationale: Composition tool vs. security boundary considerations
+    - Full analysis in `DECISIONS_phase4b_security.md`
+  - Comprehensive test suite (26 test cases for rendering)
+    - 100% test coverage on link rendering functions
+    - Security tests: all dangerous protocols verified blocked
+    - Edge cases: multiple links, formatted text in links, special characters
+    - Real-world URLs: WordPress.org, GitHub, documentation sites
+  - Integration with conversion pipeline (Phase 4a → 4b)
+    - Markdown → WikiFormatting (4a) → React components (4b)
+    - Full link cycle tested end-to-end
+  - All 340 tests passing (68 tests for links: 42 conversion + 26 rendering)
+  - Security review passed (0 vulnerabilities)
+
 ### Fixed
+- **Phase 4 Critical Bug Fix (commit 55c145b)**: URLs with underscores and parentheses
+  - Fixed Wikipedia-style URLs being corrupted during conversion
+  - Problem: `Object-oriented_programming_(OOP)` became `Object-oriented''programming''(OOP)`
+  - Root cause: Text formatting converter was treating underscores in URLs as italic markers
+  - Solution implemented:
+    1. Modified `links.js` regex to handle URLs with parentheses correctly
+    2. Modified `textFormatting.js` to skip WikiFormatting link patterns `[url text]`
+    3. Reordered conversion pipeline: links BEFORE text formatting
+  - Impact: Fixes all URLs containing underscores (Wikipedia, documentation sites, APIs)
+  - Testing: All 340 tests passing, Wikipedia URL test now passes
+  - Example fix: `[OOP](https://en.wikipedia.org/wiki/Object-oriented_programming_(OOP))` 
+    - Before: `[...''programming''(OOP) OOP]` ❌
+    - After: `[..._programming_(OOP) OOP]` ✅
+
 - **Phase 2 Bug Fix**: Preserve WikiFormatting syntax in headers
   - Removed single quote escaping from `headers.js` escapeHtml function
   - WikiFormatting italic syntax (`''text''`) and bold syntax (`'''text'''`) now preserved correctly

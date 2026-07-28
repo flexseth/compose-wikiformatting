@@ -202,17 +202,30 @@ attributes: {
 ### Phase 4: Links
 **Branch:** `feature/links` (sub-branch from `feature/text-formatting`)
 
-- [ ] External links: `[text](url)` → `[url text]`
-- [ ] Wiki links: `[[WikiPage]]` → `[[WikiPage]]`  
-- [ ] Automatic URL detection
+**Phase 4a: Conversion** (Markdown → WikiFormatting)
+- [x] External links: `[text](url)` → `[url text]`
+- [x] Wiki links: `[[WikiPage]]` → `[[WikiPage]]` (preserved)
+- [x] Automatic URLs: `http://...` (preserved)
+- [x] 42 comprehensive tests, 100% coverage
+- [x] **SECURITY REVIEW PASSED** (Phase 4a conversion only)
+
+**Phase 4b: Rendering** (WikiFormatting → React) - IN PROGRESS
+- [ ] Parse WikiFormatting link syntax: `[url text]` and `[[WikiPage]]`
+- [ ] Proper URL parsing (use URL constructor, handle parentheses in URLs)
 - [ ] Link rendering: `<a href="...">` elements
-- [ ] **SECURITY: URL validation**
-- [ ] **SECURITY: Prevent javascript: URLs**
-- [ ] **SECURITY: Malicious URL tests**
-- [ ] 100% coverage
+- [ ] **SECURITY: URL scheme validation** (allowlist: http, https, mailto, ftp)
+- [ ] **SECURITY: Reject dangerous protocols** (javascript:, data:, vbscript:, file:)
+- [ ] **SECURITY: Malicious URL tests** (XSS attempts, protocol injection)
+- [ ] Handle Wikipedia-style URLs with parentheses
+- [ ] Handle encoded characters in URLs (%28, %29, etc.)
+- [ ] 100% coverage on rendering
 - [ ] **SECURITY REVIEW PASSED**
 
-**Status:** ⏳ Next (simpler than lists, tackle first)
+**Known Limitations from Phase 4a:**
+- URLs with unbalanced parentheses may be truncated (will fix in Phase 4b)
+- No URL validation yet (intentional - Phase 4b responsibility)
+
+**Status:** ✅ Phase 4a complete, ⏳ Phase 4b next
 
 ---
 

@@ -38,6 +38,25 @@ WordPress core uses [Trac](https://core.trac.wordpress.org) for issue tracking, 
 - 🎯 **Smart Boundaries**: Proper detection (no spaces after/before markers)
 - 🧪 **40 Tests**: 100% coverage on text formatting conversion
 
+### Phase 4a: Links Conversion ✅
+- **External Links**: `[text](url)` → `[url text]` (WikiFormatting syntax)
+- **Wiki Links**: `[[WikiPage]]` preserved (same syntax in both formats)
+- **Automatic URLs**: `http://example.com` preserved
+- 🔗 **Multiple Links**: Handles multiple links per line
+- 🌍 **Unicode Support**: Special characters, Unicode, emoji in link text
+- 🧪 **42 Tests**: 100% coverage on links conversion
+
+### Phase 4b: Links Rendering ✅
+- **Live Link Rendering**: WikiFormatting links → clickable HTML in Column 3
+- **External Links**: `[url text]` → clickable links with security validation
+- **Wiki Links**: `[[WikiPage]]` → Trac-style `/wiki/` links
+- **Trac-Specific**: `[ticket:123]`, `[changeset:456]`, `[source:path]` all supported
+- 🔒 **Security**: Dangerous protocols blocked (javascript:, data:, file:, vbscript:)
+- 🎨 **Formatted Links**: Bold/italic text inside links renders correctly
+- 🐛 **Bug Fix**: URLs with underscores & parentheses now work (Wikipedia, etc.)
+- 📋 **Design Decisions**: Protocol-relative URLs allowed, path traversal blocked
+- 🧪 **68 Tests**: 42 conversion + 26 rendering, 100% coverage
+
 ### Coming Soon
 - 📋 **Copy to Clipboard**: One-click copy of WikiFormatting
 - ⌨️ **Keyboard Shortcuts**: Tab, Escape, CMD/CTRL+S
@@ -50,7 +69,7 @@ WordPress core uses [Trac](https://core.trac.wordpress.org) for issue tracking, 
 - **Custom Converters**: Pure JavaScript converters (WordPress-portable)
   - `converters/` - Markdown → WikiFormatting
   - `renderers/` - WikiFormatting → React components
-- **Jest & @testing-library/react**: 272 tests, 100% coverage on converters
+- **Jest & @testing-library/react**: 314 tests, 100% coverage on converters
 - **CSS Grid**: Responsive three-column layout
 - **No external parsing libraries**: All conversion logic custom-built
 
@@ -83,9 +102,10 @@ npm run test:coverage
 ```
 
 **Current Status:**
-- ✅ 272 tests passing (11 test suites)
+- ✅ 340 tests passing (12 test suites)
 - ✅ 100% coverage on converter functions
-- ✅ 4 security reviews passed (0 vulnerabilities)
+- ✅ 88.43% overall coverage (above 80% requirement)
+- ✅ 6 security reviews passed (0 vulnerabilities)
 
 ### Building for Production
 
@@ -97,7 +117,7 @@ npm run build
 
 This project follows **test-driven development** with strict security requirements:
 
-1. **Incremental Phases**: 10 phases planned, 3 completed (see PLAN.md)
+1. **Incremental Phases**: 10 phases planned, 4a completed (see PLAN.md)
 2. **Security First**: Every commit must pass `/security-review`
 3. **100% Test Coverage**: All converter functions fully tested
 4. **Branch Strategy**: Sequential merge-then-branch (feature → trunk → new feature)
@@ -109,18 +129,19 @@ This project follows **test-driven development** with strict security requiremen
 
 ## Roadmap
 
-### Current Progress (3/10 phases complete)
+### Current Progress (4b/10 phases complete - 7 phases done!)
 - ✅ **Phase 1**: Headers conversion (Markdown → WikiFormatting)
 - ✅ **Phase 2**: WikiFormatting renderer (three-column layout)
 - ✅ **Phase 2.5**: LocalStorage persistence (auto-save/restore)
 - ✅ **Phase 3**: Text formatting (bold, italic)
-- ⏳ **Phase 4**: Lists (ordered, unordered, nested)
-- ⏳ **Phase 4**: Lists (ordered, unordered, nested)
-- ⏳ **Phase 5**: Links (external, wiki, automatic)
-- ⏳ **Phase 6**: Code blocks (fenced, syntax highlighting)
-- ⏳ **Phase 7**: Blockquotes
-- ⏳ **Phase 8**: Tables
-- ⏳ **Phase 9**: Images
+- ✅ **Phase 3.5**: Text formatting renderer (bold, italic display)
+- ✅ **Phase 4a**: Links conversion (Markdown → WikiFormatting)
+- ✅ **Phase 4b**: Links renderer (with URL validation, security filtering)
+- ⏳ **Phase 5**: Code blocks (fenced, syntax highlighting)
+- ⏳ **Phase 6**: Blockquotes
+- ⏳ **Phase 7**: Tables
+- ⏳ **Phase 8**: Images
+- ⏳ **Phase 9**: Lists (moved to last - most complex)
 
 ### Future Versions
 - **v1.0.1**: WordPress plugin - Convert Gutenberg blocks

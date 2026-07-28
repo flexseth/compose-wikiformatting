@@ -9,6 +9,7 @@
 
 import { convertHeaders } from './headers.js';
 import { convertTextFormatting } from './textFormatting.js';
+import { convertLinks } from './links.js';
 
 /**
  * Convert Markdown text to WikiFormatting
@@ -20,14 +21,14 @@ import { convertTextFormatting } from './textFormatting.js';
  * Currently supported conversions:
  * - Headers (# syntax → = syntax)
  * - Text formatting (bold, italic)
+ * - Links (external, wiki)
  *
  * Future phases will add:
- * - Lists (unordered, ordered, nested)
- * - Links (external, wiki, automatic)
  * - Code blocks (fenced, indented)
  * - Blockquotes
  * - Tables
  * - Images
+ * - Lists (unordered, ordered, nested)
  *
  * @param {string} markdown - Markdown formatted text
  * @param {Object} [options] - Conversion options
@@ -64,17 +65,22 @@ export function convertMarkdownToWiki(markdown, options = {}) {
   // Must be done line-by-line to avoid conflicts with other syntax
   result = convertHeaders(result);
 
+  // Phase 4: Convert links FIRST (before text formatting)
+  // This prevents text formatting from mangling URLs with underscores
+  // Example: Object-oriented_programming would become Object-oriented''programming''
+  result = result.split('\n').map(line => convertLinks(line)).join('\n');
+
   // Phase 3: Convert text formatting (bold, italic)
-  // Applied line-by-line to handle formatting within headers and content
+  // Applied AFTER links so formatting can be applied to link text
+  // Links are now in WikiFormatting [url text] format, safe from underscore conversion
   result = result.split('\n').map(line => convertTextFormatting(line)).join('\n');
 
   // Future phases: Additional conversions will be added here
-  // - Lists
-  // - Links
   // - Code blocks
   // - Blockquotes
   // - Tables
   // - Images
+  // - Lists (moved to last - most complex)
 
   return result;
 }

@@ -260,3 +260,252 @@ More text`;
     });
   });
 });
+
+describe('convertWikiToReact - Links (Phase 4b)', () => {
+  describe('External links', () => {
+    test('converts external link to anchor element', () => {
+      const elements = convertWikiToReact('[https://example.com Example Site]');
+      const { container } = render(<>{elements}</>);
+
+      const link = container.querySelector('a');
+      expect(link).toBeInTheDocument();
+      expect(link).toHaveAttribute('href', 'https://example.com');
+      expect(link).toHaveTextContent('Example Site');
+    });
+
+    test('renders http links', () => {
+      const elements = convertWikiToReact('[http://test.org Test]');
+      const { container } = render(<>{elements}</>);
+
+      const link = container.querySelector('a');
+      expect(link).toHaveAttribute('href', 'http://test.org');
+    });
+
+    test('renders https links', () => {
+      const elements = convertWikiToReact('[https://secure.com Secure]');
+      const { container } = render(<>{elements}</>);
+
+      const link = container.querySelector('a');
+      expect(link).toHaveAttribute('href', 'https://secure.com');
+    });
+
+    test('rejects mailto links (not in WikiFormatting spec)', () => {
+      const elements = convertWikiToReact('[mailto:test@example.com Email]');
+      const { container } = render(<>{elements}</>);
+
+      const link = container.querySelector('a');
+      // mailto is not in allowed schemes, should render as text
+      expect(link).not.toBeInTheDocument();
+      expect(container.textContent).toContain('Email');
+    });
+
+    test('rejects ftp links (not in WikiFormatting spec)', () => {
+      const elements = convertWikiToReact('[ftp://files.example.com Files]');
+      const { container } = render(<>{elements}</>);
+
+      const link = container.querySelector('a');
+      // ftp is not in allowed schemes, should render as text
+      expect(link).not.toBeInTheDocument();
+      expect(container.textContent).toContain('Files');
+    });
+
+    test('handles links with paths', () => {
+      const elements = convertWikiToReact('[https://example.com/path/to/page Page]');
+      const { container } = render(<>{elements}</>);
+
+      const link = container.querySelector('a');
+      expect(link).toHaveAttribute('href', 'https://example.com/path/to/page');
+    });
+
+    test('handles links with query strings', () => {
+      const elements = convertWikiToReact('[https://example.com?foo=bar&baz=qux Link]');
+      const { container } = render(<>{elements}</>);
+
+      const link = container.querySelector('a');
+      expect(link).toHaveAttribute('href', 'https://example.com?foo=bar&baz=qux');
+    });
+
+    test('handles links with fragments', () => {
+      const elements = convertWikiToReact('[https://example.com#section Link]');
+      const { container } = render(<>{elements}</>);
+
+      const link = container.querySelector('a');
+      expect(link).toHaveAttribute('href', 'https://example.com#section');
+    });
+
+    test('handles Wikipedia-style URLs with parentheses', () => {
+      const elements = convertWikiToReact('[https://en.wikipedia.org/wiki/Object-oriented_programming_(OOP) OOP]');
+      const { container } = render(<>{elements}</>);
+
+      const link = container.querySelector('a');
+      expect(link).toHaveAttribute('href', 'https://en.wikipedia.org/wiki/Object-oriented_programming_(OOP)');
+    });
+
+    test('handles encoded characters in URLs', () => {
+      const elements = convertWikiToReact('[https://example.com/test%20space Test]');
+      const { container } = render(<>{elements}</>);
+
+      const link = container.querySelector('a');
+      expect(link).toHaveAttribute('href', 'https://example.com/test%20space');
+    });
+
+    test('handles multiple links in one line', () => {
+      const elements = convertWikiToReact('See [https://one.com One] and [https://two.com Two]');
+      const { container } = render(<>{elements}</>);
+
+      const links = container.querySelectorAll('a');
+      expect(links).toHaveLength(2);
+      expect(links[0]).toHaveAttribute('href', 'https://one.com');
+      expect(links[1]).toHaveAttribute('href', 'https://two.com');
+    });
+  });
+
+  describe('Wiki links', () => {
+    test('converts wiki link to anchor element', () => {
+      const elements = convertWikiToReact('[[WikiPage]]');
+      const { container } = render(<>{elements}</>);
+
+      const link = container.querySelector('a');
+      expect(link).toBeInTheDocument();
+      expect(link).toHaveTextContent('WikiPage');
+    });
+
+    test('generates wiki path for wiki links', () => {
+      const elements = convertWikiToReact('[[SomePage]]');
+      const { container } = render(<>{elements}</>);
+
+      const link = container.querySelector('a');
+      // Wiki links should reference the wiki path structure
+      expect(link).toHaveAttribute('href');
+      expect(link.getAttribute('href')).toContain('SomePage');
+    });
+
+    test('handles wiki links with slashes', () => {
+      const elements = convertWikiToReact('[[Category/SubPage]]');
+      const { container } = render(<>{elements}</>);
+
+      const link = container.querySelector('a');
+      expect(link).toHaveTextContent('Category/SubPage');
+    });
+  });
+
+  describe('Security - URL validation', () => {
+    test('rejects javascript: protocol', () => {
+      const elements = convertWikiToReact('[javascript:alert(1) Bad]');
+      const { container } = render(<>{elements}</>);
+
+      const link = container.querySelector('a');
+      // Should either not render as link, or sanitize the href
+      if (link) {
+        expect(link.getAttribute('href')).not.toBe('javascript:alert(1)');
+      }
+    });
+
+    test('rejects data: protocol', () => {
+      const elements = convertWikiToReact('[data:text/html,<script>alert(1)</script> Bad]');
+      const { container } = render(<>{elements}</>);
+
+      const link = container.querySelector('a');
+      if (link) {
+        expect(link.getAttribute('href')).not.toContain('data:');
+      }
+    });
+
+    test('rejects vbscript: protocol', () => {
+      const elements = convertWikiToReact('[vbscript:msgbox(1) Bad]');
+      const { container } = render(<>{elements}</>);
+
+      const link = container.querySelector('a');
+      if (link) {
+        expect(link.getAttribute('href')).not.toContain('vbscript:');
+      }
+    });
+
+    test('rejects file: protocol', () => {
+      const elements = convertWikiToReact('[file:///etc/passwd Bad]');
+      const { container } = render(<>{elements}</>);
+
+      const link = container.querySelector('a');
+      if (link) {
+        expect(link.getAttribute('href')).not.toContain('file:');
+      }
+    });
+
+    test('preserves text but prevents execution for dangerous URLs', () => {
+      const elements = convertWikiToReact('[javascript:alert(1) Click me]');
+      const { container } = render(<>{elements}</>);
+
+      // Text should still be visible
+      expect(container.textContent).toContain('Click me');
+    });
+  });
+
+  describe('Links with formatting', () => {
+    test('handles bold text in links', () => {
+      const elements = convertWikiToReact("[https://example.com '''Bold Link''']");
+      const { container } = render(<>{elements}</>);
+
+      const link = container.querySelector('a');
+      expect(link).toBeInTheDocument();
+      const strong = link.querySelector('strong');
+      expect(strong).toBeInTheDocument();
+      expect(strong).toHaveTextContent('Bold Link');
+    });
+
+    test('handles italic text in links', () => {
+      const elements = convertWikiToReact("[https://example.com ''Italic Link'']");
+      const { container } = render(<>{elements}</>);
+
+      const link = container.querySelector('a');
+      expect(link).toBeInTheDocument();
+      const em = link.querySelector('em');
+      expect(em).toBeInTheDocument();
+      expect(em).toHaveTextContent('Italic Link');
+    });
+  });
+
+  describe('Edge cases', () => {
+    test('handles link at start of line', () => {
+      const elements = convertWikiToReact('[https://example.com Link] and text');
+      const { container } = render(<>{elements}</>);
+
+      const link = container.querySelector('a');
+      expect(link).toBeInTheDocument();
+    });
+
+    test('handles link at end of line', () => {
+      const elements = convertWikiToReact('Text and [https://example.com Link]');
+      const { container } = render(<>{elements}</>);
+
+      const link = container.querySelector('a');
+      expect(link).toBeInTheDocument();
+    });
+
+    test('preserves surrounding text', () => {
+      const elements = convertWikiToReact('Before [https://example.com Link] After');
+      const { container } = render(<>{elements}</>);
+
+      expect(container.textContent).toContain('Before');
+      expect(container.textContent).toContain('Link');
+      expect(container.textContent).toContain('After');
+    });
+  });
+
+  describe('Type safety', () => {
+    test('handles text with no links', () => {
+      const elements = convertWikiToReact('Just plain text');
+      const { container } = render(<>{elements}</>);
+
+      const link = container.querySelector('a');
+      expect(link).not.toBeInTheDocument();
+    });
+
+    test('handles empty link text', () => {
+      const elements = convertWikiToReact('[https://example.com ]');
+      const { container } = render(<>{elements}</>);
+
+      // Should still render or handle gracefully
+      expect(container).toBeInTheDocument();
+    });
+  });
+});
