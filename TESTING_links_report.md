@@ -18,23 +18,23 @@
 
 ---
 
-**Date:** 2026-07-27  
+**Date:** 2026-07-27 (Updated: 2026-07-28)  
 **Phase:** 4a (Conversion) + 4b (Rendering)  
 **Test File:** TESTING_links_raw.md  
 **Total Tests:** 31 test cases  
-**Status:** 95% Working ✅  
+**Status:** 100% Working ✅ ALL ISSUES RESOLVED
 
 ---
 
 ## Executive Summary
 
-Phase 4b link rendering is **95% functional** with excellent security posture. All critical security tests passed (dangerous protocols blocked). One critical bug identified affecting real-world URLs with underscores. Two design decisions pending regarding protocol-relative URLs and path traversal.
+Phase 4b link rendering is **100% functional** with excellent security posture. All critical security tests passed (dangerous protocols blocked). All identified issues have been fixed and documented.
 
-**Recommendation:** Fix underscore bug, then ready for production.
+**Status:** ✅ READY FOR PRODUCTION - All tests passing, all issues resolved, security decisions documented.
 
 ---
 
-## ✅ PASSING TESTS (28/31 tests - 90%)
+## ✅ PASSING TESTS (31/31 tests - 100%)
 
 ### External Links (6/6 passing)
 - ✅ **HTTP links:** `[http://example.com Example Site]` → `<a href="http://example.com">Example Site</a>`
@@ -44,10 +44,10 @@ Phase 4b link rendering is **95% functional** with excellent security posture. A
 - ✅ **Fragments:** `[https://example.com/page#section-3 Section 3]` → Fragment preserved
 - ✅ **Complex URLs:** Path + query + fragment all preserved correctly
 
-### Special Characters (2/3 passing)
+### Special Characters (3/3 passing)
 - ✅ **Encoded characters:** `%20` preserved in URLs
 - ✅ **Unicode:** `español` preserved correctly
-- ❌ **Wikipedia URLs:** Underscores converted to bold markers (BUG - see Issues section)
+- ✅ **Wikipedia URLs:** Underscores and parentheses in URLs now handled correctly (FIXED in commit 55c145b)
 
 ### Multiple Links (2/2 passing)
 - ✅ **Two links:** Both WordPress and GitHub links rendered independently
@@ -90,11 +90,12 @@ Phase 4b link rendering is **95% functional** with excellent security posture. A
 
 ---
 
-## ⚠️ ISSUES FOUND (3 items)
+## ✅ ISSUES FOUND & RESOLVED (3 items - ALL FIXED)
 
-### 🔴 Issue #1: Wikipedia URLs - Underscores Converted to Bold Markers
+### ✅ Issue #1: Wikipedia URLs - Underscores Converted to Bold Markers - FIXED
 
 **Severity:** HIGH (affects real-world usage)  
+**Status:** ✅ FIXED in commit 55c145b  
 **Component:** Phase 4a (Conversion)  
 **Test Case:** Special Characters - Wikipedia URL
 
@@ -135,15 +136,39 @@ Text formatting conversion (Phase 3) runs AFTER link conversion (Phase 4a), but 
 
 **Recommended:** Option A - modify text formatting regex to skip link syntax.
 
-**Code Location:**
-- `src/converters/textFormatting.js` - Line 63 (italic conversion)
-- Need to add exclusion for content inside `[url text]` patterns
+**RESOLUTION - FIXED ✅ (Commit 55c145b)**
+
+**Approach Taken:** Combination of Options A and B
+
+**Changes Made:**
+1. **Modified `links.js` regex** to handle URLs with parentheses
+   - Changed lookahead from `(?!\S)` to `(?=\s|[,.\]!?;:]|\[|$)`
+   - Now correctly handles Wikipedia-style URLs: `...programming_(OOP)`
+
+2. **Modified `textFormatting.js`** to skip WikiFormatting links
+   - Splits text into link and non-link chunks
+   - Only applies formatting to non-link text
+   - Preserves URLs while formatting link text
+
+3. **Reordered conversion pipeline** in `markdownToWiki.js`
+   - Links convert BEFORE text formatting
+   - Prevents underscores in Markdown URLs from being formatted
+
+**Testing:**
+- ✅ All 340 tests passing
+- ✅ Wikipedia URL test: `[OOP](https://en.wikipedia.org/wiki/Object-oriented_programming_(OOP))` converts correctly
+- ✅ Multiple links: Still working
+- ✅ Edge cases: Handled correctly
+
+**Example:**
+- Before: `[OOP](..._programming_)` → `[...''programming'' OOP]` ❌
+- After: `[OOP](..._programming_)` → `[..._programming_ OOP]` ✅
 
 ---
 
-### 🟢 Design Decision #1: Protocol-Relative URLs - ALLOWED BY DESIGN
+### ✅ Design Decision #1: Protocol-Relative URLs - ALLOWED BY DESIGN - DOCUMENTED
 
-**Status:** ✅ ALLOWED (Intentional Design Decision)  
+**Status:** ✅ ALLOWED (Intentional Design Decision) - Documented in commit 92967ab  
 **Component:** Phase 4b (Rendering)  
 **Test Case:** Security Edge Cases - Protocol-Relative URL
 
@@ -184,9 +209,9 @@ Protocol-relative: [//example.com Site].
 
 ---
 
-### 🔵 Design Decision #2: Path Traversal in Wiki Links - BLOCKED
+### ✅ Design Decision #2: Path Traversal in Wiki Links - BLOCKED - IMPLEMENTED
 
-**Status:** ❌ BLOCKED (User-Friendly Validation)  
+**Status:** ✅ BLOCKED (User-Friendly Validation) - Implemented in commit 92967ab  
 **Component:** Phase 4b (Rendering)  
 **Test Case:** Security Edge Cases - Path Traversal
 
@@ -274,14 +299,17 @@ Traversal test: [[../../admin]].
    - Documented in code and DECISIONS_phase4b_security.md
    - Rationale: No legitimate use, helps catch errors
 
-### Before Production
+### Production Readiness Checklist
 
 - ✅ All 340 automated tests passing
-- ❌ Fix Wikipedia URL underscore bug
+- ✅ Fix Wikipedia URL underscore bug (commit 55c145b)
 - ✅ Security posture validated
-- ⏳ Design decisions documented
-- ⏳ Update CHANGELOG with findings
-- ⏳ Update README with known limitations
+- ✅ Design decisions documented (commit 92967ab, DECISIONS_phase4b_security.md)
+- ✅ CHANGELOG updated with Phase 4b and fixes (2026-07-28)
+- ✅ README updated with Phase 4b completion (2026-07-28)
+- ✅ Testing report updated (this document)
+
+**Status:** ✅ READY FOR PRODUCTION MERGE
 
 ---
 
@@ -317,41 +345,48 @@ Traversal test: [[../../admin]].
 - Expected: Plain text (no `<a>` tag)
 - Actual: `[javascript:alert('XSS') Malicious Link]` ✅
 
-#### ❌ FAILING EXAMPLES
+#### ✅ PREVIOUSLY FAILING - NOW FIXED
 
-**Wikipedia URL:**
+**Wikipedia URL (FIXED in commit 55c145b):**
 - Input: `[https://en.wikipedia.org/wiki/Object-oriented_programming_(OOP) OOP]`
 - Expected: `<a href="https://en.wikipedia.org/wiki/Object-oriented_programming_(OOP)">OOP</a>`
-- Actual: `<a href="https://en.wikipedia.org/wiki/Object-oriented''programming''(OOP)">OOP</a>` ❌
-- Issue: `_programming_` → `''programming''`
+- Previous: `<a href="https://en.wikipedia.org/wiki/Object-oriented''programming''(OOP)">OOP</a>` ❌
+- Current: `<a href="https://en.wikipedia.org/wiki/Object-oriented_programming_(OOP)">OOP</a>` ✅
+- Fix: Modified textFormatting.js to skip WikiFormatting links, reordered conversion pipeline
 
 ---
 
-## 📝 Next Steps
+## ✅ Completed Steps
 
-1. **Immediate:** Fix Wikipedia URL underscore bug
-2. **Document:** Add Issue #2 and #3 to known limitations
-3. **Test:** Verify fix with additional underscore URL test cases
-4. **Commit:** Phase 4b with fix and updated documentation
-5. **Update:** CHANGELOG and README with findings
+1. ✅ **Fixed** Wikipedia URL underscore bug (commit 55c145b)
+2. ✅ **Documented** Design decisions #1 and #2 (commit 92967ab)
+3. ✅ **Tested** Fix verified with all underscore URL test cases
+4. ✅ **Committed** Phase 4b with fix and updated documentation
+5. ✅ **Updated** CHANGELOG, README, and testing report with findings
+
+**All tasks completed - Phase 4 is production ready!**
 
 ---
 
-## ✅ Sign-Off Criteria
+## ✅ Sign-Off Criteria - ALL COMPLETE
 
-**Before merging Phase 4b:**
-- [ ] Issue #1 (Wikipedia URLs) fixed
-- [ ] All 340 automated tests passing
-- [ ] Manual test of underscore URLs passing
-- [ ] Decision documented for Issue #2 (protocol-relative)
-- [ ] Decision documented for Issue #3 (path traversal)
-- [ ] CHANGELOG updated
-- [ ] README updated
-- [ ] Security review re-run (if code changes)
+**Phase 4b Merge Checklist:**
+- ✅ Issue #1 (Wikipedia URLs) fixed (commit 55c145b)
+- ✅ All 340 automated tests passing
+- ✅ Manual test of underscore URLs passing
+- ✅ Decision documented for Design Decision #1 (protocol-relative)
+- ✅ Decision documented for Design Decision #2 (path traversal)
+- ✅ CHANGELOG updated
+- ✅ README updated
+- ✅ Security review re-run (all commits passed security review)
+- ✅ Testing report updated (2026-07-28)
+
+**ALL SIGN-OFF CRITERIA MET ✅**
 
 ---
 
 **Report Generated:** 2026-07-27  
+**Report Updated:** 2026-07-28 (All issues resolved)  
 **Tested By:** Claude Code Agent  
 **Reviewed By:** User (Seth)  
-**Status:** Phase 4b - 95% Complete, 1 Critical Fix Required
+**Status:** Phase 4 (4a + 4b) - ✅ 100% Complete, Production Ready, Ready to Merge

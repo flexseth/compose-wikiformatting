@@ -46,6 +46,17 @@ WordPress core uses [Trac](https://core.trac.wordpress.org) for issue tracking, 
 - 🌍 **Unicode Support**: Special characters, Unicode, emoji in link text
 - 🧪 **42 Tests**: 100% coverage on links conversion
 
+### Phase 4b: Links Rendering ✅
+- **Live Link Rendering**: WikiFormatting links → clickable HTML in Column 3
+- **External Links**: `[url text]` → clickable links with security validation
+- **Wiki Links**: `[[WikiPage]]` → Trac-style `/wiki/` links
+- **Trac-Specific**: `[ticket:123]`, `[changeset:456]`, `[source:path]` all supported
+- 🔒 **Security**: Dangerous protocols blocked (javascript:, data:, file:, vbscript:)
+- 🎨 **Formatted Links**: Bold/italic text inside links renders correctly
+- 🐛 **Bug Fix**: URLs with underscores & parentheses now work (Wikipedia, etc.)
+- 📋 **Design Decisions**: Protocol-relative URLs allowed, path traversal blocked
+- 🧪 **68 Tests**: 42 conversion + 26 rendering, 100% coverage
+
 ### Coming Soon
 - 📋 **Copy to Clipboard**: One-click copy of WikiFormatting
 - ⌨️ **Keyboard Shortcuts**: Tab, Escape, CMD/CTRL+S
@@ -91,9 +102,10 @@ npm run test:coverage
 ```
 
 **Current Status:**
-- ✅ 314 tests passing (12 test suites)
+- ✅ 340 tests passing (12 test suites)
 - ✅ 100% coverage on converter functions
-- ✅ 5 security reviews passed (0 vulnerabilities)
+- ✅ 88.43% overall coverage (above 80% requirement)
+- ✅ 6 security reviews passed (0 vulnerabilities)
 
 ### Building for Production
 
@@ -117,14 +129,14 @@ This project follows **test-driven development** with strict security requiremen
 
 ## Roadmap
 
-### Current Progress (4a/10 phases complete)
+### Current Progress (4b/10 phases complete - 7 phases done!)
 - ✅ **Phase 1**: Headers conversion (Markdown → WikiFormatting)
 - ✅ **Phase 2**: WikiFormatting renderer (three-column layout)
 - ✅ **Phase 2.5**: LocalStorage persistence (auto-save/restore)
 - ✅ **Phase 3**: Text formatting (bold, italic)
 - ✅ **Phase 3.5**: Text formatting renderer (bold, italic display)
 - ✅ **Phase 4a**: Links conversion (Markdown → WikiFormatting)
-- ⏳ **Phase 4b**: Links renderer (with URL validation)
+- ✅ **Phase 4b**: Links renderer (with URL validation, security filtering)
 - ⏳ **Phase 5**: Code blocks (fenced, syntax highlighting)
 - ⏳ **Phase 6**: Blockquotes
 - ⏳ **Phase 7**: Tables
