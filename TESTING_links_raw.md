@@ -1,13 +1,14 @@
 # Links Testing - Raw Input
 
-**Purpose:** Quick copy/paste testing file for Phase 4 (Links). Contains raw WikiFormatting syntax that can be copied in its entirety and pasted directly into the editor to test all link functionality at once.
+**Purpose:** Quick copy/paste testing file for Phase 4 (Links). Contains raw **Markdown** syntax that can be copied in its entirety and pasted directly into the editor to test all link functionality at once.
 
 **How to Use:**
 1. Select all content in this file (Cmd/Ctrl+A)
 2. Copy (Cmd/Ctrl+C)
-3. Paste into the editor (left column)
-4. Verify links render correctly in Column 3 (Rendered Preview)
-5. Check that dangerous protocols (javascript:, data:, etc.) are NOT clickable
+3. Paste into the editor (Column 1 - Markdown input)
+4. Verify WikiFormatting conversion in Column 2
+5. Verify links render correctly in Column 3 (Rendered Preview)
+6. Check that dangerous protocols (javascript:, data:, etc.) are NOT clickable
 
 **What This Tests:** All link types (external, wiki, Trac-specific), formatting within links, security validation, and edge cases. No documentation or explanations - just raw test input.
 
@@ -19,33 +20,33 @@
 
 ## Basic External Links
 
-Check out [https://wordpress.org WordPress.org] for more info.
+Check out [WordPress.org](https://wordpress.org) for more info.
 
-Visit [http://example.com Example Site] here.
+Visit [Example Site](http://example.com) here.
 
 ## Links with Paths, Queries, Fragments
 
-Read the [https://docs.wordpress.org/install/guide.html Installation Guide].
+Read the [Installation Guide](https://docs.wordpress.org/install/guide.html).
 
-Search results: [https://wordpress.org/plugins/?search=security&type=featured WordPress Plugins]
+Search results: [WordPress Plugins](https://wordpress.org/plugins/?search=security&type=featured)
 
-Jump to [https://example.com/page#section-3 Section 3].
+Jump to [Section 3](https://example.com/page#section-3).
 
-See [https://wordpress.org/support/search.php?q=custom+post&forums=all#results Advanced Search].
+See [Advanced Search](https://wordpress.org/support/search.php?q=custom+post&forums=all#results).
 
 ## Special Characters
 
-Link with spaces: [https://example.com/test%20page Test Page].
+Link with spaces: [Test Page](https://example.com/test%20page).
 
-Learn about [https://en.wikipedia.org/wiki/Object-oriented_programming_(OOP) OOP].
+Learn about [OOP](https://en.wikipedia.org/wiki/Object-oriented_programming_(OOP)).
 
-Unicode test: [https://example.com/español Español].
+Unicode test: [Español](https://example.com/español).
 
 ## Multiple Links
 
-Check [https://wordpress.org WordPress] and [https://github.com GitHub] for updates.
+Check [WordPress](https://wordpress.org) and [GitHub](https://github.com) for updates.
 
-Sites: [https://one.com One], [https://two.com Two], [https://three.com Three].
+Sites: [One](https://one.com), [Two](https://two.com), [Three](https://three.com).
 
 ## Wiki Links
 
@@ -55,27 +56,27 @@ Check [[Category/SubPage]] for more.
 
 ## Links with Formatting
 
-Visit [https://example.com '''Important Site'''].
+Visit [**Important Site**](https://example.com).
 
-Read [https://docs.example.com ''Documentation''].
+Read [*Documentation*](https://docs.example.com).
 
-See [https://example.com '''''Very Important'''''].
+See [***Very Important***](https://example.com).
 
 ## Security Tests (Should NOT be clickable)
 
-Don't click [javascript:alert('XSS') Malicious Link].
+Don't click [Malicious Link](javascript:alert('XSS')).
 
-Bad link: [data:text/html,<script>alert(1)</script> Data URL].
+Bad link: [Data URL](data:text/html,<script>alert(1)</script>).
 
-Old exploit: [vbscript:msgbox(1) VBScript].
+Old exploit: [VBScript](vbscript:msgbox(1)).
 
-System file: [file:///etc/passwd Sensitive File].
+System file: [Sensitive File](file:///etc/passwd).
 
-Email link: [mailto:test@example.com Email].
+Email link: [Email](mailto:test@example.com).
 
-FTP server: [ftp://files.example.com Files].
+FTP server: [Files](ftp://files.example.com).
 
-## Trac-Specific Links
+## Trac-Specific Links (WikiFormatting passthrough)
 
 See [ticket:12345 Bug Report].
 
@@ -85,14 +86,14 @@ Check [source:trunk/wp-includes/functions.php Source Code].
 
 ## Edge Cases
 
-Link at start: [https://wordpress.org WordPress] is great.
+Link at start: [WordPress](https://wordpress.org) is great.
 
-Link at end: Visit this site [https://example.com Example]
+Link at end: Visit this site [Example](https://example.com)
 
-Before [https://example.com Link] After
+Before [Link](https://example.com) After
 
 ## Security Edge Cases
 
-Protocol-relative: [//example.com Site].
+Protocol-relative: [Site](//example.com).
 
 Traversal test: [[../../admin]].
