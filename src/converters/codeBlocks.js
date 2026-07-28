@@ -86,13 +86,13 @@ export function convertCodeBlocks(text) {
   // Matches: opening backticks (3+), optional language, newline, optional content, closing backticks
   // (?:^|\n) - Either start of string or newline
   // (`{3,}) - Opening backticks (captured for matching closing fence)
-  // ([a-z]*) - Optional language identifier
+  // ([a-zA-Z]*) - Optional language identifier (case-insensitive)
   // \n - Newline after opening fence
   // ([\s\S]*?) - Content (lazy match, any character including newlines, can be empty)
   // (?:\n)? - Optional newline before closing fence (missing in empty blocks)
   // \1 - Closing backticks (same count as opening)
   // (?=\n|$) - Followed by newline or end of string
-  const fencePattern = /(?:^|\n)(`{3,})([a-z]*)\n([\s\S]*?)(?:\n)?\1(?=\n|$)/g;
+  const fencePattern = /(?:^|\n)(`{3,})([a-zA-Z]*)\n([\s\S]*?)(?:\n)?\1(?=\n|$)/g;
 
   result = result.replace(fencePattern, (match, openTicks, lang, content) => {
     // Build WikiFormatting block
