@@ -213,4 +213,80 @@ describe('convertCodeBlocks', () => {
       expect(convertCodeBlocks(input)).toBe(input);
     });
   });
+
+  describe('Nested Code Blocks (Variable Backtick Counts)', () => {
+    test('converts outer fence with 4 backticks containing inner 3-backtick fence', () => {
+      const input = '````\n```\ninner code\n```\n````';
+      const expected = '{{{\n```\ninner code\n```\n}}}';
+      expect(convertCodeBlocks(input)).toBe(expected);
+    });
+
+    test('converts outer fence with 4 backticks and language', () => {
+      const input = '````markdown\n```js\nconsole.log("hello");\n```\n````';
+      const expected = '{{{#!markdown\n```js\nconsole.log("hello");\n```\n}}}';
+      expect(convertCodeBlocks(input)).toBe(expected);
+    });
+
+    test('converts outer fence with 5 backticks containing 4 and 3 backtick fences', () => {
+      const input = '`````\n````\n```\ndeep\n```\n````\n`````';
+      const expected = '{{{\n````\n```\ndeep\n```\n````\n}}}';
+      expect(convertCodeBlocks(input)).toBe(expected);
+    });
+
+    test('does not match closing fence with fewer backticks than opening', () => {
+      const input = '````\nsome code\n```\nstill inside\n````';
+      const expected = '{{{\nsome code\n```\nstill inside\n}}}';
+      expect(convertCodeBlocks(input)).toBe(expected);
+    });
+
+    test('handles nested code block showing Markdown syntax as documentation', () => {
+      const input = '````md\nTo create a code block:\n```js\nconst x = 1;\n```\n````';
+      const expected = '{{{#!markdown\nTo create a code block:\n```js\nconst x = 1;\n```\n}}}';
+      expect(convertCodeBlocks(input)).toBe(expected);
+    });
+
+    test('handles multiple nested blocks in same document', () => {
+      const input = '````\n```\nfirst nested\n```\n````\n\nText between\n\n````\n```\nsecond nested\n```\n````';
+      const expected = '{{{\n```\nfirst nested\n```\n}}}\n\nText between\n\n{{{\n```\nsecond nested\n```\n}}}';
+      expect(convertCodeBlocks(input)).toBe(expected);
+    });
+
+    test('handles nested block with surrounding text', () => {
+      const input = 'Before\n````\n```js\ncode\n```\n````\nAfter';
+      const expected = 'Before\n{{{\n```js\ncode\n```\n}}}\nAfter';
+      expect(convertCodeBlocks(input)).toBe(expected);
+    });
+
+    test('handles mixed regular and nested blocks', () => {
+      const input = '```js\nregular block\n```\n\n````\n```\nnested block\n```\n````';
+      const expected = '{{{#!javascript\nregular block\n}}}\n\n{{{\n```\nnested block\n```\n}}}';
+      expect(convertCodeBlocks(input)).toBe(expected);
+    });
+  });
+
+  describe('Code Block Content Protection', () => {
+    test('code content with Markdown headers is not converted', () => {
+      const input = '```md\n# This is a heading\n## Another heading\n```';
+      const expected = '{{{#!markdown\n# This is a heading\n## Another heading\n}}}';
+      expect(convertCodeBlocks(input)).toBe(expected);
+    });
+
+    test('code content with Markdown bold/italic is not converted', () => {
+      const input = '```\n**bold** and *italic* text\n```';
+      const expected = '{{{\n**bold** and *italic* text\n}}}';
+      expect(convertCodeBlocks(input)).toBe(expected);
+    });
+
+    test('code content with Markdown links is not converted', () => {
+      const input = '```\n[link text](https://example.com)\n```';
+      const expected = '{{{\n[link text](https://example.com)\n}}}';
+      expect(convertCodeBlocks(input)).toBe(expected);
+    });
+
+    test('code content with WikiFormatting delimiters is preserved literally', () => {
+      const input = '```\n{{{ and }}} are WikiFormatting delimiters\n```';
+      const expected = '{{{\n{{{ and }}} are WikiFormatting delimiters\n}}}';
+      expect(convertCodeBlocks(input)).toBe(expected);
+    });
+  });
 });
