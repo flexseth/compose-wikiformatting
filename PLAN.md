@@ -232,16 +232,48 @@ attributes: {
 ### Phase 5: Code Blocks
 **Branch:** `feature/code-blocks` (sub-branch from `feature/text-formatting`)
 
+**Phase 5a: Conversion** (Markdown → WikiFormatting)
 - [ ] Fenced code blocks: ` ```lang ` → `{{{#!lang `
-- [ ] Inline code: `` `code` `` → `` `code` `` (no change)
-- [ ] Language detection (JavaScript, PHP, HTML, CSS, Markdown)
-- [ ] Code block rendering: `<pre><code>` elements
-- [ ] Syntax highlighting consideration (Trac-compatible)
-- [ ] **SECURITY: Escape all code content**
+- [ ] Generic code blocks: ` ``` ` → `{{{` / `}}}`
+- [ ] Inline code: `` `code` `` → `` `code` `` (no change - same syntax)
+- [ ] Language normalization (js→javascript, ts→javascript, sh→bash, md→markdown)
+- [ ] Variable backtick counts (4+ backticks for outer fence when content contains ```)
+- [ ] Nested code blocks (Trac supports nesting natively with indentation)
+- [ ] **Pipeline order: code blocks must convert FIRST** (protect content from other converters)
+- [ ] **SECURITY: Code content must not be processed by header/link/text converters**
 - [ ] 100% coverage
 - [ ] **SECURITY REVIEW PASSED**
 
-**Status:** ⏳ Planned
+**Phase 5b: Rendering** (WikiFormatting → React)
+- [ ] Code block rendering: `{{{` → `<pre><code>` elements
+- [ ] Language-specific rendering: `{{{#!lang` → `<pre><code class="language-lang">`
+- [ ] Inline code rendering: `` `code` `` → `<code>` elements
+- [ ] Nested code block rendering (indented inner blocks)
+- [ ] Syntax highlighting consideration (Trac uses Pygments; CSS-only approach for preview)
+- [ ] **SECURITY: Escape all code content (no HTML execution inside code blocks)**
+- [ ] 100% coverage
+- [ ] **SECURITY REVIEW PASSED**
+
+**UI: Tab Key Handling Inside Code Blocks**
+- [ ] Detect when cursor is inside a code block (between ``` fences)
+- [ ] When inside code block: Tab inserts indentation (2 or 4 spaces) instead of moving focus
+- [ ] When outside code block: Tab retains current behavior (move to next focusable element)
+- [ ] Shift+Tab inside code block: remove one level of indentation
+- [ ] This requires the Editor component to be aware of code block boundaries
+- [ ] Consider: cursor position tracking relative to code fence markers
+
+**Known Limitations:**
+- WikiFormatting has no escape mechanism for `}}}` inside code blocks
+- If code content contains `}}}`, it will prematurely close the block (Trac limitation, not ours)
+- Document this as a known limitation rather than attempting to solve it
+
+**Research Notes:**
+- Trac natively supports nested processor blocks with indentation
+- Trac uses Pygments for syntax highlighting (200+ languages)
+- Trac 1.1.2+ supports `lineno` and `marks` arguments on code blocks
+- WordPress Trac uses the same WikiFormatting engine as Edgewall Trac
+
+**Status:** ⏳ In Progress (Phase 5a started)
 
 ---
 
