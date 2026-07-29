@@ -38,52 +38,37 @@ function normalizeLanguage(lang) {
 }
 
 /**
- * Convert Markdown code blocks to WikiFormatting
+ * Extract code blocks and replace with placeholders
  *
- * Processes text and converts fenced code blocks from Markdown syntax
- * to WikiFormatting syntax. Handles nested code blocks by matching
- * backtick counts (outer fence must have more backticks than inner).
- *
- * Key features:
- * - Variable backtick counts (3, 4, 5+ backticks)
- * - Language-specific blocks with #! processor notation
- * - Preserves inline code (single backticks) unchanged
- * - Protects code content from other converters
+ * Extracts all Markdown code blocks, converts them to WikiFormatting,
+ * and replaces them with unique placeholders. This protects code block
+ * content from being processed by other converters.
  *
  * @param {string} text - Text with Markdown code blocks
- * @returns {string} Text with WikiFormatting code block syntax
+ * @returns {{text: string, blocks: Array<{placeholder: string, content: string}>}}
  * @throws {TypeError} If text is not a string
  *
  * @example
- * convertCodeBlocks('```js\nconst x = 1;\n```')
- * // Returns: "{{{#!javascript\nconst x = 1;\n}}}"
- *
- * @example
- * convertCodeBlocks('```\ngeneric code\n```')
- * // Returns: "{{{\ngeneric code\n}}}"
- *
- * @example
- * convertCodeBlocks('````\n```\nnested\n```\n````')
- * // Returns: "{{{\n```\nnested\n```\n}}}"
- *
- * @security
- * - Code content is NOT processed by other converters (headers, links, text formatting)
- * - This converter must run FIRST in the pipeline
- * - Content between {{{ and }}} is treated as verbatim by WikiFormatting
+ * extractCodeBlocks('```js\ncode\n```')
+ * // Returns: { text: '￾￾CODEBLOCK0￾￾', blocks: [{ placeholder: '￾￾CODEBLOCK0￾￾', content: '{{{#!javascript\ncode\n}}}' }] }
  */
-export function convertCodeBlocks(text) {
+export function extractCodeBlocks(text) {
   // Type check
   if (typeof text !== 'string') {
     throw new TypeError('Text must be a string');
   }
 
-  // Strategy: Find all code fences, match opening/closing by backtick count
-  // Process from longest backtick count to shortest (outermost to innermost)
+  const blocks = [];
+  // Use placeholder format that won't trigger other converters:
+  // - No # (headers)
+  // - No * or _ (text formatting)
+  // - No [ ] ( ) (links)
+  const placeholderPrefix = '￾￾CODEBLOCK';
+  const placeholderSuffix = '￾￾';
 
-  let result = text;
+  let counter = 0;
 
   // Regex to find fenced code blocks
-  // Matches: opening backticks (3+), optional language, newline, optional content, closing backticks
   // (?:^|\n) - Either start of string or newline
   // (`{3,}) - Opening backticks (captured for matching closing fence)
   // ([a-zA-Z]*) - Optional language identifier (case-insensitive)
@@ -94,7 +79,7 @@ export function convertCodeBlocks(text) {
   // (?=\n|$) - Followed by newline or end of string
   const fencePattern = /(?:^|\n)(`{3,})([a-zA-Z]*)\n([\s\S]*?)(?:\n)?\1(?=\n|$)/g;
 
-  result = result.replace(fencePattern, (match, openTicks, lang, content) => {
+  const textWithPlaceholders = text.replace(fencePattern, (match, openTicks, lang, content) => {
     // Build WikiFormatting block
     let wikiBlock = '{{{';
 
@@ -113,9 +98,61 @@ export function convertCodeBlocks(text) {
       wikiBlock += '\n}}}';
     }
 
-    // If match started with newline, preserve it
-    return match[0] === '\n' ? '\n' + wikiBlock : wikiBlock;
+    // Create unique placeholder
+    const placeholder = `${placeholderPrefix}${counter}${placeholderSuffix}`;
+    counter++;
+
+    // Store block with placeholder
+    blocks.push({ placeholder, content: wikiBlock });
+
+    // Preserve leading newline if present
+    return match[0] === '\n' ? '\n' + placeholder : placeholder;
   });
 
+  return { text: textWithPlaceholders, blocks };
+}
+
+/**
+ * Restore code blocks from placeholders
+ *
+ * Replaces placeholders with their corresponding WikiFormatting code blocks.
+ *
+ * @param {string} text - Text with placeholders
+ * @param {Array<{placeholder: string, content: string}>} blocks - Code blocks to restore
+ * @returns {string} Text with code blocks restored
+ *
+ * @example
+ * restoreCodeBlocks('￾￾CODEBLOCK0￾￾', [{ placeholder: '￾￾CODEBLOCK0￾￾', content: '{{{#!javascript\ncode\n}}}' }])
+ * // Returns: '{{{#!javascript\ncode\n}}}'
+ */
+export function restoreCodeBlocks(text, blocks) {
+  let result = text;
+
+  for (const { placeholder, content } of blocks) {
+    // Use a global replace to handle cases where placeholder might appear multiple times
+    result = result.split(placeholder).join(content);
+  }
+
   return result;
+}
+
+/**
+ * Convert Markdown code blocks to WikiFormatting
+ *
+ * Convenience function that extracts code blocks and immediately restores them.
+ * For pipeline use, prefer extractCodeBlocks/restoreCodeBlocks to protect content.
+ *
+ * @param {string} text - Text with Markdown code blocks
+ * @returns {string} Text with WikiFormatting code block syntax
+ * @throws {TypeError} If text is not a string
+ *
+ * @example
+ * convertCodeBlocks('```js\nconst x = 1;\n```')
+ * // Returns: "{{{#!javascript\nconst x = 1;\n}}}"
+ *
+ * @deprecated Use extractCodeBlocks/restoreCodeBlocks in conversion pipelines
+ */
+export function convertCodeBlocks(text) {
+  const { text: textWithPlaceholders, blocks } = extractCodeBlocks(text);
+  return restoreCodeBlocks(textWithPlaceholders, blocks);
 }

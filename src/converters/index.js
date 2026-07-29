@@ -17,4 +17,4 @@ export { convertMarkdownToWiki } from './markdownToWiki.js';
 export { convertHeader, convertHeaders } from './headers.js';
 export { convertTextFormatting } from './textFormatting.js';
 export { convertLinks } from './links.js';
-export { convertCodeBlocks } from './codeBlocks.js';
+export { convertCodeBlocks, extractCodeBlocks, restoreCodeBlocks } from './codeBlocks.js';

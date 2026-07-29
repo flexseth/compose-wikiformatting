@@ -10,7 +10,7 @@
 import { convertHeaders } from './headers.js';
 import { convertTextFormatting } from './textFormatting.js';
 import { convertLinks } from './links.js';
-import { convertCodeBlocks } from './codeBlocks.js';
+import { extractCodeBlocks, restoreCodeBlocks } from './codeBlocks.js';
 
 /**
  * Convert Markdown text to WikiFormatting
@@ -62,11 +62,11 @@ export function convertMarkdownToWiki(markdown, options = {}) {
 
   let result = markdown;
 
-  // Phase 5: Convert code blocks FIRST (before all other converters)
+  // Phase 5: Extract code blocks FIRST (protect content with placeholders)
   // CRITICAL: Code content must NOT be processed by other converters
-  // Headers, links, text formatting inside code blocks should remain literal
-  // This runs on full text (not line-by-line) because code blocks span multiple lines
-  result = convertCodeBlocks(result);
+  // Placeholders prevent headers, links, text formatting from touching code block content
+  const { text: textWithPlaceholders, blocks: codeBlocks } = extractCodeBlocks(result);
+  result = textWithPlaceholders;
 
   // Phase 1: Convert headers (# → =)
   // Must be done line-by-line to avoid conflicts with other syntax
@@ -81,6 +81,10 @@ export function convertMarkdownToWiki(markdown, options = {}) {
   // Applied AFTER links so formatting can be applied to link text
   // Links are now in WikiFormatting [url text] format, safe from underscore conversion
   result = result.split('\n').map(line => convertTextFormatting(line)).join('\n');
+
+  // Phase 5 (final): Restore code blocks from placeholders
+  // Code blocks now contain original content, converted to WikiFormatting but unmodified
+  result = restoreCodeBlocks(result, codeBlocks);
 
   // Future phases: Additional conversions will be added here
   // - Blockquotes
