@@ -54,12 +54,12 @@
 ### ⏳ PENDING MANUAL TESTING
 
 - [ ] **Multiple Blocks**
-  - [ ] First block (js)
-  - [ ] Text between blocks preserved
-  - [ ] Second block (php)
-  - [ ] More text preserved
-  - [ ] Third block (generic)
-  - [ ] Each block converted independently
+  - [x] First block (js)
+  - [x] Text between blocks preserved
+  - [x] Second block (php)
+  - [x] More text preserved
+  - [x] Third block (generic)
+  - [x] Each block converted independently
 
 - [ ] **Edge Cases**
   - [ ] Empty Block - ``` ``` → {{{ \n }}}
