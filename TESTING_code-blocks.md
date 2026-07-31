@@ -197,9 +197,7 @@ generic
 
 ### Single Line
 
-```js
-const x = 42;
-```
+```js const x = 42; ```
 
 ### Special Characters
 

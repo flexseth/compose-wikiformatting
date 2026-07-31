@@ -62,10 +62,10 @@
   - [x] Each block converted independently
 
 - [ ] **Edge Cases**
-  - [ ] Empty Block - ``` ``` → {{{ \n }}}
-  - [ ] Single Line - ```js\nconst x = 42;\n```
-  - [ ] Special Characters - `<>&"'` preserved
-  - [ ] WikiFormatting Delimiters Inside Code - `{{{` and `}}}` preserved literally
+  - [ ] Empty Block - ``` ``` → {{{ \n }}} 
+  - [x] Single Line - ```js\nconst x = 42;\n``` **correctly converts, fixed test**
+  - [x] Special Characters - `<>&"'` preserved
+  - [x] WikiFormatting Delimiters Inside Code - `{{{` and `}}}` preserved literally
 
 - [ ] **Security Test Cases** ⭐ CRITICAL
   - [ ] XSS: Script Injection - `<script>` tags preserved as text
