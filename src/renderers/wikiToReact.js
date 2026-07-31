@@ -20,10 +20,14 @@
  *   - Wiki links: [[WikiPage]]
  *   - URL scheme validation (http, https, Trac-specific)
  *   - Links with inline formatting
+ * - Code blocks (Phase 5b):
+ *   - Fenced code blocks: {{{ / }}}
+ *   - Language-specific blocks: {{{#!lang
+ *   - HTML escaping (XSS prevention)
+ *   - Inline code: `code`
  *
  * Future phases will add:
  * - Lists
- * - Code blocks
  * - Blockquotes
  * - Tables
  * - Images
@@ -32,6 +36,7 @@
  */
 
 import React from 'react';
+import { renderCodeBlock, renderInlineCode } from './codeBlocks.js';
 
 /**
  * Generate an ID from heading text
@@ -404,27 +409,56 @@ export function convertWikiToReact(wikiText, options = {}) {
   // Process line by line
   const lines = wikiText.split('\n');
   const elements = [];
+  let i = 0;
 
-  lines.forEach((line, index) => {
+  while (i < lines.length) {
+    const line = lines[i];
+
+    // Check if line starts a code block
+    if (line.startsWith('{{{')) {
+      // Extract language if present: {{{#!javascript
+      const langMatch = line.match(/^{{{#!(\w+)/);
+      const language = langMatch ? langMatch[1] : null;
+
+      // Collect code lines until closing }}}
+      const codeLines = [];
+      i++; // Move past opening {{{
+
+      while (i < lines.length && !lines[i].startsWith('}}}')) {
+        codeLines.push(lines[i]);
+        i++;
+      }
+
+      // Render code block
+      const content = codeLines.join('\n');
+      elements.push(renderCodeBlock(content, language, `code-${i}`));
+
+      i++; // Move past closing }}}
+      continue;
+    }
+
+    // Check for empty line
     if (line.trim() === '') {
       // Empty line - add a line break element
-      elements.push(<br key={`br-${index}`} />);
+      elements.push(<br key={`br-${i}`} />);
     } else {
       // Try to convert as header
-      const element = convertHeaderToReact(line, index);
+      const element = convertHeaderToReact(line, i);
 
       if (typeof element === 'string') {
         // Not a header, add as paragraph with inline formatting and links
         const formattedContent = parseLinks(element, 0);
         elements.push(
-          <p key={`p-${index}`}>{formattedContent}</p>
+          <p key={`p-${i}`}>{formattedContent}</p>
         );
       } else {
         // Is a header React element
         elements.push(element);
       }
     }
-  });
+
+    i++;
+  }
 
   return elements;
 }

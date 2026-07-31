@@ -508,4 +508,214 @@ describe('convertWikiToReact - Links (Phase 4b)', () => {
       expect(container).toBeInTheDocument();
     });
   });
+
+  describe('Code Blocks - Phase 5b', () => {
+    describe('Basic code block rendering', () => {
+      test('renders generic code block as pre and code elements', () => {
+        const wiki = `{{{\nconst x = 1;\n}}}`;
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const pre = container.querySelector('pre');
+        const code = container.querySelector('code');
+
+        expect(pre).toBeInTheDocument();
+        expect(code).toBeInTheDocument();
+        expect(code.parentElement).toBe(pre);
+        expect(code.textContent).toBe('const x = 1;');
+      });
+
+      test('renders language-specific code block with class', () => {
+        const wiki = `{{{#!javascript\nconst x = 1;\n}}}`;
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const code = container.querySelector('code');
+        expect(code).toHaveClass('language-javascript');
+        expect(code.textContent).toBe('const x = 1;');
+      });
+
+      test('renders multiple code blocks in document', () => {
+        const wiki = `{{{#!javascript\nconst x = 1;\n}}}\n\n{{{#!php\n<?php echo "hi"; ?>\n}}}`;
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const codes = container.querySelectorAll('code');
+        expect(codes).toHaveLength(2);
+        expect(codes[0]).toHaveClass('language-javascript');
+        expect(codes[1]).toHaveClass('language-php');
+      });
+
+      test('renders code blocks mixed with headers and text', () => {
+        const wiki = `= Header =\n\nSome text\n\n{{{\ncode\n}}}\n\nMore text`;
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        expect(container.querySelector('h1')).toBeInTheDocument();
+        expect(container.querySelector('pre')).toBeInTheDocument();
+        expect(container.querySelectorAll('p')).toHaveLength(2);
+      });
+
+      test('renders empty code block', () => {
+        const wiki = `{{{\n}}}`;
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const code = container.querySelector('code');
+        expect(code).toBeInTheDocument();
+        expect(code.textContent).toBe('');
+      });
+
+      test('renders code block at start of document', () => {
+        const wiki = `{{{\ncode\n}}}\n\nText after`;
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        expect(container.querySelector('pre')).toBeInTheDocument();
+        expect(container.querySelector('p')).toBeInTheDocument();
+      });
+
+      test('renders code block at end of document', () => {
+        const wiki = `Text before\n\n{{{\ncode\n}}}`;
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        expect(container.querySelector('p')).toBeInTheDocument();
+        expect(container.querySelector('pre')).toBeInTheDocument();
+      });
+
+      test('renders multiple languages correctly', () => {
+        const wiki = `{{{#!php\n<?php ?>\n}}}\n{{{#!css\n.class{}\n}}}\n{{{#!bash\nnpm install\n}}}`;
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const codes = container.querySelectorAll('code');
+        expect(codes[0]).toHaveClass('language-php');
+        expect(codes[1]).toHaveClass('language-css');
+        expect(codes[2]).toHaveClass('language-bash');
+      });
+    });
+
+    describe('Content protection - CRITICAL', () => {
+      test('headers in code blocks stay literal (not rendered as headers)', () => {
+        const wiki = `{{{\n= Not A Header =\n== Also Not ==\n}}}`;
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const code = container.querySelector('code');
+        expect(code.textContent).toBe('= Not A Header =\n== Also Not ==');
+        expect(container.querySelector('h1')).not.toBeInTheDocument();
+        expect(container.querySelector('h2')).not.toBeInTheDocument();
+      });
+
+      test('bold in code blocks stays literal (not rendered as bold)', () => {
+        const wiki = `{{{\n'''not bold'''\n}}}`;
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const code = container.querySelector('code');
+        expect(code.textContent).toBe("'''not bold'''");
+        expect(container.querySelector('strong')).not.toBeInTheDocument();
+      });
+
+      test('italic in code blocks stays literal (not rendered as italic)', () => {
+        const wiki = `{{{\n''not italic''\n}}}`;
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const code = container.querySelector('code');
+        expect(code.textContent).toBe("''not italic''");
+        expect(container.querySelector('em')).not.toBeInTheDocument();
+      });
+
+      test('links in code blocks stay literal (not rendered as links)', () => {
+        const wiki = `{{{\n[https://example.com Not A Link]\n}}}`;
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const code = container.querySelector('code');
+        expect(code.textContent).toBe('[https://example.com Not A Link]');
+        expect(container.querySelector('a')).not.toBeInTheDocument();
+      });
+
+      test('wiki links in code blocks stay literal (not rendered as links)', () => {
+        const wiki = `{{{\n[[WikiPage]]\n}}}`;
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const code = container.querySelector('code');
+        expect(code.textContent).toBe('[[WikiPage]]');
+        expect(container.querySelector('a')).not.toBeInTheDocument();
+      });
+
+      test('all WikiFormatting syntax preserved in code blocks', () => {
+        const wiki = `{{{\n= Header =\n'''bold''' and ''italic''\n[https://example.com link]\n[[WikiPage]]\n}}}`;
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const code = container.querySelector('code');
+        const expected = "= Header =\n'''bold''' and ''italic''\n[https://example.com link]\n[[WikiPage]]";
+        expect(code.textContent).toBe(expected);
+
+        // Verify NO formatting elements rendered
+        expect(container.querySelector('h1')).not.toBeInTheDocument();
+        expect(container.querySelector('strong')).not.toBeInTheDocument();
+        expect(container.querySelector('em')).not.toBeInTheDocument();
+        expect(container.querySelector('a')).not.toBeInTheDocument();
+      });
+    });
+
+    describe('Security - XSS Prevention', () => {
+      test('script tags in code blocks are escaped', () => {
+        const wiki = `{{{\n<script>alert("XSS")</script>\n}}}`;
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const code = container.querySelector('code');
+        expect(code.textContent).toBe('<script>alert("XSS")</script>');
+        expect(container.querySelector('script')).not.toBeInTheDocument();
+      });
+
+      test('img tags with onerror are escaped', () => {
+        const wiki = `{{{\n<img src=x onerror="alert(1)">\n}}}`;
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const code = container.querySelector('code');
+        expect(code.textContent).toBe('<img src=x onerror="alert(1)">');
+        expect(container.querySelector('img')).not.toBeInTheDocument();
+      });
+
+      test('iframe injection is escaped', () => {
+        const wiki = `{{{\n<iframe src="javascript:alert(1)"></iframe>\n}}}`;
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const code = container.querySelector('code');
+        expect(code.textContent).toBe('<iframe src="javascript:alert(1)"></iframe>');
+        expect(container.querySelector('iframe')).not.toBeInTheDocument();
+      });
+
+      test('SVG with script is escaped', () => {
+        const wiki = `{{{\n<svg><script>alert(1)</script></svg>\n}}}`;
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const code = container.querySelector('code');
+        expect(code.textContent).toBe('<svg><script>alert(1)</script></svg>');
+        expect(container.querySelector('svg')).not.toBeInTheDocument();
+      });
+
+      test('event handlers are escaped', () => {
+        const wiki = `{{{\n<div onclick="alert(1)">Click</div>\n}}}`;
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const code = container.querySelector('code');
+        expect(code.textContent).toBe('<div onclick="alert(1)">Click</div>');
+        // Verify the literal text contains onclick but no actual div was created
+        expect(code.innerHTML).toContain('onclick');
+      });
+    });
+  });
 });
