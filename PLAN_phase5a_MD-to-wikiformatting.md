@@ -68,16 +68,16 @@
   - [x] WikiFormatting Delimiters Inside Code - `{{{` and `}}}` preserved literally
 
 - [ ] **Security Test Cases** ⭐ CRITICAL
-  - [ ] XSS: Script Injection - `<script>` tags preserved as text
-  - [ ] XSS: Image Tag with Error Handler - `<img onerror>` preserved
-  - [ ] XSS: Iframe Injection - `<iframe>` preserved
-  - [ ] XSS: Event Handlers - `onclick`, `onload`, etc. preserved
-  - [ ] XSS: SVG Injection - `<svg><script>` preserved
-  - [ ] XSS: Object/Embed Tags - preserved as text
-  - [ ] XSS: Form Injection - form tags preserved
-  - [ ] XSS: Meta Tag Redirect - meta tags preserved
-  - [ ] XSS: Link Tag Injection - link tags preserved
-  - [ ] XSS: Data URIs - preserved as text
+  - [x] XSS: Script Injection - `<script>` tags preserved as text
+  - [x] XSS: Image Tag with Error Handler - `<img onerror>` preserved
+  - [x] XSS: Iframe Injection - `<iframe>` preserved
+  - [x] XSS: Event Handlers - `onclick`, `onload`, etc. preserved
+  - [x] XSS: SVG Injection - `<svg><script>` preserved
+  - [x] XSS: Object/Embed Tags - preserved as text
+  - [x] XSS: Form Injection - form tags preserved
+  - [x] XSS: Meta Tag Redirect - meta tags preserved
+  - [x] XSS: Link Tag Injection - link tags preserved
+  - [x] XSS: Data URIs - preserved as text
   - [ ] SQL Injection - SQL commands preserved
   - [ ] Command Injection - bash commands preserved
   - [ ] JavaScript Protocol URIs - `javascript:` preserved
