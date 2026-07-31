@@ -78,10 +78,10 @@
   - [x] XSS: Meta Tag Redirect - meta tags preserved
   - [x] XSS: Link Tag Injection - link tags preserved
   - [x] XSS: Data URIs - preserved as text
-  - [ ] SQL Injection - SQL commands preserved
-  - [ ] Command Injection - bash commands preserved
-  - [ ] JavaScript Protocol URIs - `javascript:` preserved
-  - [ ] Real-World Attack Vectors - polyglot/encoded/unicode preserved
+  - [x] SQL Injection - SQL commands preserved
+  - [x] Command Injection - bash commands preserved
+  - [x] JavaScript Protocol URIs - `javascript:` preserved
+  - [x] Real-World Attack Vectors - polyglot/encoded/unicode preserved
 
 - [ ] **Real-World WordPress Example**
   - [ ] PHP function with underscores - `register_book_post_type` NOT converted
