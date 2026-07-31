@@ -594,6 +594,25 @@ describe('convertWikiToReact - Links (Phase 4b)', () => {
         expect(codes[1]).toHaveClass('language-css');
         expect(codes[2]).toHaveClass('language-bash');
       });
+
+      test('handles nested code blocks (WikiFormatting delimiters inside code)', () => {
+        const wiki = `{{{\nShowing WikiFormatting syntax:\n\n{{{\n  code block\n}}}\n\n{{{#!python\n  code with language\n}}}\n}}}`;
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        // Should render as ONE code block with nested syntax preserved
+        const pres = container.querySelectorAll('pre');
+        expect(pres).toHaveLength(1);
+
+        const code = container.querySelector('code');
+        const expectedContent = `Showing WikiFormatting syntax:\n\n{{{\n  code block\n}}}\n\n{{{#!python\n  code with language\n}}}`;
+        expect(code.textContent).toBe(expectedContent);
+
+        // Inner {{{ and }}} should be literal text, not separate code blocks
+        expect(code.textContent).toContain('{{{');
+        expect(code.textContent).toContain('}}}');
+        expect(code.textContent).toContain('{{{#!python');
+      });
     });
 
     describe('Content protection - CRITICAL', () => {

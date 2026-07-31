@@ -459,11 +459,38 @@ export function convertWikiToReact(wikiText, options = {}) {
       const language = langMatch ? langMatch[1] : null;
 
       // Collect code lines until closing }}}
+      // Handle nested code blocks by tracking depth
       const codeLines = [];
+      let nestingDepth = 0;
       i++; // Move past opening {{{
 
-      while (i < lines.length && !lines[i].startsWith('}}}')) {
-        codeLines.push(lines[i]);
+      while (i < lines.length) {
+        const currentLine = lines[i];
+
+        // Check for nested opening {{{
+        if (currentLine.startsWith('{{{')) {
+          nestingDepth++;
+          codeLines.push(currentLine);
+          i++;
+          continue;
+        }
+
+        // Check for closing }}}
+        if (currentLine.startsWith('}}}')) {
+          if (nestingDepth > 0) {
+            // Nested closing - treat as content
+            nestingDepth--;
+            codeLines.push(currentLine);
+            i++;
+            continue;
+          } else {
+            // Actual closing delimiter for this block
+            break;
+          }
+        }
+
+        // Regular content line
+        codeLines.push(currentLine);
         i++;
       }
 
