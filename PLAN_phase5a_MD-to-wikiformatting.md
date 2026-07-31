@@ -108,16 +108,16 @@
 
 When manually testing, verify in Column 2:
 
-- [ ] All code blocks wrapped in `{{{` and `}}}`
-- [ ] Language blocks show `{{{#!` prefix
-- [ ] Languages normalized to lowercase (`JAVASCRIPT` → `javascript`)
-- [ ] Shorthands converted: `js`→`javascript`, `ts`→`javascript`, `sh`→`bash`, `md`→`markdown`
-- [ ] Nested blocks: inner ` ``` ` NOT converted, preserved as literal text
-- [ ] Content protection: `#`, `**`, `*`, `[text](url)` inside code stay literal
-- [ ] Empty blocks: `{{{\n}}}`
-- [ ] Multiple blocks: each converted independently
-- [ ] Special chars preserved: `<>&"'`
-- [ ] PHP function names intact: `register_book_post_type` not `register''book''post_type`
+- [x] All code blocks wrapped in `{{{` and `}}}`
+- [x] Language blocks show `{{{#!` prefix
+- [x] Languages normalized to lowercase (`JAVASCRIPT` → `javascript`)
+- [x] Shorthands converted: `js`→`javascript`, `ts`→`javascript`, `sh`→`bash`, `md`→`markdown`
+- [x] Nested blocks: inner ` ``` ` NOT converted, preserved as literal text
+- [x] Content protection: `#`, `**`, `*`, `[text](url)` inside code stay literal
+- [x] Empty blocks: `{{{\n}}}`
+- [x] Multiple blocks: each converted independently
+- [x] Special chars preserved: `<>&"'`
+- [x] PHP function names intact: `register_book_post_type` not `register''book''post_type`
 
 ---
 
