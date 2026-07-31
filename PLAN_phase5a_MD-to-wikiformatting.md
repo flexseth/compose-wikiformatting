@@ -83,10 +83,10 @@
   - [x] JavaScript Protocol URIs - `javascript:` preserved
   - [x] Real-World Attack Vectors - polyglot/encoded/unicode preserved
 
-- [ ] **Real-World WordPress Example**
-  - [ ] PHP function with underscores - `register_book_post_type` NOT converted
-  - [ ] Array keys with underscores - `'singular_name'` NOT converted
-  - [ ] Double underscore functions - `__( 'Books', 'textdomain' )` NOT converted
+- [x] **Real-World WordPress Example**
+  - [x] PHP function with underscores - `register_book_post_type` NOT converted
+  - [x] Array keys with underscores - `'singular_name'` NOT converted
+  - [x] Double underscore functions - `__( 'Books', 'textdomain' )` NOT converted
 
 ---
 
