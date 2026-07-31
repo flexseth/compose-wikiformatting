@@ -253,11 +253,49 @@ function parseLinks(text, keyOffset = 0) {
  * @security All text content is rendered as text nodes by React (auto-escaped)
  */
 function parseInlineFormatting(text) {
+  // Phase 5b: Added inline code support
   // Phase 3.5: Full text formatting support (bold, italic, bold+italic)
-  // Order matters: Must check bold+italic (5 quotes) BEFORE bold (3) or italic (2)
+  // Priority order:
+  // 1. Inline code (`code`) - processed FIRST to protect content
+  // 2. Bold+Italic ('''''text''''')
+  // 3. Bold ('''text''')
+  // 4. Italic (''text'')
 
+  // First, check if text contains inline code
+  if (text.includes('`')) {
+    // Render inline code - this will parse backticks and return array of text/code elements
+    const inlineCodeParts = renderInlineCode(text, 0);
+
+    // Now process each text part for bold/italic, leaving code elements untouched
+    const finalParts = [];
+    inlineCodeParts.forEach(part => {
+      if (typeof part === 'string') {
+        // Text part - process for bold/italic
+        const formattedParts = parseTextFormatting(part);
+        finalParts.push(...formattedParts);
+      } else {
+        // React element (code) - keep as-is
+        finalParts.push(part);
+      }
+    });
+
+    return finalParts;
+  }
+
+  // No inline code - process for bold/italic only
+  return parseTextFormatting(text);
+}
+
+/**
+ * Parse text for bold/italic formatting only
+ * Helper function used by parseInlineFormatting
+ *
+ * @private
+ * @param {string} text - Text to parse for bold/italic
+ * @returns {Array<string|React.Element>} Array of text and formatting elements
+ */
+function parseTextFormatting(text) {
   const parts = [];
-  let remaining = text;
   let keyCounter = 0;
 
   // Combined regex that matches in priority order:

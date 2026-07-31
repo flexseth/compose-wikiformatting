@@ -717,5 +717,75 @@ describe('convertWikiToReact - Links (Phase 4b)', () => {
         expect(code.innerHTML).toContain('onclick');
       });
     });
+
+    describe('Inline code - Phase 5b', () => {
+      test('renders inline code in paragraph', () => {
+        const wiki = 'Use `const` for constants';
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const code = container.querySelector('code');
+        expect(code).toBeInTheDocument();
+        expect(code.textContent).toBe('const');
+        expect(container.querySelector('p')).toBeInTheDocument();
+      });
+
+      test('renders multiple inline code segments in paragraph', () => {
+        const wiki = 'Use `const` and `let` keywords';
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const codes = container.querySelectorAll('code');
+        expect(codes).toHaveLength(2);
+        expect(codes[0].textContent).toBe('const');
+        expect(codes[1].textContent).toBe('let');
+      });
+
+      test('renders inline code in header', () => {
+        const wiki = '= Using `const` in JavaScript =';
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const h1 = container.querySelector('h1');
+        const code = h1.querySelector('code');
+        expect(code).toBeInTheDocument();
+        expect(code.textContent).toBe('const');
+      });
+
+      test('inline code with bold/italic surrounding it', () => {
+        const wiki = "'''Bold''' and `code` and ''italic''";
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        expect(container.querySelector('strong')).toBeInTheDocument();
+        expect(container.querySelector('code')).toBeInTheDocument();
+        expect(container.querySelector('em')).toBeInTheDocument();
+      });
+
+      test('inline code protects content from formatting', () => {
+        const wiki = "Text `with '''bold''' inside code` text";
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const code = container.querySelector('code');
+        expect(code.textContent).toBe("with '''bold''' inside code");
+        // Should only have one code element, no strong inside it
+        expect(container.querySelectorAll('code')).toHaveLength(1);
+        expect(code.querySelector('strong')).not.toBeInTheDocument();
+      });
+
+      test('escapes HTML in inline code', () => {
+        const wiki = 'Use `<div>` element';
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const code = container.querySelector('code');
+        expect(code.textContent).toBe('<div>');
+        // No actual div should be created
+        const allDivs = container.querySelectorAll('div');
+        // Only the container div from the test, not from the inline code
+        expect(allDivs.length).toBe(0);
+      });
+    });
   });
 });
