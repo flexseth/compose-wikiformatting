@@ -61,8 +61,8 @@
   - [x] Third block (generic)
   - [x] Each block converted independently
 
-- [ ] **Edge Cases**
-  - [ ] Empty Block - ``` ``` → {{{ \n }}} 
+- [x] **Edge Cases**
+  - [x] Empty Block - ``` ``` → {{{ \n }}} 
   - [x] Single Line - ```js\nconst x = 42;\n``` **correctly converts, fixed test**
   - [x] Special Characters - `<>&"'` preserved
   - [x] WikiFormatting Delimiters Inside Code - `{{{` and `}}}` preserved literally
