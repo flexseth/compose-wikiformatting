@@ -129,6 +129,88 @@
   font-style: italic;
 }
 
+/* Code blocks - Phase 5b */
+.rendered-elements pre {
+  background-color: #f6f8fa;
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  padding: 16px;
+  overflow-x: auto;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+  font-size: 14px;
+  line-height: 1.45;
+  margin: 16px 0;
+}
+
+.rendered-elements pre code {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+/* Inline code */
+.rendered-elements code {
+  background-color: rgba(175, 184, 193, 0.2);
+  border-radius: 3px;
+  padding: 0.2em 0.4em;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+  font-size: 85%;
+  color: #e01e5a;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .rendered-container {
+    background-color: #1e1e1e;
+    border-color: #3e3e3e;
+  }
+
+  .rendered-header {
+    background-color: #2d2d2d;
+    border-bottom-color: #3e3e3e;
+  }
+
+  .rendered-header h3 {
+    color: #e1e1e1;
+  }
+
+  .rendered-content {
+    background-color: #1e1e1e;
+  }
+
+  .rendered-elements {
+    color: #d4d4d4;
+  }
+
+  .rendered-elements h1.section,
+  .rendered-elements h2.section,
+  .rendered-elements h3.section,
+  .rendered-elements h4.section,
+  .rendered-elements h5.section,
+  .rendered-elements h6.section {
+    color: #e1e1e1;
+    border-bottom-color: #3e3e3e;
+  }
+
+  .rendered-elements pre {
+    background-color: #161b22;
+    border-color: #30363d;
+  }
+
+  .rendered-elements code {
+    background-color: rgba(110, 118, 129, 0.4);
+    color: #ff7b72;
+  }
+
+  .rendered-footer {
+    background-color: #2d2d2d;
+    border-top-color: #3e3e3e;
+  }
+}
+
 /* Line breaks */
 .rendered-elements br {
   display: block;

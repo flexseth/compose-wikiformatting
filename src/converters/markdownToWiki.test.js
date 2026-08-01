@@ -229,3 +229,196 @@ Use the \`api.call()\` method with *caution*.`;
     expect(result).toContain("Use the `api.call()` method with ''caution''.");
   });
 });
+
+describe('convertMarkdownToWiki - Code Block Content Protection (Phase 5a)', () => {
+  test('headers inside code blocks are NOT converted', () => {
+    const input = `# Outside Header
+
+\`\`\`
+# This should stay as #
+## This too should stay as ##
+\`\`\``;
+
+    const result = convertMarkdownToWiki(input);
+
+    // Outside header IS converted
+    expect(result).toContain('= Outside Header =');
+
+    // Headers inside code block are NOT converted
+    expect(result).toContain('# This should stay as #');
+    expect(result).toContain('## This too should stay as ##');
+    expect(result).not.toContain('= This should stay as =');
+    expect(result).not.toContain('== This too should stay as ==');
+  });
+
+  test('bold/italic inside code blocks are NOT converted', () => {
+    const input = `**Outside bold**
+
+\`\`\`javascript
+const str = "**Bold** should NOT become '''Bold'''";
+const italic = "*Italic* should NOT become ''Italic''";
+\`\`\``;
+
+    const result = convertMarkdownToWiki(input);
+
+    // Outside bold IS converted
+    expect(result).toContain("'''Outside bold'''");
+
+    // Bold/italic inside code block are NOT converted
+    expect(result).toContain('**Bold** should NOT become');
+    expect(result).toContain('*Italic* should NOT become');
+    expect(result).not.toContain("'''Bold''' should NOT become");
+    expect(result).not.toContain("''Italic'' should NOT become");
+  });
+
+  test('links inside code blocks are NOT converted', () => {
+    const input = `[Outside link](https://example.com)
+
+\`\`\`
+[Link text](https://example.com) should NOT become [https://example.com Link text]
+\`\`\``;
+
+    const result = convertMarkdownToWiki(input);
+
+    // Outside link IS converted
+    expect(result).toContain('[https://example.com Outside link]');
+
+    // Link inside code block is NOT converted
+    expect(result).toContain('[Link text](https://example.com) should NOT become');
+    expect(result).not.toContain('[https://example.com Link text] should NOT become');
+  });
+
+  test('underscores in code are NOT converted to italic', () => {
+    const input = `\`\`\`php
+<?php
+function register_book_post_type() {
+    $args = array(
+        'singular_name' => __( 'Book', 'textdomain' ),
+    );
+}
+?>
+\`\`\``;
+
+    const result = convertMarkdownToWiki(input);
+
+    // Underscores should remain as underscores, not converted to italic markers
+    expect(result).toContain('register_book_post_type');
+    expect(result).toContain('singular_name');
+    expect(result).not.toContain("register''book''post''type");
+    expect(result).not.toContain("singular''name");
+  });
+
+  test('asterisks in code are NOT converted to italic', () => {
+    const input = `\`\`\`javascript
+const regex = /test/*-/*\`/*\\;
+const comment = /* This is a comment */
+\`\`\``;
+
+    const result = convertMarkdownToWiki(input);
+
+    // Asterisks should remain as asterisks
+    expect(result).toContain('/*-/*');
+    expect(result).toContain('/* This is a comment */');
+    expect(result).not.toContain("/''-/''");
+  });
+
+  test('full content protection test (UI bug example)', () => {
+    const input = `\`\`\`
+# This heading should stay as #
+## This too should stay as ##
+
+**Bold** should NOT become '''Bold'''
+*Italic* should NOT become ''Italic''
+
+[Link text](https://example.com) should NOT become [https://example.com Link text]
+
+[[WikiPage]] should stay as [[WikiPage]]
+\`\`\``;
+
+    const result = convertMarkdownToWiki(input);
+
+    // All Markdown syntax should be preserved literally
+    expect(result).toContain('# This heading should stay as #');
+    expect(result).toContain('## This too should stay as ##');
+    expect(result).toContain('**Bold** should NOT become');
+    expect(result).toContain('*Italic* should NOT become');
+    expect(result).toContain('[Link text](https://example.com) should NOT become');
+    expect(result).toContain('[[WikiPage]] should stay as [[WikiPage]]');
+
+    // None should be converted
+    expect(result).not.toContain('= This heading should stay as =');
+    expect(result).not.toContain("'''Bold''' should NOT become '''Bold'''");
+    expect(result).not.toContain("''Italic'' should NOT become ''Italic''");
+    expect(result).not.toContain('[https://example.com Link text] should NOT become');
+  });
+
+  test('mixed content: headers + code blocks + formatting', () => {
+    const input = `# Real Header
+
+Some **bold** text outside.
+
+\`\`\`javascript
+# Fake header
+**fake bold**
+function test_with_underscores() {}
+\`\`\`
+
+## Another Real Header
+
+More *italic* text outside.`;
+
+    const result = convertMarkdownToWiki(input);
+
+    // Outside headers and formatting ARE converted
+    expect(result).toContain('= Real Header =');
+    expect(result).toContain('== Another Real Header ==');
+    expect(result).toContain("Some '''bold''' text outside");
+    expect(result).toContain("More ''italic'' text outside");
+
+    // Inside code block content is NOT converted
+    expect(result).toContain('# Fake header');
+    expect(result).toContain('**fake bold**');
+    expect(result).toContain('test_with_underscores');
+    expect(result).not.toContain('= Fake header =');
+    expect(result).not.toContain("'''fake bold'''");
+    expect(result).not.toContain("test''with''underscores");
+  });
+
+  test('nested code blocks preserve inner backticks', () => {
+    const input = `\`\`\`\`markdown
+To create a code block:
+
+\`\`\`javascript
+console.log("hello");
+\`\`\`
+\`\`\`\``;
+
+    const result = convertMarkdownToWiki(input);
+
+    // Inner backticks should be preserved as literal text
+    expect(result).toContain('```javascript');
+    expect(result).toContain('console.log("hello");');
+    expect(result).toContain('```');
+  });
+
+  test('code blocks with language specifiers', () => {
+    const input = `\`\`\`php
+<?php
+function __construct() {
+    $this->_private = true;
+}
+?>
+\`\`\``;
+
+    const result = convertMarkdownToWiki(input);
+
+    // Should have WikiFormatting language processor
+    expect(result).toContain('{{{#!php');
+
+    // Underscores should NOT be converted to italic
+    expect(result).toContain('__construct');
+    expect(result).toContain('_private');
+    expect(result).not.toContain("_''construct");
+    expect(result).not.toContain("''private");
+  });
+});

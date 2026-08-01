@@ -234,18 +234,70 @@ attributes: {
 ---
 
 ### Phase 5: Code Blocks
-**Branch:** `feature/code-blocks` (sub-branch from `feature/text-formatting`)
+**Branch:** `feature/code-blocks` (sub-branch from `feature/text-formatting`)  
+**PR:** #7 (ready for merge)  
+**Status:** ✅ COMPLETE (August 1, 2026)
 
-- [ ] Fenced code blocks: ` ```lang ` → `{{{#!lang `
-- [ ] Inline code: `` `code` `` → `` `code` `` (no change)
-- [ ] Language detection (JavaScript, PHP, HTML, CSS, Markdown)
-- [ ] Code block rendering: `<pre><code>` elements
-- [ ] Syntax highlighting consideration (Trac-compatible)
-- [ ] **SECURITY: Escape all code content**
-- [ ] 100% coverage
-- [ ] **SECURITY REVIEW PASSED**
+**Phase 5a: Conversion** (Markdown → WikiFormatting)
+- [x] Fenced code blocks: ` ```lang ` → `{{{#!lang `
+- [x] Generic code blocks: ` ``` ` → `{{{` / `}}}`
+- [x] Inline code: `` `code` `` → `` `code` `` (no change - same syntax)
+- [x] Language normalization (js→javascript, ts→javascript, sh→bash, md→markdown)
+- [x] Variable backtick counts (4+ backticks for outer fence when content contains ```)
+- [x] Nested code blocks (inner backticks preserved as literal text for documentation)
+- [x] **Pipeline order: code blocks must convert FIRST** (protect content from other converters)
+- [x] **SECURITY: Code content must not be processed by header/link/text converters**
+- [x] 100% coverage (49 unit tests + 9 integration tests)
+- [x] **SECURITY REVIEW PASSED**
 
-**Status:** ⏳ Planned
+**Phase 5b: Rendering** (WikiFormatting → React)
+- [x] Code block rendering: `{{{` → `<pre><code>` elements
+- [x] Language-specific rendering: `{{{#!lang` → `<pre><code class="language-lang">`
+- [x] Inline code rendering: `` `code` `` → `<code>` elements
+- [x] Nested code block rendering (inner `{{{` preserved as literal text)
+- [x] Syntax highlighting classes (CSS-only, no highlighting library yet)
+- [x] **SECURITY: Escape all code content (no HTML execution inside code blocks)**
+- [x] 100% coverage (47 unit tests + 27 integration tests)
+- [x] **SECURITY REVIEW PASSED**
+
+**UI: Tab Key Handling Inside Code Blocks** (DEFERRED to future phase)
+- [ ] Detect when cursor is inside a code block (between ``` fences)
+- [ ] When inside code block: Tab inserts indentation (2 or 4 spaces) instead of moving focus
+- [ ] When outside code block: Tab retains current behavior (move to next focusable element)
+- [ ] Shift+Tab inside code block: remove one level of indentation
+- [ ] This requires the Editor component to be aware of code block boundaries
+- [ ] Consider: cursor position tracking relative to code fence markers
+
+**Implementation Summary:**
+- Files: `src/converters/codeBlocks.js`, `src/renderers/codeBlocks.js`
+- 467 total tests passing (74 code block specific tests)
+- XSS prevention: 47 security test cases verified
+- Pure React rendering (no dangerouslySetInnerHTML)
+- GitHub-style code block styling with dark mode
+- Nested delimiter handling working correctly
+
+**Known Limitations:**
+- WikiFormatting has no escape mechanism for `}}}` inside code blocks
+- If code content contains `}}}`, it will prematurely close the block (Trac limitation, not ours)
+- Documented as known limitation
+
+**Research Notes:**
+- Trac natively supports nested processor blocks with indentation
+- Trac uses Pygments for syntax highlighting (200+ languages)
+- Trac 1.1.2+ supports `lineno` and `marks` arguments on code blocks
+- WordPress Trac uses the same WikiFormatting engine as Edgewall Trac
+
+**Syntax Highlighting (Phase 5c - Future):**
+- **Current:** Language classes in place (`language-*`), no actual highlighting
+- **Trac uses:** Pygments (Python library, server-side rendering)
+- **Phase 1 constraint:** Client-side only, cannot run Pygments
+- **Options researched:**
+  - Client-side JS library (Prism.js/Highlight.js) with Pygments theme
+  - Wait for WordPress plugin (Phase 1.0.1) to use actual Pygments server-side
+  - CSS-only approach (minimal)
+- **Recommendation:** Defer to WordPress plugin phase for true Pygments integration
+- **See:** Full research in `TODO.md` - Syntax Highlighting Research section
+- **Status:** Deferred - current CSS-only styling sufficient for MVP
 
 ---
 

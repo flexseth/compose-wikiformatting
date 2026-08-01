@@ -57,6 +57,25 @@ WordPress core uses [Trac](https://core.trac.wordpress.org) for issue tracking, 
 - 📋 **Design Decisions**: Protocol-relative URLs allowed, path traversal blocked
 - 🧪 **68 Tests**: 42 conversion + 26 rendering, 100% coverage
 
+### Phase 5a: Code Blocks Conversion ✅
+- **Fenced Code Blocks**: ` ```lang ` → `{{{#!lang` with language support
+- **Generic Code Blocks**: ` ``` ` → `{{{` / `}}}`
+- **Language Normalization**: js→javascript, ts→javascript, sh→bash, md→markdown
+- **Nested Blocks**: 4+ backticks preserve inner fences as literal text
+- 🔒 **Content Protection**: Headers, bold, italic, links NOT converted inside code
+- 🛡️ **Extract/Restore Pattern**: Protects code from other converters
+- 🧪 **58 Tests**: 49 unit + 9 integration, 100% coverage
+
+### Phase 5b: Code Blocks Rendering ✅
+- **Code Block Rendering**: `{{{` → `<pre><code>` with GitHub-style styling
+- **Language Classes**: `{{{#!javascript` → `<code className="language-javascript">`
+- **Inline Code**: `` `code` `` → `<code>` in paragraphs and headers
+- **Nested Delimiters**: Inner `{{{` preserved as literal text
+- 🔒 **XSS Prevention**: 47 security test cases, all malicious code escaped
+- 🎨 **Dark Mode**: Full dark theme support for code blocks
+- ⚛️ **Pure React**: No dangerouslySetInnerHTML, React auto-escaping only
+- 🧪 **74 Tests**: 47 unit + 27 integration, 100% coverage
+
 ### Coming Soon
 - 📋 **Copy to Clipboard**: One-click copy of WikiFormatting
 - ⌨️ **Keyboard Shortcuts**: Tab, Escape, CMD/CTRL+S
@@ -69,7 +88,7 @@ WordPress core uses [Trac](https://core.trac.wordpress.org) for issue tracking, 
 - **Custom Converters**: Pure JavaScript converters (WordPress-portable)
   - `converters/` - Markdown → WikiFormatting
   - `renderers/` - WikiFormatting → React components
-- **Jest & @testing-library/react**: 340 tests, 100% coverage on converters
+- **Jest & @testing-library/react**: 467 tests, 100% coverage on converters
 - **CSS Grid**: Responsive three-column layout
 - **No external parsing libraries**: All conversion logic custom-built
 
