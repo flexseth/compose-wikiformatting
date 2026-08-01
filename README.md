@@ -80,7 +80,7 @@ WordPress core uses [Trac](https://core.trac.wordpress.org) for issue tracking, 
 - 📋 **Copy to Clipboard**: One-click copy of WikiFormatting
 - ⌨️ **Keyboard Shortcuts**: Tab, Escape, CMD/CTRL+S
 - 📚 **Documentation Sidebar**: Collapsible quick reference (already implemented, needs integration)
-- **Phase 6+**: Blockquotes, lists, tables, images
+- **Phase 6+**: Blockquotes, tables, images, lists
 
 ## Technology Stack
 
