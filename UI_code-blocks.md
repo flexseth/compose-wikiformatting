@@ -1,13 +1,20 @@
-# Code Blocks Testing - Phase 5a
+# Code Blocks Testing - Phase 5a & 5b ✅
 
-**Purpose:** Manual testing file for code block conversion. Copy/paste this entire file into the editor (Column 1) to see WikiFormatting conversion in Column 2.
+**Purpose:** Manual testing file for code block conversion and rendering. Copy/paste this entire file into the editor (Column 1) to verify all three columns work correctly.
 
-**What to verify:**
-- Column 2 shows `{{{` and `}}}` delimiters (not ` ``` `)
+**Phase 5a - Column 2 (WikiFormatting):**
+- Code blocks show `{{{` and `}}}` delimiters (not ` ``` `)
 - Language blocks show `{{{#!language` (lowercase)
 - Case-insensitive: `JAVASCRIPT`, `JavaScript`, `javascript` all → `{{{#!javascript`
 - Nested blocks preserve inner ` ``` ` as literal text
 - Markdown syntax inside code blocks is NOT converted
+
+**Phase 5b - Column 3 (Rendered Preview):**
+- Code blocks render as styled `<pre><code>` elements
+- Language classes applied: `language-javascript`, etc.
+- All HTML properly escaped (no script execution)
+- GitHub-style code block styling with dark mode
+- Inline code renders as `<code>` elements
 
 ---
 
