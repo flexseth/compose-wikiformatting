@@ -283,6 +283,18 @@ attributes: {
 - Trac 1.1.2+ supports `lineno` and `marks` arguments on code blocks
 - WordPress Trac uses the same WikiFormatting engine as Edgewall Trac
 
+**Syntax Highlighting (Phase 5c - Future):**
+- **Current:** Language classes in place (`language-*`), no actual highlighting
+- **Trac uses:** Pygments (Python library, server-side rendering)
+- **Phase 1 constraint:** Client-side only, cannot run Pygments
+- **Options researched:**
+  - Client-side JS library (Prism.js/Highlight.js) with Pygments theme
+  - Wait for WordPress plugin (Phase 1.0.1) to use actual Pygments server-side
+  - CSS-only approach (minimal)
+- **Recommendation:** Defer to WordPress plugin phase for true Pygments integration
+- **See:** Full research in `TODO.md` - Syntax Highlighting Research section
+- **Status:** Deferred - current CSS-only styling sufficient for MVP
+
 ---
 
 ### Phase 6: Blockquotes
