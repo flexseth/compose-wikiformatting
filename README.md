@@ -61,7 +61,7 @@ WordPress core uses [Trac](https://core.trac.wordpress.org) for issue tracking, 
 - 📋 **Copy to Clipboard**: One-click copy of WikiFormatting
 - ⌨️ **Keyboard Shortcuts**: Tab, Escape, CMD/CTRL+S
 - 📚 **Documentation Sidebar**: Collapsible quick reference (already implemented, needs integration)
-- **Phase 3+**: Text formatting, lists, links, code blocks, tables, images
+- **Phase 6+**: Blockquotes, tables, images, lists
 
 ## Technology Stack
 
@@ -69,7 +69,7 @@ WordPress core uses [Trac](https://core.trac.wordpress.org) for issue tracking, 
 - **Custom Converters**: Pure JavaScript converters (WordPress-portable)
   - `converters/` - Markdown → WikiFormatting
   - `renderers/` - WikiFormatting → React components
-- **Jest & @testing-library/react**: 314 tests, 100% coverage on converters
+- **Jest & @testing-library/react**: 340 tests, 100% coverage on converters
 - **CSS Grid**: Responsive three-column layout
 - **No external parsing libraries**: All conversion logic custom-built
 
