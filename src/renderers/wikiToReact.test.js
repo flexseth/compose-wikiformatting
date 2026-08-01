@@ -807,4 +807,330 @@ describe('convertWikiToReact - Links (Phase 4b)', () => {
       });
     });
   });
+
+  describe('Blockquote Integration (Phase 6b)', () => {
+    describe('Basic Blockquote Rendering', () => {
+      test('renders single-line blockquote', () => {
+        const wiki = '> This is a quote';
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const blockquote = container.querySelector('blockquote');
+        expect(blockquote).toBeInTheDocument();
+        expect(blockquote).toHaveClass('citation');
+        expect(blockquote.textContent).toBe('This is a quote');
+      });
+
+      test('renders multi-line blockquote', () => {
+        const wiki = '> Line 1\n> Line 2\n> Line 3';
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const blockquote = container.querySelector('blockquote');
+        expect(blockquote).toBeInTheDocument();
+        expect(blockquote.textContent).toContain('Line 1');
+        expect(blockquote.textContent).toContain('Line 2');
+        expect(blockquote.textContent).toContain('Line 3');
+      });
+
+      test('renders blockquote with paragraphs before/after', () => {
+        const wiki = 'Before\n\n> Quote\n\nAfter';
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const paragraphs = container.querySelectorAll('p');
+        const blockquote = container.querySelector('blockquote');
+
+        expect(paragraphs).toHaveLength(2);
+        expect(blockquote).toBeInTheDocument();
+        expect(paragraphs[0].textContent).toBe('Before');
+        expect(blockquote.textContent).toBe('Quote');
+        expect(paragraphs[1].textContent).toBe('After');
+      });
+
+      test('renders blockquote with headers', () => {
+        const wiki = '= Header =\n\n> Quote\n\n== Subheader ==';
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const h1 = container.querySelector('h1');
+        const h2 = container.querySelector('h2');
+        const blockquote = container.querySelector('blockquote');
+
+        expect(h1).toBeInTheDocument();
+        expect(h2).toBeInTheDocument();
+        expect(blockquote).toBeInTheDocument();
+      });
+
+      test('renders blockquote with code blocks', () => {
+        const wiki = '> Quote\n\n{{{#!javascript\ncode\n}}}';
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const blockquote = container.querySelector('blockquote');
+        const pre = container.querySelector('pre');
+
+        expect(blockquote).toBeInTheDocument();
+        expect(pre).toBeInTheDocument();
+      });
+    });
+
+    describe('Nested Blockquotes', () => {
+      test('renders nested blockquote (>>)', () => {
+        const wiki = '>> Nested quote';
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const blockquote = container.querySelector('blockquote');
+        expect(blockquote).toBeInTheDocument();
+        expect(blockquote.getAttribute('data-level')).toBe('2');
+      });
+
+      test('renders deeply nested blockquotes (>>>)', () => {
+        const wiki = '>>> Very nested';
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const blockquote = container.querySelector('blockquote');
+        expect(blockquote.getAttribute('data-level')).toBe('3');
+      });
+
+      test('renders mixed nesting levels', () => {
+        const wiki = '> Level 1\n>> Level 2\n> Level 1 again';
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const blockquotes = container.querySelectorAll('blockquote');
+        // 3 blockquotes: level 1, level 2, level 1 (different groups)
+        expect(blockquotes).toHaveLength(3);
+        expect(blockquotes[0].getAttribute('data-level')).toBe('1');
+        expect(blockquotes[1].getAttribute('data-level')).toBe('2');
+        expect(blockquotes[2].getAttribute('data-level')).toBe('1');
+      });
+
+      test('renders descending nesting', () => {
+        const wiki = '>>> Level 3\n>> Level 2\n> Level 1';
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const blockquotes = container.querySelectorAll('blockquote');
+        expect(blockquotes.length).toBeGreaterThan(0);
+      });
+
+      test('renders ascending nesting', () => {
+        const wiki = '> Level 1\n>> Level 2\n>>> Level 3';
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const blockquotes = container.querySelectorAll('blockquote');
+        expect(blockquotes.length).toBeGreaterThan(0);
+      });
+    });
+
+    describe('Multiple Blockquotes', () => {
+      test('renders multiple separate blockquotes', () => {
+        const wiki = '> First\n\n> Second';
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const blockquotes = container.querySelectorAll('blockquote');
+        expect(blockquotes).toHaveLength(2);
+      });
+
+      test('renders blockquotes with content between', () => {
+        const wiki = '> Quote 1\n\nNormal text\n\n> Quote 2';
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const blockquotes = container.querySelectorAll('blockquote');
+        const paragraph = container.querySelector('p');
+
+        expect(blockquotes).toHaveLength(2);
+        expect(paragraph.textContent).toBe('Normal text');
+      });
+
+      test('renders three or more blockquotes', () => {
+        const wiki = '> A\n\n> B\n\n> C';
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const blockquotes = container.querySelectorAll('blockquote');
+        expect(blockquotes).toHaveLength(3);
+      });
+
+      test('renders blockquotes mixed with other elements', () => {
+        const wiki = '= Header =\n\n> Quote\n\n{{{code}}}';
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const h1 = container.querySelector('h1');
+        const blockquote = container.querySelector('blockquote');
+        const pre = container.querySelector('pre');
+
+        expect(h1).toBeInTheDocument();
+        expect(blockquote).toBeInTheDocument();
+        expect(pre).toBeInTheDocument();
+      });
+    });
+
+    describe('Formatting Inside Blockquotes', () => {
+      test('renders bold inside blockquote', () => {
+        const wiki = "> This has '''bold''' text";
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const blockquote = container.querySelector('blockquote');
+        const strong = blockquote.querySelector('strong');
+
+        expect(strong).toBeInTheDocument();
+        expect(strong.textContent).toBe('bold');
+      });
+
+      test('renders italic inside blockquote', () => {
+        const wiki = "> This has ''italic'' text";
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const blockquote = container.querySelector('blockquote');
+        const em = blockquote.querySelector('em');
+
+        expect(em).toBeInTheDocument();
+        expect(em.textContent).toBe('italic');
+      });
+
+      test('renders links inside blockquote', () => {
+        const wiki = '> Check [https://example.com link]';
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const blockquote = container.querySelector('blockquote');
+        const link = blockquote.querySelector('a');
+
+        expect(link).toBeInTheDocument();
+        expect(link.href).toBe('https://example.com/');
+      });
+
+      test('renders inline code inside blockquote', () => {
+        const wiki = '> Use `code` here';
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const blockquote = container.querySelector('blockquote');
+        const code = blockquote.querySelector('code');
+
+        expect(code).toBeInTheDocument();
+        expect(code.textContent).toBe('code');
+      });
+
+      test('renders mixed formatting inside blockquote', () => {
+        const wiki = "> '''Bold''', ''italic'', and `code`";
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const blockquote = container.querySelector('blockquote');
+        expect(blockquote.querySelector('strong')).toBeInTheDocument();
+        expect(blockquote.querySelector('em')).toBeInTheDocument();
+        expect(blockquote.querySelector('code')).toBeInTheDocument();
+      });
+
+      test('renders WikiFormatting syntax inside blockquote', () => {
+        const wiki = "> '''Text''' with formatting";
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const blockquote = container.querySelector('blockquote');
+        const strong = blockquote.querySelector('strong');
+
+        // WikiFormatting processed inside blockquote
+        expect(strong).toBeInTheDocument();
+        // Original ''' markers should not appear
+        expect(blockquote.textContent).not.toContain("'''");
+      });
+    });
+
+    describe('Edge Cases', () => {
+      test('handles empty blockquote', () => {
+        const wiki = '>';
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const blockquote = container.querySelector('blockquote');
+        expect(blockquote).toBeInTheDocument();
+      });
+
+      test('handles blockquote with only whitespace', () => {
+        const wiki = '>   ';
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const blockquote = container.querySelector('blockquote');
+        expect(blockquote).toBeInTheDocument();
+      });
+
+      test('handles > not at line start (paragraph)', () => {
+        const wiki = 'Text with > in middle';
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        // Should be paragraph, not blockquote
+        const paragraph = container.querySelector('p');
+        const blockquote = container.querySelector('blockquote');
+
+        expect(paragraph).toBeInTheDocument();
+        expect(blockquote).not.toBeInTheDocument();
+      });
+
+      test('handles blockquote at start of document', () => {
+        const wiki = '> First line quote';
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const blockquote = container.querySelector('blockquote');
+        expect(blockquote).toBeInTheDocument();
+      });
+
+      test('handles blockquote at end of document', () => {
+        const wiki = 'Text\n\n> Last line quote';
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const blockquote = container.querySelector('blockquote');
+        expect(blockquote).toBeInTheDocument();
+      });
+    });
+
+    describe('Security - XSS Prevention', () => {
+      test('escapes HTML in blockquote content', () => {
+        const wiki = '> <script>alert("XSS")</script>';
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const blockquote = container.querySelector('blockquote');
+        expect(blockquote.textContent).toContain('<script>');
+        expect(container.querySelector('script')).not.toBeInTheDocument();
+      });
+
+      test('escapes event handlers in blockquote', () => {
+        const wiki = '> <div onclick="alert(1)">Click</div>';
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const blockquote = container.querySelector('blockquote');
+        expect(blockquote.textContent).toContain('onclick');
+        // No actual div should be created from the content
+        const allDivs = container.querySelectorAll('div');
+        expect(allDivs.length).toBe(0);
+      });
+
+      test('React auto-escaping prevents XSS', () => {
+        const wiki = '> <img src=x onerror="alert(1)">';
+        const elements = convertWikiToReact(wiki);
+        const { container } = render(<>{elements}</>);
+
+        const blockquote = container.querySelector('blockquote');
+        expect(blockquote.textContent).toContain('<img');
+        expect(container.querySelector('img')).not.toBeInTheDocument();
+      });
+    });
+  });
 });

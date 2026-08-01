@@ -249,6 +249,36 @@
   text-align: center;
 }
 
+/* Blockquotes - Trac Discussion Citation style */
+blockquote.citation {
+  margin: 1em 2em;
+  padding: 0.5em 1em;
+  border-left: 3px solid #d0d0d0;
+  background-color: #f7f7f7;
+  color: #666;
+}
+
+/* Nested blockquotes */
+blockquote.citation blockquote.citation {
+  margin: 0.5em 0 0.5em 1em;
+  border-left-color: #b0b0b0;
+  background-color: #ececec;
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  blockquote.citation {
+    background-color: #2a2a2a;
+    border-left-color: #555;
+    color: #aaa;
+  }
+
+  blockquote.citation blockquote.citation {
+    background-color: #1f1f1f;
+    border-left-color: #666;
+  }
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .rendered-container {

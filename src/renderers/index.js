@@ -22,3 +22,4 @@
 export { convertWikiToHtml } from './wikiToHtml.js';
 export { convertWikiToReact } from './wikiToReact.js';
 export { escapeHtml, renderCodeBlock, renderInlineCode } from './codeBlocks.js';
+export { renderBlockquote, parseBlockquoteLines, groupBlockquotesByLevel } from './blockquotes.js';

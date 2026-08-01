@@ -25,6 +25,11 @@
  *   - Language-specific blocks: {{{#!lang
  *   - HTML escaping (XSS prevention)
  *   - Inline code: `code`
+ * - Blockquotes (Phase 6b):
+ *   - Discussion Citations: > text
+ *   - Nested blockquotes: >> text, >>> text
+ *   - Formatting inside blockquotes (bold, italic, links)
+ *   - React auto-escaping for XSS prevention
  *
  * Future phases will add:
  * - Lists
@@ -37,6 +42,7 @@
 
 import React from 'react';
 import { renderCodeBlock, renderInlineCode } from './codeBlocks.js';
+import { renderBlockquote, parseBlockquoteLines, groupBlockquotesByLevel } from './blockquotes.js';
 
 /**
  * Generate an ID from heading text
@@ -499,6 +505,31 @@ export function convertWikiToReact(wikiText, options = {}) {
       elements.push(renderCodeBlock(content, language, `code-${i}`));
 
       i++; // Move past closing }}}
+      continue;
+    }
+
+    // Check if line starts a blockquote
+    if (line.startsWith('>')) {
+      const { blocks, endIndex } = parseBlockquoteLines(lines, i);
+      const grouped = groupBlockquotesByLevel(blocks);
+
+      grouped.forEach((block, idx) => {
+        // Process WikiFormatting inside blockquote content
+        // Unlike code blocks, blockquotes ALLOW formatting (bold, italic, links, code)
+        // parseLinks() handles all inline formatting including bold/italic/code
+        const formattedContent = parseLinks(block.content, 0);
+
+        // Render blockquote with citation class
+        const quote = renderBlockquote(
+          formattedContent,
+          block.level,
+          `quote-${i}-${idx}`
+        );
+
+        elements.push(quote);
+      });
+
+      i = endIndex + 1;
       continue;
     }
 
