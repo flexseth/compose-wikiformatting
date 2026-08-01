@@ -51,9 +51,9 @@
   - [x] Documentation example (4 backticks outer, 3 backticks inner)
   - [x] Deep Nesting (5 backticks outer, 4 and 3 backticks inner)
 
-### ⏳ PENDING MANUAL TESTING
+### ✅ MANUAL TESTING COMPLETE
 
-- [ ] **Multiple Blocks**
+- [x] **Multiple Blocks**
   - [x] First block (js)
   - [x] Text between blocks preserved
   - [x] Second block (php)
@@ -67,7 +67,7 @@
   - [x] Special Characters - `<>&"'` preserved
   - [x] WikiFormatting Delimiters Inside Code - `{{{` and `}}}` preserved literally
 
-- [ ] **Security Test Cases** ⭐ CRITICAL
+- [x] **Security Test Cases** ⭐ CRITICAL
   - [x] XSS: Script Injection - `<script>` tags preserved as text
   - [x] XSS: Image Tag with Error Handler - `<img onerror>` preserved
   - [x] XSS: Iframe Injection - `<iframe>` preserved
