@@ -1,359 +1,343 @@
 # Blockquotes Testing - Phase 6
 
-**Purpose:** Manual testing file for blockquote conversion and rendering. Copy/paste examples into Trac to compare both WikiFormatting blockquote syntaxes.
-
-**Two WikiFormatting Blockquote Syntaxes:**
-1. **Indentation-based:** 2-space indent (standard Trac blockquotes)
-2. **Discussion Citations:** `>` markers (email-style, used in ticket comments)
-
-**Test Goal:** Determine which syntax to use for Markdown `>` conversion in Phase 6.
-
----
-
-## Example 1: Simple Blockquote (Indentation Style)
-
-**WikiFormatting (2-space indent):**
-
-```
-This is a normal paragraph.
-
-  This is a blockquote created with 2-space indentation.
-  It can span multiple lines as long as each line starts with 2 spaces.
-
-This is a normal paragraph after the quote.
-```
+**Purpose:** Manual testing file for blockquote conversion and rendering. Copy/paste this entire file into the editor (Column 1) to see WikiFormatting conversion in Column 2 and rendered output in Column 3.
 
 **What to verify:**
-- Does it render as a `<blockquote>` element?
-- Does the visual styling look like a proper quote?
-- Can you tell it's indented in the raw text?
+- Column 2 shows `>` markers preserved (Markdown and WikiFormatting use same syntax)
+- Column 3 renders as `<blockquote class="citation">` elements
+- Nested blockquotes display correctly
+- Formatting inside blockquotes works (bold, italic, links)
+- Security: XSS attempts are escaped
 
 ---
 
-## Example 2: Simple Blockquote (Citation Style)
+## Basic Blockquotes
 
-**WikiFormatting (`>` markers):**
+### Simple Blockquote
 
-```
-This is a normal paragraph.
+> This is a simple blockquote.
+> It spans multiple lines.
+> All consecutive lines starting with > are grouped together.
 
-> This is a blockquote using the > marker (Discussion Citation style).
-> Multiple lines with > markers create one blockquote.
+**Expected Column 2:** Same as input (no conversion needed)
+**Expected Column 3:** `<blockquote class="citation">` element with gray background and left border
 
-This is a normal paragraph after the citation.
-```
+### Single Line Blockquote
 
-**What to verify:**
-- Does it render as a `<blockquote class="citation">` element?
-- Is the visual styling different from indentation style?
-- Is the `>` marker easier to read in raw form?
+> Single line quote.
 
----
+**Expected:** Renders as blockquote element
 
-## Example 3: Nested Blockquotes (Indentation Style)
+### Empty Blockquote
 
-**WikiFormatting (nested indentation):**
-
-```
-Regular paragraph.
-
-  First level blockquote (2 spaces).
-    Second level nested quote (4 spaces).
-      Third level nested quote (6 spaces).
-
-Back to regular text.
-```
-
-**What to verify:**
-- Does nesting work correctly?
-- Are there visual differences between nesting levels?
-- Is the indentation clear in raw text?
-
----
-
-## Example 4: Nested Blockquotes (Citation Style)
-
-**WikiFormatting (nested `>` markers):**
-
-```
-Regular paragraph.
-
->> Someone's original comment
-> My reply to that comment
-My final response
-```
-
-**Another nested example:**
-
-```
->> Original text (double nested)
-> Reply text (single level)
->  - which can be any kind of Wiki markup
-My response (no quote)
-```
-
-**What to verify:**
-- Does `>>` create a nested quote?
-- Does the visual nesting match the markup?
-- Is the email-style easier to understand?
-
----
-
-## Example 5: Blockquote with Text Formatting (Indentation)
-
-**WikiFormatting (indentation with formatting):**
-
-```
-Normal paragraph.
-
-  This blockquote has '''bold text''' and ''italic text''.
-  It also has a [https://wordpress.org link to WordPress].
-  And some `inline code` too.
-
-Normal paragraph.
-```
-
-**What to verify:**
-- Does bold/italic render inside the blockquote?
-- Do links work correctly?
-- Does inline code render properly?
-
----
-
-## Example 6: Blockquote with Text Formatting (Citation)
-
-**WikiFormatting (citation with formatting):**
-
-```
-Normal paragraph.
-
-> This citation has '''bold text''' and ''italic text'''
-> It also has a [https://wordpress.org link to WordPress]
-> And some `inline code` too
-
-Normal paragraph.
-```
-
-**What to verify:**
-- Same formatting questions as Example 5
-- Compare visual appearance to indentation style
-
----
-
-## Example 7: Blockquote with Code Block (Indentation)
-
-**WikiFormatting (indentation with code):**
-
-```
-Normal paragraph.
-
-  This blockquote contains an explanation.
-  
-  {{{#!javascript
-  const example = "code inside a quote";
-  console.log(example);
-  }}}
-  
-  More quote text after the code.
-
-Normal paragraph.
-```
-
-**What to verify:**
-- Does the code block render inside the blockquote?
-- Is the syntax highlighting preserved?
-- Does the nesting look correct?
-
----
-
-## Example 8: Blockquote with Code Block (Citation)
-
-**WikiFormatting (citation with code):**
-
-```
-Normal paragraph.
-
-> This citation explains some code:
 >
-> {{{#!javascript
-> const example = "code in citation";
-> }}}
->
-> The code above demonstrates the concept.
 
-Normal paragraph.
-```
-
-**What to verify:**
-- Does code work in citation style?
-- Compare to indentation style rendering
-- Which looks better visually?
+**Expected:** Empty blockquote element (edge case)
 
 ---
 
-## Example 9: Multiple Blockquotes (Indentation)
+## Nested Blockquotes
 
-**WikiFormatting (multiple separate quotes):**
+### Two Levels
 
-```
-First paragraph.
+>> This is a nested quote (level 2)
+> This is the parent quote (level 1)
+> Still part of parent quote
 
-  First blockquote here.
-  It has multiple lines.
+**Expected:** Nested `<blockquote>` elements with progressive indentation
 
-Second paragraph between quotes.
+### Three Levels
 
-  Second blockquote here.
-  Also with multiple lines.
+>>> Level 3 (deepest)
+>> Level 2
+> Level 1
 
-Final paragraph.
-```
+**Expected:** Three nested blockquote elements
 
-**What to verify:**
-- Are the two blockquotes clearly separated?
-- Does the spacing look correct?
+### Mixed Nesting
 
----
+> Level 1 first
+>> Level 2 nested
+>> Still level 2
+> Back to level 1
+>> Another level 2
 
-## Example 10: Multiple Blockquotes (Citation)
-
-**WikiFormatting (multiple separate citations):**
-
-```
-First paragraph.
-
-> First citation here
-> It has multiple lines
-
-Second paragraph between citations.
-
-> Second citation here
-> Also with multiple lines
-
-Final paragraph.
-```
-
-**What to verify:**
-- Compare separation to indentation style
-- Which is easier to distinguish in raw form?
+**Expected:** Proper nesting structure with level changes
 
 ---
 
-## Example 11: Real-World Use Case - Bug Report Quote
+## Blockquotes with Formatting
 
-**WikiFormatting (indentation style):**
+### Bold Inside Blockquote
 
+> This quote has **bold text** inside it.
+> And **more bold** on the next line.
+
+**Expected:** Bold renders inside the blockquote
+
+### Italic Inside Blockquote
+
+> This quote has *italic text* inside it.
+> And _more italic_ on the next line.
+
+**Expected:** Italic renders inside the blockquote
+
+### Bold and Italic
+
+> This has **bold** and *italic* and ***bold italic***.
+
+**Expected:** All formatting renders correctly
+
+### Links Inside Blockquote
+
+> Check out [WordPress](https://wordpress.org) for more info.
+> Also see [GitHub](https://github.com).
+
+**Expected:** Links are clickable inside the blockquote
+
+### Code Inside Blockquote
+
+> This quote contains `inline code` here.
+> And more `code` on this line.
+
+**Expected:** Inline code renders with monospace font inside blockquote
+
+### Mixed Formatting
+
+> This is a **bold** statement with *italic* emphasis.
+> It also has a [link](https://example.com) and `code`.
+
+**Expected:** All formatting types work together inside blockquote
+
+---
+
+## Multiple Blockquotes
+
+### Two Separate Blockquotes
+
+> First blockquote here.
+> It has multiple lines.
+
+This is normal text between blockquotes.
+
+> Second blockquote here.
+> Also with multiple lines.
+
+**Expected:** Two distinct blockquote elements separated by paragraph
+
+### Three Blockquotes
+
+> Quote 1
+
+> Quote 2
+
+> Quote 3
+
+**Expected:** Three separate blockquote elements
+
+---
+
+## Blockquotes with Other Elements
+
+### Blockquote with Header Before
+
+## This is a header
+
+> This is a blockquote after a header.
+
+**Expected:** Header renders normally, then blockquote below it
+
+### Blockquote with Header After
+
+> This is a blockquote before a header.
+
+## This is a header
+
+**Expected:** Blockquote renders normally, then header below it
+
+### Blockquote with Code Block
+
+> This quote discusses code:
+
+```javascript
+const example = "code";
 ```
-I tested the reported issue and can confirm the bug.
 
-  The original report stated:
-  "When I click the submit button, nothing happens. Console shows TypeError: undefined is not a function."
+> And continues after the code.
 
-After investigation, I found the issue in the event handler on line 42.
-```
+**Expected:** Blockquote, then code block, then another blockquote
 
-**WikiFormatting (citation style):**
+---
 
-```
-I tested the reported issue and can confirm the bug.
+## Edge Cases
+
+### Blockquote at Start of Document
+
+> This blockquote is at the very start.
+
+**Expected:** Renders correctly without preceding content
+
+### Blockquote at End of Document
+
+This is some text.
+
+> This blockquote is at the very end.
+
+**Expected:** Renders correctly without following content
+
+### Blockquote with Leading/Trailing Spaces
+
+>   This has spaces after the marker.
+
+**Expected:** Renders correctly, spaces handled gracefully
+
+### Multiple Empty Lines
+
+> First line
+
+> Third line (empty line above)
+
+**Expected:** Two separate blockquotes or one with paragraph break
+
+---
+
+## Security Tests
+
+**CRITICAL SECURITY VERIFICATION:** These examples contain malicious code that MUST render as safe text, never execute.
+
+### XSS: Script Injection
+
+> <script>alert('XSS')</script>
+> <script>document.location='http://evil.com'</script>
+
+**Expected:** Script tags visible as text `<script>`, NO JavaScript execution
+
+### XSS: Image Tag with Error Handler
+
+> <img src=x onerror="alert('XSS')">
+> <img src="javascript:alert('XSS')">
+
+**Expected:** HTML escaped, no images rendered, no JavaScript executed
+
+### XSS: Event Handlers
+
+> <div onclick="alert('XSS')">Click me</div>
+> <button onmouseover="alert('XSS')">Hover</button>
+
+**Expected:** All event handlers rendered as plain text, no execution
+
+### XSS: Iframe Injection
+
+> <iframe src="javascript:alert('XSS')"></iframe>
+> <iframe src="http://evil.com/phishing"></iframe>
+
+**Expected:** Iframe tags visible as text, nothing embedded
+
+### XSS: SVG Injection
+
+> <svg onload="alert('XSS')"></svg>
+> <svg><script>alert('XSS')</script></svg>
+
+**Expected:** SVG tags escaped and visible, no graphics rendered
+
+### XSS: Data URIs
+
+> <a href="data:text/html,<script>alert('XSS')</script>">Click</a>
+
+**Expected:** Links escaped, no data URI execution
+
+### HTML Entities
+
+> This has &lt;escaped&gt; entities and <unescaped> tags.
+
+**Expected:** All HTML properly escaped in output
+
+---
+
+## Real-World Use Cases
+
+### Bug Report Quote
+
+I found a bug in the login system.
 
 > The original report stated:
-> "When I click the submit button, nothing happens. Console shows TypeError: undefined is not a function."
+> "When I click the login button, nothing happens. Console shows: TypeError: undefined is not a function at auth.js:42"
 
-After investigation, I found the issue in the event handler on line 42.
-```
+After investigation, the issue is in the event handler.
 
-**What to verify:**
-- Which style is more appropriate for quoting bug reports?
-- Which is easier to read in ticket comments?
+**Expected:** Quote clearly distinguished from surrounding text
 
----
+### Code Review Comment
 
-## Example 12: Real-World Use Case - Code Review Comment
+Regarding the changes in PR #123:
 
-**WikiFormatting (indentation style):**
+> From the pull request description:
+> "Added input validation for email addresses. Now supports international domains and special characters."
 
-```
-Regarding the changes in src/utils/validation.js:
+The regex pattern looks good, but we should add tests for edge cases.
 
-  From your PR description:
-  "Added email validation regex that supports international domains and special characters."
+**Expected:** Multi-line quote renders properly in discussion context
 
-The regex pattern looks good, but we should add tests for edge cases like multiple @ symbols.
-```
+### Documentation Reference
 
-**WikiFormatting (citation style):**
+The documentation explains this feature:
 
-```
-Regarding the changes in src/utils/validation.js:
+> **Important:** Always validate user input before processing.
+> Never trust data from external sources.
 
-> From your PR description:
-> "Added email validation regex that supports international domains and special characters."
+This is a critical security principle.
 
-The regex pattern looks good, but we should add tests for edge cases like multiple @ symbols.
-```
-
-**What to verify:**
-- Which style fits code review discussions better?
-- Which is more readable in pull request comments?
+**Expected:** Bold formatting works inside quoted documentation
 
 ---
 
-## Comparison Checklist
+## Verification Checklist
 
-After testing all examples on Trac, answer these questions:
+**After pasting this file into Column 1, verify:**
 
-**Visual Rendering:**
-- [ ] Which style has better visual distinction from normal text?
-- [ ] Which style's nesting is clearer?
-- [ ] Which style looks better with formatted text inside?
-- [ ] Which style works better with code blocks inside?
+### Column 2 (WikiFormatting Output)
+- [ ] `>` markers preserved exactly as input
+- [ ] No conversion happened (Markdown `>` === WikiFormatting `>`)
+- [ ] All content after `>` markers unchanged
+- [ ] Nested `>>` and `>>>` markers intact
 
-**Raw Text Readability:**
-- [ ] Which is easier to read in raw WikiFormatting?
-- [ ] Which is easier to write manually?
-- [ ] Which would Markdown users find more familiar?
+### Column 3 (Rendered Preview)
+- [ ] Blockquotes render as `<blockquote class="citation">` elements
+- [ ] Visual styling: gray background, left border
+- [ ] Nested blockquotes have progressive indentation
+- [ ] Bold/italic/links render inside blockquotes
+- [ ] Inline code has monospace font inside blockquotes
+- [ ] Multiple blockquotes are clearly separated
 
-**Use Case Fit:**
-- [ ] Which is better for general blockquotes?
-- [ ] Which is better for ticket/PR discussions?
-- [ ] Which matches WordPress Trac's conventions?
+### Security (Column 3)
+- [ ] **NO JavaScript executes** (no alert boxes, no console errors)
+- [ ] **NO images load** (including broken image icons)
+- [ ] **NO iframes/embeds appear**
+- [ ] **NO forms are interactive**
+- [ ] All HTML tags show as escaped text: `<script>`, `<img>`, etc.
+- [ ] All event handlers visible as text: `onclick="..."`, etc.
+- [ ] Inspect element confirms React auto-escaping (no dangerouslySetInnerHTML)
 
-**Technical Considerations:**
-- [ ] Do both styles render correctly in all contexts?
-- [ ] Are there any bugs or edge cases with either style?
-- [ ] Which style is used more often in existing WordPress Trac tickets?
-
----
-
-## Decision Criteria
-
-**For Phase 6 Implementation:**
-
-1. **If Indentation Style is chosen:**
-   - Convert `>` → `  ` (2 spaces)
-   - Convert `>>` → `    ` (4 spaces)
-   - Handle multi-line blockquotes
-   - Preserve content formatting
-
-2. **If Citation Style is chosen:**
-   - NO conversion needed (`>` stays `>`)
-   - Minimal code required
-   - Markdown-compatible already
-   - May need rendering adjustments
-
-3. **Hybrid Approach (if needed):**
-   - Use citation style for ticket comments
-   - Use indentation for wiki pages
-   - Context-aware conversion
+### Overall
+- [ ] All tests render correctly
+- [ ] No console errors in browser DevTools
+- [ ] Dark mode styling works (if supported)
+- [ ] Formatting inside blockquotes works correctly
+- [ ] Real-world examples look appropriate
 
 ---
 
-## Next Steps
+## How to Verify Manually
 
-1. Paste examples into WordPress Trac (https://core.trac.wordpress.org)
-2. Create a test ticket or wiki page
-3. Compare visual rendering
-4. Check existing tickets to see which style is more common
-5. Make decision on which syntax to use for Phase 6
-6. Report findings back for implementation planning
+1. **Copy this entire file**
+2. **Paste into Column 1** (the Editor)
+3. **Check Column 2:** WikiFormatting output (should be identical to input)
+4. **Check Column 3:** Rendered preview with blockquote styling
+5. **Open Browser DevTools** (F12):
+   - Console tab: NO errors or alerts
+   - Network tab: NO external requests
+   - Elements tab: Inspect blockquotes, verify `<blockquote class="citation">`
+6. **Visual inspection:** Verify styling matches Trac Discussion Citations
+7. **Security verification:** Confirm NO scripts execute, all HTML escaped
+
+**Expected Result:** All blockquotes render safely with proper styling, formatting works inside quotes, nested quotes display correctly, zero security issues.
