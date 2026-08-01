@@ -20,10 +20,14 @@
  *   - Wiki links: [[WikiPage]]
  *   - URL scheme validation (http, https, Trac-specific)
  *   - Links with inline formatting
+ * - Code blocks (Phase 5b):
+ *   - Fenced code blocks: {{{ / }}}
+ *   - Language-specific blocks: {{{#!lang
+ *   - HTML escaping (XSS prevention)
+ *   - Inline code: `code`
  *
  * Future phases will add:
  * - Lists
- * - Code blocks
  * - Blockquotes
  * - Tables
  * - Images
@@ -32,6 +36,7 @@
  */
 
 import React from 'react';
+import { renderCodeBlock, renderInlineCode } from './codeBlocks.js';
 
 /**
  * Generate an ID from heading text
@@ -248,11 +253,49 @@ function parseLinks(text, keyOffset = 0) {
  * @security All text content is rendered as text nodes by React (auto-escaped)
  */
 function parseInlineFormatting(text) {
+  // Phase 5b: Added inline code support
   // Phase 3.5: Full text formatting support (bold, italic, bold+italic)
-  // Order matters: Must check bold+italic (5 quotes) BEFORE bold (3) or italic (2)
+  // Priority order:
+  // 1. Inline code (`code`) - processed FIRST to protect content
+  // 2. Bold+Italic ('''''text''''')
+  // 3. Bold ('''text''')
+  // 4. Italic (''text'')
 
+  // First, check if text contains inline code
+  if (text.includes('`')) {
+    // Render inline code - this will parse backticks and return array of text/code elements
+    const inlineCodeParts = renderInlineCode(text, 0);
+
+    // Now process each text part for bold/italic, leaving code elements untouched
+    const finalParts = [];
+    inlineCodeParts.forEach(part => {
+      if (typeof part === 'string') {
+        // Text part - process for bold/italic
+        const formattedParts = parseTextFormatting(part);
+        finalParts.push(...formattedParts);
+      } else {
+        // React element (code) - keep as-is
+        finalParts.push(part);
+      }
+    });
+
+    return finalParts;
+  }
+
+  // No inline code - process for bold/italic only
+  return parseTextFormatting(text);
+}
+
+/**
+ * Parse text for bold/italic formatting only
+ * Helper function used by parseInlineFormatting
+ *
+ * @private
+ * @param {string} text - Text to parse for bold/italic
+ * @returns {Array<string|React.Element>} Array of text and formatting elements
+ */
+function parseTextFormatting(text) {
   const parts = [];
-  let remaining = text;
   let keyCounter = 0;
 
   // Combined regex that matches in priority order:
@@ -404,27 +447,83 @@ export function convertWikiToReact(wikiText, options = {}) {
   // Process line by line
   const lines = wikiText.split('\n');
   const elements = [];
+  let i = 0;
 
-  lines.forEach((line, index) => {
+  while (i < lines.length) {
+    const line = lines[i];
+
+    // Check if line starts a code block
+    if (line.startsWith('{{{')) {
+      // Extract language if present: {{{#!javascript
+      const langMatch = line.match(/^{{{#!(\w+)/);
+      const language = langMatch ? langMatch[1] : null;
+
+      // Collect code lines until closing }}}
+      // Handle nested code blocks by tracking depth
+      const codeLines = [];
+      let nestingDepth = 0;
+      i++; // Move past opening {{{
+
+      while (i < lines.length) {
+        const currentLine = lines[i];
+
+        // Check for nested opening {{{
+        if (currentLine.startsWith('{{{')) {
+          nestingDepth++;
+          codeLines.push(currentLine);
+          i++;
+          continue;
+        }
+
+        // Check for closing }}}
+        if (currentLine.startsWith('}}}')) {
+          if (nestingDepth > 0) {
+            // Nested closing - treat as content
+            nestingDepth--;
+            codeLines.push(currentLine);
+            i++;
+            continue;
+          } else {
+            // Actual closing delimiter for this block
+            break;
+          }
+        }
+
+        // Regular content line
+        codeLines.push(currentLine);
+        i++;
+      }
+
+      // Render code block
+      const content = codeLines.join('\n');
+      elements.push(renderCodeBlock(content, language, `code-${i}`));
+
+      i++; // Move past closing }}}
+      continue;
+    }
+
+    // Check for empty line
     if (line.trim() === '') {
       // Empty line - add a line break element
-      elements.push(<br key={`br-${index}`} />);
+      elements.push(<br key={`br-${i}`} />);
     } else {
       // Try to convert as header
-      const element = convertHeaderToReact(line, index);
+      const element = convertHeaderToReact(line, i);
 
       if (typeof element === 'string') {
         // Not a header, add as paragraph with inline formatting and links
         const formattedContent = parseLinks(element, 0);
         elements.push(
-          <p key={`p-${index}`}>{formattedContent}</p>
+          <p key={`p-${i}`}>{formattedContent}</p>
         );
       } else {
         // Is a header React element
         elements.push(element);
       }
     }
-  });
+
+    i++;
+  }
 
   return elements;
 }

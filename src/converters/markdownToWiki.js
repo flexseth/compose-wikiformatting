@@ -10,6 +10,7 @@
 import { convertHeaders } from './headers.js';
 import { convertTextFormatting } from './textFormatting.js';
 import { convertLinks } from './links.js';
+import { extractCodeBlocks, restoreCodeBlocks } from './codeBlocks.js';
 
 /**
  * Convert Markdown text to WikiFormatting
@@ -19,12 +20,12 @@ import { convertLinks } from './links.js';
  * to prevent conflicts.
  *
  * Currently supported conversions:
+ * - Code blocks (fenced, language-specific)
  * - Headers (# syntax → = syntax)
  * - Text formatting (bold, italic)
  * - Links (external, wiki)
  *
  * Future phases will add:
- * - Code blocks (fenced, indented)
  * - Blockquotes
  * - Tables
  * - Images
@@ -61,11 +62,17 @@ export function convertMarkdownToWiki(markdown, options = {}) {
 
   let result = markdown;
 
+  // Phase 5: Extract code blocks FIRST (protect content with placeholders)
+  // CRITICAL: Code content must NOT be processed by other converters
+  // Placeholders prevent headers, links, text formatting from touching code block content
+  const { text: textWithPlaceholders, blocks: codeBlocks } = extractCodeBlocks(result);
+  result = textWithPlaceholders;
+
   // Phase 1: Convert headers (# → =)
   // Must be done line-by-line to avoid conflicts with other syntax
   result = convertHeaders(result);
 
-  // Phase 4: Convert links FIRST (before text formatting)
+  // Phase 4: Convert links (before text formatting)
   // This prevents text formatting from mangling URLs with underscores
   // Example: Object-oriented_programming would become Object-oriented''programming''
   result = result.split('\n').map(line => convertLinks(line)).join('\n');
@@ -75,8 +82,11 @@ export function convertMarkdownToWiki(markdown, options = {}) {
   // Links are now in WikiFormatting [url text] format, safe from underscore conversion
   result = result.split('\n').map(line => convertTextFormatting(line)).join('\n');
 
+  // Phase 5 (final): Restore code blocks from placeholders
+  // Code blocks now contain original content, converted to WikiFormatting but unmodified
+  result = restoreCodeBlocks(result, codeBlocks);
+
   // Future phases: Additional conversions will be added here
-  // - Code blocks
   // - Blockquotes
   // - Tables
   // - Images

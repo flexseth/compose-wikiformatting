@@ -199,6 +199,64 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - All 340 tests passing (68 tests for links: 42 conversion + 26 rendering)
   - Security review passed (0 vulnerabilities)
 
+- **Phase 5a: Code Blocks Conversion - Markdown to WikiFormatting**
+  - Core converter module: `src/converters/codeBlocks.js`
+    - Fenced code blocks: ` ```lang ` → `{{{#!lang`
+    - Generic code blocks: ` ``` ` → `{{{` / `}}}`
+    - Language normalization: js→javascript, ts→javascript, sh→bash, md→markdown
+    - Nested code block support (4+ backticks for documentation examples)
+    - Extract/restore pattern with safe placeholders (Unicode non-characters)
+    - Content protection: Headers, bold, italic, links NOT converted inside code
+  - Integration with `markdownToWiki.js` pipeline
+    - Code blocks processed FIRST (extract before other converters)
+    - Placeholder system protects code from text formatting converters
+    - Restore after all other conversions complete
+  - Comprehensive test suite (49 unit tests + 9 integration tests)
+    - 100% test coverage on codeBlocks.js
+    - Language support: JavaScript, PHP, HTML, CSS, Bash, Python
+    - Nested blocks: 4-5 backtick variations tested
+    - Content protection verified: `#`, `**`, `*`, `[text](url)` stay literal
+    - Edge cases: empty blocks, single line, special characters
+    - Security: XSS attack vectors tested (all preserved as text)
+  - Security review passed (0 vulnerabilities)
+    - All malicious code preserved as literal text
+    - No code execution during conversion
+    - WordPress examples tested: PHP functions with underscores NOT converted
+
+- **Phase 5b: Code Blocks Rendering - WikiFormatting to React Components**
+  - Core renderer module: `src/renderers/codeBlocks.js`
+    - `renderCodeBlock()`: `{{{` → `<pre><code>` elements
+    - `renderInlineCode()`: `` `code` `` → `<code>` elements
+    - Language class support: `{{{#!javascript` → `<code className="language-javascript">`
+    - Pure React rendering (NO dangerouslySetInnerHTML)
+    - React auto-escaping prevents XSS attacks
+  - Integration with `wikiToReact.js` renderer
+    - Inline code block detection with nesting depth tracking
+    - Nested delimiter handling: inner `{{{` preserved as literal text
+    - Inline code in paragraphs and headers
+    - Content protection: WikiFormatting syntax in code stays literal
+  - Comprehensive test suite (47 unit tests + 27 integration tests)
+    - Basic rendering: pre/code structure, language classes, empty blocks
+    - XSS prevention: 47 security test cases
+      - Script tags, img onerror, iframe, SVG, event handlers
+      - Data URIs, JavaScript protocol URIs
+      - Object/embed tags, form injection, meta redirects
+    - Content protection: headers, bold, italic, links NOT rendered in code
+    - Inline code: backticks in paragraphs/headers, multiple segments
+    - Nested blocks: WikiFormatting delimiters inside code preserved
+  - Styling with `RenderedView.css`
+    - GitHub-style code block styling
+    - Monospace fonts: Monaco, Menlo, Ubuntu Mono, Consolas
+    - Dark mode support for all code elements
+    - Horizontal scroll for long code lines
+    - Inline code: subtle background, border radius
+  - Security review passed (0 vulnerabilities)
+    - All HTML in code blocks properly escaped
+    - No dangerouslySetInnerHTML usage
+    - Malicious code renders as text, never executes
+    - React framework-level XSS protection verified
+  - All 467 tests passing (74 tests for code blocks: 49 conversion + 47 rendering + nested blocks)
+
 ### Fixed
 - **Phase 4 Critical Bug Fix (commit 55c145b)**: URLs with underscores and parentheses
   - Fixed Wikipedia-style URLs being corrupted during conversion
