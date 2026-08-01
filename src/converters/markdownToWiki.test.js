@@ -422,3 +422,112 @@ function __construct() {
     expect(result).not.toContain("''private");
   });
 });
+
+describe('convertMarkdownToWiki - Blockquotes Integration (Phase 6)', () => {
+  test('blockquotes with headers', () => {
+    const input = `# Main Header
+
+> This is a quoted section
+> With multiple lines
+
+## Subheader`;
+
+    const result = convertMarkdownToWiki(input);
+
+    // Headers converted
+    expect(result).toContain('= Main Header =');
+    expect(result).toContain('== Subheader ==');
+
+    // Blockquotes preserved (identical syntax)
+    expect(result).toContain('> This is a quoted section');
+    expect(result).toContain('> With multiple lines');
+  });
+
+  test('blockquotes with links', () => {
+    const input = `> Check out [WordPress](https://wordpress.org) for more info
+> Also see [GitHub](https://github.com)`;
+
+    const result = convertMarkdownToWiki(input);
+
+    // Blockquote markers preserved
+    expect(result).toContain('> Check out');
+    expect(result).toContain('> Also see');
+
+    // Links converted inside blockquotes
+    expect(result).toContain('[https://wordpress.org WordPress]');
+    expect(result).toContain('[https://github.com GitHub]');
+  });
+
+  test('blockquotes with text formatting', () => {
+    const input = `> This has **bold** text
+> And *italic* text
+> And ***bold italic***`;
+
+    const result = convertMarkdownToWiki(input);
+
+    // Blockquote markers preserved
+    expect(result).toContain('> This has');
+    expect(result).toContain('> And');
+
+    // Text formatting converted inside blockquotes
+    expect(result).toContain("'''bold'''");
+    expect(result).toContain("''italic''");
+    expect(result).toContain("'''''bold italic'''''");
+  });
+
+  test('blockquotes with code blocks', () => {
+    const input = `> This quote discusses code:
+
+\`\`\`javascript
+const x = 1;
+\`\`\`
+
+> And continues after the code.`;
+
+    const result = convertMarkdownToWiki(input);
+
+    // Blockquotes preserved
+    expect(result).toContain('> This quote discusses code:');
+    expect(result).toContain('> And continues after the code.');
+
+    // Code block converted
+    expect(result).toContain('{{{#!javascript');
+    expect(result).toContain('const x = 1;');
+    expect(result).toContain('}}}');
+  });
+
+  test('multiple blockquotes with mixed content', () => {
+    const input = `> First quote with **bold**
+
+# Header
+
+> Second quote with [link](https://example.com)
+
+\`\`\`
+code block
+\`\`\`
+
+> Third quote`;
+
+    const result = convertMarkdownToWiki(input);
+
+    // All blockquotes preserved
+    expect(result).toContain('> First quote with');
+    expect(result).toContain('> Second quote with');
+    expect(result).toContain('> Third quote');
+
+    // Header converted
+    expect(result).toContain('= Header =');
+
+    // Bold converted
+    expect(result).toContain("'''bold'''");
+
+    // Link converted
+    expect(result).toContain('[https://example.com link]');
+
+    // Code block converted
+    expect(result).toContain('{{{');
+    expect(result).toContain('code block');
+    expect(result).toContain('}}}');
+  });
+});

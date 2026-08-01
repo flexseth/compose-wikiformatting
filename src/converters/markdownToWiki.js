@@ -11,6 +11,7 @@ import { convertHeaders } from './headers.js';
 import { convertTextFormatting } from './textFormatting.js';
 import { convertLinks } from './links.js';
 import { extractCodeBlocks, restoreCodeBlocks } from './codeBlocks.js';
+import { convertBlockquotes } from './blockquotes.js';
 
 /**
  * Convert Markdown text to WikiFormatting
@@ -22,11 +23,11 @@ import { extractCodeBlocks, restoreCodeBlocks } from './codeBlocks.js';
  * Currently supported conversions:
  * - Code blocks (fenced, language-specific)
  * - Headers (# syntax → = syntax)
+ * - Blockquotes (> syntax, identical in both formats)
  * - Text formatting (bold, italic)
  * - Links (external, wiki)
  *
  * Future phases will add:
- * - Blockquotes
  * - Tables
  * - Images
  * - Lists (unordered, ordered, nested)
@@ -72,6 +73,11 @@ export function convertMarkdownToWiki(markdown, options = {}) {
   // Must be done line-by-line to avoid conflicts with other syntax
   result = convertHeaders(result);
 
+  // Phase 6: Convert blockquotes (> → >, pass-through)
+  // Markdown and WikiFormatting use identical syntax (Discussion Citations)
+  // This maintains pipeline consistency and provides type validation
+  result = convertBlockquotes(result);
+
   // Phase 4: Convert links (before text formatting)
   // This prevents text formatting from mangling URLs with underscores
   // Example: Object-oriented_programming would become Object-oriented''programming''
@@ -87,7 +93,6 @@ export function convertMarkdownToWiki(markdown, options = {}) {
   result = restoreCodeBlocks(result, codeBlocks);
 
   // Future phases: Additional conversions will be added here
-  // - Blockquotes
   // - Tables
   // - Images
   // - Lists (moved to last - most complex)
