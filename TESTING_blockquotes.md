@@ -158,14 +158,12 @@ This is normal text between blockquotes.
 ### Blockquote with Code Block
 
 > This quote discusses code:
-
-```javascript
-const example = "code";
-```
-
+> {{{
+> const example = "code";
+> }}}
 > And continues after the code.
 
-**Expected:** Blockquote, then code block, then another blockquote
+**Expected:** Blockquote containing a code block inside it (WikiFormatting syntax)
 
 ---
 
