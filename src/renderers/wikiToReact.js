@@ -42,7 +42,7 @@
 
 import React from 'react';
 import { renderCodeBlock, renderInlineCode } from './codeBlocks.js';
-import { renderBlockquote, parseBlockquoteLines, groupBlockquotesByLevel } from './blockquotes.js';
+import { renderBlockquote, parseBlockquoteLines, groupBlockquotesByLevel, parseBlockquoteContent } from './blockquotes.js';
 
 /**
  * Generate an ID from heading text
@@ -156,7 +156,7 @@ function isValidUrlScheme(url) {
  * - React auto-escapes text content
  * - href attributes are validated before rendering
  */
-function parseLinks(text, keyOffset = 0) {
+export function parseLinks(text, keyOffset = 0) {
   const parts = [];
   let keyCounter = keyOffset;
 
@@ -508,16 +508,21 @@ export function convertWikiToReact(wikiText, options = {}) {
       continue;
     }
 
-    // Check if line starts a blockquote
-    if (line.startsWith('>')) {
+    // Check if line starts a blockquote (allow leading whitespace)
+    if (line.trim().startsWith('>')) {
       const { blocks, endIndex } = parseBlockquoteLines(lines, i);
       const grouped = groupBlockquotesByLevel(blocks);
 
       grouped.forEach((block, idx) => {
         // Process WikiFormatting inside blockquote content
-        // Unlike code blocks, blockquotes ALLOW formatting (bold, italic, links, code)
-        // parseLinks() handles all inline formatting including bold/italic/code
-        const formattedContent = parseLinks(block.content, 0);
+        // Blockquotes ALLOW formatting (bold, italic, links, code blocks)
+        // parseBlockquoteContent() handles both block-level (code blocks) and inline formatting
+        // Returns an array of React elements
+        const formattedContent = parseBlockquoteContent(
+          block.content,
+          `quote-${i}-${idx}`,
+          parseLinks
+        );
 
         // Render blockquote with citation class
         const quote = renderBlockquote(

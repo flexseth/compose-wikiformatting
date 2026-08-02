@@ -5,16 +5,137 @@
  *
  * Renders blockquotes as <blockquote> elements with citation class.
  * Supports nested blockquotes and processes WikiFormatting inside quote content.
+ * Supports code blocks inside blockquotes.
  *
  * Supported syntax:
  * - Single-level: > text
  * - Nested: >> text, >>> text
  * - Multi-line: consecutive lines starting with >
+ * - Code blocks inside quotes: > {{{ code }}}
  *
  * @module renderers/blockquotes
  */
 
 import React from 'react';
+import { renderCodeBlock } from './codeBlocks.js';
+
+/**
+ * Parse blockquote content that may contain code blocks and inline formatting
+ *
+ * Processes WikiFormatting inside blockquotes, including:
+ * - Code blocks: {{{ code }}}
+ * - Inline formatting: bold, italic, links, inline code
+ *
+ * @param {string} content - Blockquote content to parse
+ * @param {string} keyPrefix - Prefix for React keys
+ * @returns {Array<React.Element>} Array of React elements
+ *
+ * @example
+ * parseBlockquoteContent('Text with {{{ code }}}', 'quote-1')
+ * // Returns: [<span>Text with</span>, <pre><code>code</code></pre>]
+ *
+ * @security
+ * - Code blocks rendered via renderCodeBlock (HTML-escaped)
+ * - Inline formatting via parseLinks (URL validation, React auto-escape)
+ */
+export function parseBlockquoteContent(content, keyPrefix, parseLinksFunction) {
+  // If no code blocks present, split by newlines and process each line
+  if (!content.includes('{{{')) {
+    const lines = content.split('\n');
+    const elements = [];
+
+    lines.forEach((line, idx) => {
+      if (line.trim() !== '') {
+        const formatted = parseLinksFunction(line, 0);
+        elements.push(
+          <span key={`${keyPrefix}-line-${idx}`}>{formatted}</span>
+        );
+      }
+      // Add <br> after each line except the last
+      if (idx < lines.length - 1) {
+        elements.push(<br key={`${keyPrefix}-br-${idx}`} />);
+      }
+    });
+
+    return elements;
+  }
+
+  const lines = content.split('\n');
+  const elements = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+
+    // Check for code block start
+    if (line.trim().startsWith('{{{')) {
+      // Extract language if present: {{{#!javascript
+      const langMatch = line.match(/^\s*{{{#!(\w+)/);
+      const language = langMatch ? langMatch[1] : null;
+
+      // Collect code lines until closing }}}
+      const codeLines = [];
+      let nestingDepth = 0;
+      i++; // Move past opening {{{
+
+      while (i < lines.length) {
+        const currentLine = lines[i];
+
+        // Check for nested opening
+        if (currentLine.trim() === '{{{') {
+          nestingDepth++;
+          codeLines.push(currentLine);
+          i++;
+          continue;
+        }
+
+        // Check for closing
+        if (currentLine.trim() === '}}}') {
+          if (nestingDepth > 0) {
+            nestingDepth--;
+            codeLines.push(currentLine);
+            i++;
+            continue;
+          } else {
+            // Found closing bracket at depth 0
+            break;
+          }
+        }
+
+        codeLines.push(currentLine);
+        i++;
+      }
+
+      // Render code block
+      const codeContent = codeLines.join('\n');
+      elements.push(
+        renderCodeBlock(codeContent, language, `${keyPrefix}-code-${i}`)
+      );
+
+      i++; // Move past closing }}}
+      continue;
+    }
+
+    // Regular text line - process inline formatting
+    if (line.trim() !== '') {
+      const formatted = parseLinksFunction(line, 0);
+      elements.push(
+        <span key={`${keyPrefix}-text-${i}`}>{formatted}</span>
+      );
+      // Add line break after text (except for last line)
+      if (i < lines.length - 1) {
+        elements.push(<br key={`${keyPrefix}-br-after-${i}`} />);
+      }
+    } else {
+      // Empty line - add line break
+      elements.push(<br key={`${keyPrefix}-br-${i}`} />);
+    }
+
+    i++;
+  }
+
+  return elements;
+}
 
 /**
  * Render a blockquote with WikiFormatting citation syntax
@@ -73,8 +194,8 @@ export function parseBlockquoteLines(lines, startIndex) {
   const blocks = [];
   let i = startIndex;
 
-  while (i < lines.length && lines[i].startsWith('>')) {
-    const line = lines[i];
+  while (i < lines.length && lines[i].trim().startsWith('>')) {
+    const line = lines[i].trim(); // Trim leading whitespace
 
     // Count > markers to determine nesting level
     let level = 0;
