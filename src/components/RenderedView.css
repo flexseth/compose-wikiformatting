@@ -251,17 +251,42 @@
 
 /* Blockquotes - Trac Discussion Citation style */
 blockquote.citation {
-  margin: 1em 2em;
+  margin: 1em 0;
   padding: 0.5em 1em;
-  border-left: 3px solid #d0d0d0;
+  border-left: 3px solid red; /* RED for development - easy to see */
   background-color: #f7f7f7;
-  color: #666;
+  color: #333;
+}
+
+/* Elements inside blockquotes - each gets its own spacing */
+blockquote.citation > span,
+blockquote.citation > p {
+  display: block;
+  margin-bottom: 0.5em;
+}
+
+blockquote.citation > span:last-child,
+blockquote.citation > p:last-child {
+  margin-bottom: 0;
+}
+
+/* Code blocks inside blockquotes */
+blockquote.citation > pre {
+  margin: 0.75em 0;
+  padding: 0.5em;
+  background-color: #fff;
+  border: 1px solid #ddd;
+}
+
+blockquote.citation > pre:last-child {
+  margin-bottom: 0;
 }
 
 /* Nested blockquotes */
 blockquote.citation blockquote.citation {
-  margin: 0.5em 0 0.5em 1em;
-  border-left-color: #b0b0b0;
+  margin: 0.5em 0;
+  padding-left: 3px;
+  border-left: 3px solid darkred;
   background-color: #ececec;
 }
 
@@ -269,13 +294,18 @@ blockquote.citation blockquote.citation {
 @media (prefers-color-scheme: dark) {
   blockquote.citation {
     background-color: #2a2a2a;
-    border-left-color: #555;
-    color: #aaa;
+    border-left-color: red; /* Keep red in dark mode */
+    color: #ddd;
+  }
+
+  blockquote.citation > pre {
+    background-color: #1a1a1a;
+    border-color: #444;
   }
 
   blockquote.citation blockquote.citation {
     background-color: #1f1f1f;
-    border-left-color: #666;
+    border-left-color: darkred;
   }
 }
 

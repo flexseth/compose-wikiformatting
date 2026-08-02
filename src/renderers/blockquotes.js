@@ -122,8 +122,10 @@ export function parseBlockquoteContent(content, keyPrefix, parseLinksFunction) {
       elements.push(
         <span key={`${keyPrefix}-text-${i}`}>{formatted}</span>
       );
-      // Add line break after text (except for last line)
-      if (i < lines.length - 1) {
+      // Add line break after text (except for last line or if next line is a code block)
+      const nextLine = i < lines.length - 1 ? lines[i + 1] : null;
+      const nextIsCodeBlock = nextLine && nextLine.trim().startsWith('{{{');
+      if (i < lines.length - 1 && !nextIsCodeBlock) {
         elements.push(<br key={`${keyPrefix}-br-after-${i}`} />);
       }
     } else {
