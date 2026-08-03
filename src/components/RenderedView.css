@@ -270,12 +270,13 @@ blockquote.citation > p:last-child {
   margin-bottom: 0;
 }
 
-/* Code blocks inside blockquotes */
+/* Code blocks inside blockquotes - match Trac styling */
 blockquote.citation > pre {
   margin: 0.75em 0;
-  padding: 0.5em;
-  background-color: #fff;
-  border: 1px solid #ddd;
+  padding: 12px;
+  background-color: #f7f7f0; /* Light tan/beige like Trac */
+  border: 1px solid #d7d7d0;
+  border-radius: 3px;
 }
 
 blockquote.citation > pre:last-child {
@@ -299,8 +300,8 @@ blockquote.citation blockquote.citation {
   }
 
   blockquote.citation > pre {
-    background-color: #1a1a1a;
-    border-color: #444;
+    background-color: #2d2d28; /* Dark tan to match light mode */
+    border-color: #4a4a40;
   }
 
   blockquote.citation blockquote.citation {
