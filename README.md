@@ -76,6 +76,17 @@ WordPress core uses [Trac](https://core.trac.wordpress.org) for issue tracking, 
 - ⚛️ **Pure React**: No dangerouslySetInnerHTML, React auto-escaping only
 - 🧪 **74 Tests**: 47 unit + 27 integration, 100% coverage
 
+### Phase 6: Blockquotes (Discussion Citations) ✅
+- **Blockquote Conversion**: Markdown `>` preserved (same syntax as WikiFormatting)
+- **Nested Blockquotes**: `>>`, `>>>`, `>>>>` with progressive colored borders
+- **Formatting Inside Quotes**: Bold, italic, links, inline code all work
+- **Code Blocks in Quotes**: Trac-compatible fenced code blocks inside blockquotes
+- 🎨 **Color-Coded Nesting**: Red (L1) → Green (L2) → Blue (L3) → Pink (L4)
+- 🔒 **XSS Prevention**: React auto-escaping, all malicious content rendered as text
+- ⚛️ **Nested React Structure**: Proper DOM nesting for accurate Trac rendering
+- 🧪 **124 Tests**: 45 conversion + 46 rendering + 28 integration + 5 integration, 100% coverage
+- 📝 **Trac Bug Documented**: Discovered potential nesting bug in WordPress Trac renderer
+
 ### Coming Soon
 - 📋 **Copy to Clipboard**: One-click copy of WikiFormatting
 - ⌨️ **Keyboard Shortcuts**: Tab, Escape, CMD/CTRL+S

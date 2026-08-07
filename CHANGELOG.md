@@ -257,6 +257,64 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - React framework-level XSS protection verified
   - All 467 tests passing (74 tests for code blocks: 49 conversion + 47 rendering + nested blocks)
 
+- **Phase 6a: Blockquotes Conversion - Markdown to WikiFormatting**
+  - Core converter module: `src/converters/blockquotes.js`
+    - Pass-through converter: Markdown `>` === WikiFormatting `>` (same syntax)
+    - Nested blockquotes: `>>`, `>>>`, etc. preserved
+    - Type validation with TypeError for non-string inputs
+    - 100% JSDoc documentation coverage
+  - Integration into `markdownToWiki.js` pipeline
+    - Applied after text formatting and links
+    - No actual conversion needed (syntax identical)
+  - Comprehensive test suite (45 unit + 5 integration tests)
+    - 100% test coverage on blockquotes.js
+    - Single and multi-line blockquotes
+    - Nested levels (2-5 levels deep)
+    - Edge cases: empty quotes, leading whitespace
+    - Type safety validation
+  - Security review passed (0 vulnerabilities)
+
+- **Phase 6b: Blockquotes Rendering - WikiFormatting to React Components**
+  - Core renderer module: `src/renderers/blockquotes.js`
+    - `renderBlockquote()`: Discussion Citations with `<blockquote class="citation">`
+    - `parseBlockquoteLines()`: Parse consecutive `>` lines
+    - `groupBlockquotesByLevel()`: Group by nesting level
+    - `parseBlockquoteContent()`: Handle content with code blocks and formatting
+    - Nested blockquotes support (`>>`, `>>>`, etc.)
+    - WikiFormatting processing inside quotes (bold, italic, links, inline code)
+    - Code blocks inside blockquotes (Trac-compatible feature)
+    - Pure React rendering (no dangerouslySetInnerHTML)
+  - Integration with `wikiToReact.js` renderer
+    - `buildNestedBlockquotes()`: Creates properly nested React structure
+    - Multi-line blockquotes with preserved newlines
+    - Leading whitespace before `>` markers handled correctly
+  - Styling with `RenderedView.css`
+    - Trac Discussion Citation style
+    - Progressive colored borders for nesting levels:
+      - Level 1: Red (#b44)
+      - Level 2: Green (#4b4)
+      - Level 3: Blue (#44b)
+      - Level 4: Light red/pink (#c55)
+      - Level 5+: Cycles colors
+    - Dark mode support for all blockquote elements
+    - `white-space: pre-line` for natural line breaks
+  - Comprehensive test suite (46 unit + 28 integration tests)
+    - 100% test coverage on blockquotes.js
+    - Security: XSS attempts properly escaped (React auto-escaping)
+    - Nested blockquotes (2-4 levels)
+    - Formatting inside quotes (bold, italic, links, code)
+    - Code blocks inside blockquotes
+    - Multi-line and separated blockquotes
+  - Security review passed (0 vulnerabilities)
+    - XSS protection: All content rendered via React children (auto-escaping)
+    - URL validation: Dangerous protocols blocked via existing `parseLinks()`
+    - No injection vectors: Pure client-side, safe transformations
+  - All 591 tests passing (124 new tests: 45 conversion + 46 rendering + 28 integration + 5 integration)
+  - **Known Issue**: Trac rendering bug documented in TODO.md
+    - Final level-1 blockquote incorrectly nested in Trac's output
+    - Our implementation follows spec; Trac appears to have nesting bug
+    - Action: Further testing needed against WordPress Trac
+
 ### Fixed
 - **Phase 4 Critical Bug Fix (commit 55c145b)**: URLs with underscores and parentheses
   - Fixed Wikipedia-style URLs being corrupted during conversion
