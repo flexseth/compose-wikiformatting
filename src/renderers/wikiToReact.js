@@ -45,6 +45,78 @@ import { renderCodeBlock, renderInlineCode } from './codeBlocks.js';
 import { renderBlockquote, parseBlockquoteLines, groupBlockquotesByLevel, parseBlockquoteContent } from './blockquotes.js';
 
 /**
+ * Build nested blockquote structure from grouped blocks
+ *
+ * Takes an array of blocks with level information and creates a properly
+ * nested React element structure where higher-level blockquotes contain
+ * lower-level ones (e.g., level 2 inside level 1).
+ *
+ * @private
+ * @param {Array<{level: number, content: string}>} grouped - Grouped blockquote blocks
+ * @param {number} keyPrefix - Prefix for React keys
+ * @param {Function} parseLinks - Link parsing function
+ * @returns {Array<React.Element>} Array of top-level blockquote elements
+ *
+ * @example
+ * buildNestedBlockquotes([
+ *   { level: 1, content: 'Parent' },
+ *   { level: 2, content: 'Child' },
+ *   { level: 1, content: 'Parent 2' }
+ * ], 0, parseLinks)
+ * // Returns: [
+ * //   <blockquote level={1}>Parent<blockquote level={2}>Child</blockquote></blockquote>,
+ * //   <blockquote level={1}>Parent 2</blockquote>
+ * // ]
+ */
+function buildNestedBlockquotes(grouped, keyPrefix, parseLinks) {
+  if (grouped.length === 0) return [];
+
+  const result = [];
+  let i = 0;
+
+  while (i < grouped.length) {
+    const currentBlock = grouped[i];
+    const formattedContent = parseBlockquoteContent(
+      currentBlock.content,
+      `quote-${keyPrefix}-${i}`,
+      parseLinks
+    );
+
+    // Look ahead to see if next blocks should be nested inside this one
+    const children = [];
+    let j = i + 1;
+
+    while (j < grouped.length && grouped[j].level > currentBlock.level) {
+      // Collect all blocks that should be nested
+      const nestedGroup = [];
+      const targetLevel = grouped[j].level;
+
+      while (j < grouped.length && grouped[j].level >= targetLevel) {
+        nestedGroup.push(grouped[j]);
+        j++;
+      }
+
+      // Recursively build nested structure
+      const nested = buildNestedBlockquotes(nestedGroup, `${keyPrefix}-${i}`, parseLinks);
+      children.push(...nested);
+    }
+
+    // Create blockquote with content and any nested children
+    const allContent = [...formattedContent, ...children];
+    const quote = renderBlockquote(
+      allContent,
+      currentBlock.level,
+      `quote-${keyPrefix}-${i}`
+    );
+
+    result.push(quote);
+    i = j; // Move to next block after nested ones
+  }
+
+  return result;
+}
+
+/**
  * Generate an ID from heading text
  *
  * Creates a URL-safe ID by removing non-alphanumeric characters
@@ -513,26 +585,9 @@ export function convertWikiToReact(wikiText, options = {}) {
       const { blocks, endIndex } = parseBlockquoteLines(lines, i);
       const grouped = groupBlockquotesByLevel(blocks);
 
-      grouped.forEach((block, idx) => {
-        // Process WikiFormatting inside blockquote content
-        // Blockquotes ALLOW formatting (bold, italic, links, code blocks)
-        // parseBlockquoteContent() handles both block-level (code blocks) and inline formatting
-        // Returns an array of React elements
-        const formattedContent = parseBlockquoteContent(
-          block.content,
-          `quote-${i}-${idx}`,
-          parseLinks
-        );
-
-        // Render blockquote with citation class
-        const quote = renderBlockquote(
-          formattedContent,
-          block.level,
-          `quote-${i}-${idx}`
-        );
-
-        elements.push(quote);
-      });
+      // Build nested blockquote structure
+      const nestedQuotes = buildNestedBlockquotes(grouped, i, parseLinks);
+      elements.push(...nestedQuotes);
 
       i = endIndex + 1;
       continue;

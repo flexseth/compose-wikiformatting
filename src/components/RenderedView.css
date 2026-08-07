@@ -251,23 +251,19 @@
 
 /* Blockquotes - Trac Discussion Citation style */
 blockquote.citation {
-  margin: 1em 0;
-  padding: 0.5em 1em;
-  border-left: 3px solid red; /* RED for development - easy to see */
-  background-color: #f7f7f7;
+  margin: 0;
+  padding: 0.25em 1em 0 1em; /* Top, right, bottom, left */
+  border-left: 4px solid #b44; /* Level 1: Red */
   color: #333;
+  line-height: 1.4;
+  white-space: pre-line; /* Preserve newlines in text content */
 }
 
 /* Elements inside blockquotes - each gets its own spacing */
 blockquote.citation > span,
 blockquote.citation > p {
-  display: block;
-  margin-bottom: 0.5em;
-}
-
-blockquote.citation > span:last-child,
-blockquote.citation > p:last-child {
-  margin-bottom: 0;
+  display: inline;
+  margin: 0;
 }
 
 /* Code blocks inside blockquotes - match Trac styling */
@@ -283,19 +279,32 @@ blockquote.citation > pre:last-child {
   margin-bottom: 0;
 }
 
-/* Nested blockquotes */
+/* Nested blockquotes - progressive indentation and colors */
 blockquote.citation blockquote.citation {
   margin: 0.5em 0;
-  padding-left: 3px;
-  border-left: 3px solid darkred;
-  background-color: #ececec;
+  padding: 0.25em 1em 0 1em; /* Top, right, bottom, left */
+  border-left: 0.2em solid #4b4; /* Level 2: Green */
+}
+
+/* Level 3: Blue */
+blockquote.citation blockquote.citation blockquote.citation {
+  border-left: 0.2em solid #44b;
+}
+
+/* Level 4: Light red/pink */
+blockquote.citation blockquote.citation blockquote.citation blockquote.citation {
+  border-left: 0.2em solid #c55;
+}
+
+/* Level 5+ cycles back to level 1 color */
+blockquote.citation blockquote.citation blockquote.citation blockquote.citation blockquote.citation {
+  border-left: 0.2em solid #b44;
 }
 
 /* Dark mode */
 @media (prefers-color-scheme: dark) {
   blockquote.citation {
-    background-color: #2a2a2a;
-    border-left-color: red; /* Keep red in dark mode */
+    border-left-color: #b44; /* Level 1: Red */
     color: #ddd;
   }
 
@@ -305,8 +314,22 @@ blockquote.citation blockquote.citation {
   }
 
   blockquote.citation blockquote.citation {
-    background-color: #1f1f1f;
-    border-left-color: darkred;
+    border-left-color: #4b4; /* Level 2: Green */
+  }
+
+  /* Level 3: Blue */
+  blockquote.citation blockquote.citation blockquote.citation {
+    border-left-color: #44b;
+  }
+
+  /* Level 4: Light red/pink */
+  blockquote.citation blockquote.citation blockquote.citation blockquote.citation {
+    border-left-color: #c55;
+  }
+
+  /* Level 5+ */
+  blockquote.citation blockquote.citation blockquote.citation blockquote.citation blockquote.citation {
+    border-left-color: #b44;
   }
 }
 

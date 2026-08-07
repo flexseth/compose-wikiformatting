@@ -39,25 +39,10 @@ import { renderCodeBlock } from './codeBlocks.js';
  * - Inline formatting via parseLinks (URL validation, React auto-escape)
  */
 export function parseBlockquoteContent(content, keyPrefix, parseLinksFunction) {
-  // If no code blocks present, split by newlines and process each line
+  // If no code blocks present, just parse the content directly with newlines preserved
   if (!content.includes('{{{')) {
-    const lines = content.split('\n');
-    const elements = [];
-
-    lines.forEach((line, idx) => {
-      if (line.trim() !== '') {
-        const formatted = parseLinksFunction(line, 0);
-        elements.push(
-          <span key={`${keyPrefix}-line-${idx}`}>{formatted}</span>
-        );
-      }
-      // Add <br> after each line except the last
-      if (idx < lines.length - 1) {
-        elements.push(<br key={`${keyPrefix}-br-${idx}`} />);
-      }
-    });
-
-    return elements;
+    const formatted = parseLinksFunction(content, 0);
+    return [<span key={keyPrefix}>{formatted}</span>];
   }
 
   const lines = content.split('\n');
@@ -120,17 +105,8 @@ export function parseBlockquoteContent(content, keyPrefix, parseLinksFunction) {
     if (line.trim() !== '') {
       const formatted = parseLinksFunction(line, 0);
       elements.push(
-        <span key={`${keyPrefix}-text-${i}`}>{formatted}</span>
+        <span key={`${keyPrefix}-text-${i}`}>{formatted}{'\n'}</span>
       );
-      // Add line break after text (except for last line or if next line is a code block)
-      const nextLine = i < lines.length - 1 ? lines[i + 1] : null;
-      const nextIsCodeBlock = nextLine && nextLine.trim().startsWith('{{{');
-      if (i < lines.length - 1 && !nextIsCodeBlock) {
-        elements.push(<br key={`${keyPrefix}-br-after-${i}`} />);
-      }
-    } else {
-      // Empty line - add line break
-      elements.push(<br key={`${keyPrefix}-br-${i}`} />);
     }
 
     i++;
