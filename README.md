@@ -76,7 +76,8 @@ WordPress core uses [Trac](https://core.trac.wordpress.org) for issue tracking, 
 - ⚛️ **Pure React**: No dangerouslySetInnerHTML, React auto-escaping only
 - 🧪 **74 Tests**: 47 unit + 27 integration, 100% coverage
 
-### Phase 6: Blockquotes (Discussion Citations) ✅
+### Phase 6: Discussion Citations (Email-Style Blockquotes) ✅
+- **Syntax**: Email-style `>` markers (not 2-space indent standard blockquotes)
 - **Blockquote Conversion**: Markdown `>` preserved (same syntax as WikiFormatting)
 - **Nested Blockquotes**: `>>`, `>>>`, `>>>>` with progressive colored borders
 - **Formatting Inside Quotes**: Bold, italic, links, inline code all work
@@ -86,6 +87,7 @@ WordPress core uses [Trac](https://core.trac.wordpress.org) for issue tracking, 
 - ⚛️ **Nested React Structure**: Proper DOM nesting for accurate Trac rendering
 - 🧪 **124 Tests**: 45 conversion + 46 rendering + 28 integration + 5 integration, 100% coverage
 - 📝 **Trac Bug Documented**: Discovered potential nesting bug in WordPress Trac renderer
+- ⚠️ **Note**: Standard blockquotes (2-space indent) not yet implemented - tracked as Phase 6c
 
 ### Coming Soon
 - 📋 **Copy to Clipboard**: One-click copy of WikiFormatting

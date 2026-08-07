@@ -19,12 +19,15 @@
 
 ## Active Tasks
 
-### Phase 6: Blockquotes ✅
+### Phase 6: Blockquotes (Discussion Citations Only) ✅
 - [x] Phase 6a: Markdown → WikiFormatting conversion (pass-through)
 - [x] Phase 6b: WikiFormatting → React rendering
 - [x] Security review completed
 - [ ] Merge to trunk
 - [ ] Create release tag
+
+**Note**: Phase 6 implements **Discussion Citations** (`>` markers) only.  
+Standard blockquotes (2-space indent) are tracked separately below.
 
 #### Trac Rendering Bug Discovery
 
@@ -77,6 +80,31 @@ The final `> simple blockquote` line appears to render wrapped/nested with the p
 ---
 
 ## Upcoming Phases
+
+### Phase 6c: Standard Blockquotes (2-Space Indent) 
+**NOT YET IMPLEMENTED** - Different from Phase 6 Discussion Citations
+
+**Syntax:**
+- Markdown: 2-space indent at line start
+- WikiFormatting: Same (2-space indent)
+- Renders as: `<blockquote>` (no citation class)
+
+**Example:**
+```
+Paragraph
+  This text is a quote from someone else.
+```
+
+**Tasks:**
+- [ ] Markdown → WikiFormatting conversion (preserve 2-space indent)
+- [ ] WikiFormatting → React rendering (`<blockquote>` without citation class)
+- [ ] Distinguish from Discussion Citations (different styling)
+- [ ] Security review
+- [ ] Tests
+
+**References:**
+- Trac docs: https://trac.ffmpeg.org/wiki/WikiFormatting#Blockquotes
+- Saved HTML: WikiFormatting – FFmpeg.html (Blockquotes section)
 
 ### Phase 7: Lists
 - [ ] Ordered lists conversion

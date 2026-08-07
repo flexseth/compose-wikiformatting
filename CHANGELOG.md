@@ -257,7 +257,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - React framework-level XSS protection verified
   - All 467 tests passing (74 tests for code blocks: 49 conversion + 47 rendering + nested blocks)
 
-- **Phase 6a: Blockquotes Conversion - Markdown to WikiFormatting**
+- **Phase 6a: Discussion Citations Conversion - Markdown to WikiFormatting**
+  - **Note**: Implements email-style `>` blockquotes only. Standard blockquotes (2-space indent) tracked as Phase 6c.
   - Core converter module: `src/converters/blockquotes.js`
     - Pass-through converter: Markdown `>` === WikiFormatting `>` (same syntax)
     - Nested blockquotes: `>>`, `>>>`, etc. preserved
@@ -274,7 +275,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Type safety validation
   - Security review passed (0 vulnerabilities)
 
-- **Phase 6b: Blockquotes Rendering - WikiFormatting to React Components**
+- **Phase 6b: Discussion Citations Rendering - WikiFormatting to React Components**
+  - **Note**: Implements `<blockquote class="citation">` only. Standard `<blockquote>` (no class) tracked as Phase 6c.
   - Core renderer module: `src/renderers/blockquotes.js`
     - `renderBlockquote()`: Discussion Citations with `<blockquote class="citation">`
     - `parseBlockquoteLines()`: Parse consecutive `>` lines
