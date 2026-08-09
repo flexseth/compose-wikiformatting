@@ -111,7 +111,7 @@ WordPress core uses [Trac](https://core.trac.wordpress.org) for issue tracking, 
 - **Custom Converters**: Pure JavaScript converters (WordPress-portable)
   - `converters/` - Markdown → WikiFormatting
   - `renderers/` - WikiFormatting → React components
-- **Jest & @testing-library/react**: 467 tests, 100% coverage on converters
+- **Jest & @testing-library/react**: 600+ tests, 100% coverage on converters
 - **CSS Grid**: Responsive three-column layout
 - **No external parsing libraries**: All conversion logic custom-built
 
@@ -159,7 +159,7 @@ npm run build
 
 This project follows **test-driven development** with strict security requirements:
 
-1. **Incremental Phases**: 10 phases planned, 4a completed (see PLAN.md)
+1. **Incremental Phases**: 10 phases planned, Phase 6 complete (see PLAN.md)
 2. **Security First**: Every commit must pass `/security-review`
 3. **100% Test Coverage**: All converter functions fully tested
 4. **Branch Strategy**: Sequential merge-then-branch (feature → trunk → new feature)
@@ -182,9 +182,9 @@ This project follows **test-driven development** with strict security requiremen
 - ✅ **Phase 5a**: Code blocks conversion (Markdown → WikiFormatting)
 - ✅ **Phase 5b**: Code blocks renderer (with syntax highlighting prep)
 - ✅ **Phase 6**: Blockquotes (Discussion Citations + Standard Blockquotes)
-- ⏳ **Phase 7**: Lists (unordered, ordered, nested)
-- ⏳ **Phase 8**: Tables
-- ⏳ **Phase 9**: Images
+- ⏳ **Phase 7**: Tables (pipe tables, headers, cell alignment)
+- ⏳ **Phase 8**: Images (Markdown syntax → WikiFormatting)
+- ⏳ **Phase 9**: Lists (unordered, ordered, nested - most complex, moved to last)
 
 ### Future Versions
 - **v1.0.1**: WordPress plugin - Convert Gutenberg blocks
@@ -205,9 +205,15 @@ compose-wikiformatting/
 │   │   └── Sidebar.jsx          # Documentation links
 │   ├── converters/      # Markdown → WikiFormatting
 │   │   ├── headers.js           # Header conversion logic
+│   │   ├── textFormatting.js    # Bold, italic conversion
+│   │   ├── links.js             # Link syntax conversion
+│   │   ├── codeBlocks.js        # Code block conversion & protection
+│   │   ├── blockquotes.js       # Blockquote conversion
 │   │   └── markdownToWiki.js    # Main converter orchestrator
 │   ├── renderers/       # WikiFormatting → Display
-│   │   ├── wikiToReact.js       # WikiFormatting → React components
+│   │   ├── wikiToReact.js       # WikiFormatting → React components (main)
+│   │   ├── codeBlocks.js        # Code block & inline code rendering
+│   │   ├── blockquotes.js       # Discussion Citations & Standard Blockquotes
 │   │   └── wikiToHtml.js        # WikiFormatting → HTML (reference)
 │   ├── utils/           # Utilities
 │   │   ├── storage.js           # LocalStorage with WordPress-ready format
