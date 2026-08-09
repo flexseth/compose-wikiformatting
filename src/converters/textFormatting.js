@@ -83,7 +83,17 @@ export function convertTextFormatting(text) {
  * @private
  */
 function applyTextFormatting(text) {
-  let result = text;
+  // First, protect inline code by extracting it
+  const inlineCodePattern = /`([^`]+)`/g;
+  const inlineCodeBlocks = [];
+  let counter = 0;
+
+  let result = text.replace(inlineCodePattern, (match) => {
+    const placeholder = `￿IC${counter}￿`; // Inline Code placeholder
+    inlineCodeBlocks.push({ placeholder, content: match });
+    counter++;
+    return placeholder;
+  });
 
   // Convert bold + italic first (*** or ___) → '''''
   result = result.replace(/\*\*\*(\S(?:.*?\S)?)\*\*\*/g, "'''''$1'''''");
@@ -96,6 +106,11 @@ function applyTextFormatting(text) {
   // Convert italic (*text* or _text_) → ''text''
   result = result.replace(/\*(\S(?:.*?\S)?)\*/g, "''$1''");
   result = result.replace(/_(\S(?:.*?\S)?)_/g, "''$1''");
+
+  // Restore inline code blocks
+  for (const { placeholder, content } of inlineCodeBlocks) {
+    result = result.replace(placeholder, content);
+  }
 
   return result;
 }
