@@ -32,6 +32,16 @@ WordPress core uses [Trac](https://core.trac.wordpress.org) for issue tracking, 
 - 🔧 **WordPress-Ready**: Storage format maps to block attributes for easy plugin conversion
 - 🧹 **Clear Storage**: Confirmation prompt before clearing saved data
 
+### Documentation Sidebar ✅
+- 📚 **Collapsible Reference**: Quick access to WikiFormatting documentation
+- 📖 **5 Categories**: Basics, Lists & Structure, Text Formatting, Links & References, Advanced Features
+- 🔗 **20+ Direct Links**: Specific anchors to https://trac.ffmpeg.org/wiki/WikiFormatting sections
+- ↔️ **Toggle Open/Closed**: 320px ↔ 50px smooth animations
+- 📱 **Fully Responsive**: Desktop, tablet, and mobile support
+- ♿ **Accessibility**: ARIA labels, keyboard navigation
+- 🔗 **External Indicators**: Visual feedback on hover
+- 🧪 **13 Tests**: 100% coverage
+
 ### Phase 3: Text Formatting ✅
 - **Bold**: `**text**` or `__text__` → `'''text'''`
 - **Italic**: `*text*` or `_text_` → `''text''`
@@ -104,7 +114,6 @@ WordPress core uses [Trac](https://core.trac.wordpress.org) for issue tracking, 
 ### Coming Soon
 - 📋 **Copy to Clipboard**: One-click copy of WikiFormatting
 - ⌨️ **Keyboard Shortcuts**: Tab, Escape, CMD/CTRL+S
-- 📚 **Documentation Sidebar**: Collapsible quick reference (already implemented, needs integration)
 - **Phase 7+**: Lists, tables, images
 
 ## Technology Stack
