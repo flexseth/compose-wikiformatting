@@ -236,11 +236,3 @@ compose-wikiformatting/
 ├── PLAN.md              # 9-phase implementation plan
 └── CHANGELOG.md         # Detailed feature changelog
 ```
-
-## Contributing
-
-This is a private repository. For questions or suggestions, contact seth@flexperception.com.
-
-## License
-
-MIT
