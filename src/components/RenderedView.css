@@ -333,6 +333,52 @@ blockquote.citation blockquote.citation blockquote.citation blockquote.citation 
   }
 }
 
+/* Standard Blockquotes - 2-space indent syntax (Phase 6c) */
+/* Different styling from Discussion Citations */
+blockquote:not(.citation) {
+  margin: 1em 0;
+  padding: 0.75em 1.5em;
+  background-color: #f9f9f9;
+  border-left: 3px solid #ccc;
+  color: #333;
+  line-height: 1.6;
+  white-space: pre-line; /* Preserve newlines in text content */
+}
+
+/* Elements inside standard blockquotes */
+blockquote:not(.citation) > span,
+blockquote:not(.citation) > p {
+  display: inline;
+  margin: 0;
+}
+
+/* Code blocks inside standard blockquotes */
+blockquote:not(.citation) > pre {
+  margin: 0.75em 0;
+  padding: 12px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+}
+
+blockquote:not(.citation) > pre:last-child {
+  margin-bottom: 0;
+}
+
+/* Dark mode for standard blockquotes */
+@media (prefers-color-scheme: dark) {
+  blockquote:not(.citation) {
+    background-color: #2a2a2a;
+    border-left-color: #555;
+    color: #ddd;
+  }
+
+  blockquote:not(.citation) > pre {
+    background-color: #1a1a1a;
+    border-color: #444;
+  }
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .rendered-container {

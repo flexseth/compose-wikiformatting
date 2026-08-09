@@ -70,16 +70,18 @@ export function extractCodeBlocks(text) {
 
   // Regex to find fenced code blocks
   // (?:^|\n) - Either start of string or newline
+  // (\s*) - Optional leading whitespace (for indented code blocks)
   // (`{3,}) - Opening backticks (captured for matching closing fence)
   // ([a-zA-Z]*) - Optional language identifier (case-insensitive)
   // \n - Newline after opening fence
   // ([\s\S]*?) - Content (lazy match, any character including newlines, can be empty)
   // (?:\n)? - Optional newline before closing fence (missing in empty blocks)
-  // \1 - Closing backticks (same count as opening)
+  // \s* - Optional leading whitespace before closing fence
+  // \2 - Closing backticks (same count as opening)
   // (?=\n|$) - Followed by newline or end of string
-  const fencePattern = /(?:^|\n)(`{3,})([a-zA-Z]*)\n([\s\S]*?)(?:\n)?\1(?=\n|$)/g;
+  const fencePattern = /(?:^|\n)(\s*)(`{3,})([a-zA-Z]*)\n([\s\S]*?)(?:\n)?\s*\2(?=\n|$)/g;
 
-  const textWithPlaceholders = text.replace(fencePattern, (match, openTicks, lang, content) => {
+  const textWithPlaceholders = text.replace(fencePattern, (match, leadingSpace, openTicks, lang, content) => {
     // Build WikiFormatting block
     let wikiBlock = '{{{';
 
@@ -96,6 +98,11 @@ export function extractCodeBlocks(text) {
       wikiBlock += '\n' + content + '\n}}}';
     } else {
       wikiBlock += '\n}}}';
+    }
+
+    // If there's leading whitespace, add it to each line of the WikiFormatting block
+    if (leadingSpace) {
+      wikiBlock = wikiBlock.split('\n').map(line => leadingSpace + line).join('\n');
     }
 
     // Create unique placeholder

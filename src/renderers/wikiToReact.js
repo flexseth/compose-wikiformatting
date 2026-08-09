@@ -42,7 +42,14 @@
 
 import React from 'react';
 import { renderCodeBlock, renderInlineCode } from './codeBlocks.js';
-import { renderBlockquote, parseBlockquoteLines, groupBlockquotesByLevel, parseBlockquoteContent } from './blockquotes.js';
+import {
+  renderBlockquote,
+  parseBlockquoteLines,
+  groupBlockquotesByLevel,
+  parseBlockquoteContent,
+  renderStandardBlockquote,
+  parseStandardBlockquoteLines
+} from './blockquotes.js';
 
 /**
  * Build nested blockquote structure from grouped blocks
@@ -530,10 +537,10 @@ export function convertWikiToReact(wikiText, options = {}) {
   while (i < lines.length) {
     const line = lines[i];
 
-    // Check if line starts a code block
-    if (line.startsWith('{{{')) {
+    // Check if line starts a code block (with optional leading whitespace)
+    if (line.trim().startsWith('{{{')) {
       // Extract language if present: {{{#!javascript
-      const langMatch = line.match(/^{{{#!(\w+)/);
+      const langMatch = line.match(/^\s*{{{#!(\w+)/);
       const language = langMatch ? langMatch[1] : null;
 
       // Collect code lines until closing }}}
@@ -546,7 +553,7 @@ export function convertWikiToReact(wikiText, options = {}) {
         const currentLine = lines[i];
 
         // Check for nested opening {{{
-        if (currentLine.startsWith('{{{')) {
+        if (currentLine.trim().startsWith('{{{')) {
           nestingDepth++;
           codeLines.push(currentLine);
           i++;
@@ -554,7 +561,7 @@ export function convertWikiToReact(wikiText, options = {}) {
         }
 
         // Check for closing }}}
-        if (currentLine.startsWith('}}}')) {
+        if (currentLine.trim().startsWith('}}}')) {
           if (nestingDepth > 0) {
             // Nested closing - treat as content
             nestingDepth--;
@@ -580,7 +587,7 @@ export function convertWikiToReact(wikiText, options = {}) {
       continue;
     }
 
-    // Check if line starts a blockquote (allow leading whitespace)
+    // Check if line starts a Discussion Citation blockquote (> marker)
     if (line.trim().startsWith('>')) {
       const { blocks, endIndex } = parseBlockquoteLines(lines, i);
       const grouped = groupBlockquotesByLevel(blocks);
@@ -588,6 +595,22 @@ export function convertWikiToReact(wikiText, options = {}) {
       // Build nested blockquote structure
       const nestedQuotes = buildNestedBlockquotes(grouped, i, parseLinks);
       elements.push(...nestedQuotes);
+
+      i = endIndex + 1;
+      continue;
+    }
+
+    // Check if line starts a Standard Blockquote (2+ space indent)
+    // Must have at least 2 leading spaces and not be empty
+    if (line.length >= 2 && line[0] === ' ' && line[1] === ' ' && line.trim() !== '') {
+      const { content, endIndex } = parseStandardBlockquoteLines(lines, i);
+
+      // Parse blockquote content (handles code blocks and inline formatting)
+      const formattedContent = parseBlockquoteContent(content, `std-quote-${i}`, parseLinks);
+
+      // Render standard blockquote (no citation class)
+      const quote = renderStandardBlockquote(formattedContent, `std-quote-${i}`);
+      elements.push(quote);
 
       i = endIndex + 1;
       continue;

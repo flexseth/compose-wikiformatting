@@ -1,17 +1,22 @@
 /**
  * Blockquotes Renderer
  *
- * Renders WikiFormatting blockquote syntax (Discussion Citations) as React components.
+ * Renders WikiFormatting blockquote syntax as React components.
  *
- * Renders blockquotes as <blockquote> elements with citation class.
- * Supports nested blockquotes and processes WikiFormatting inside quote content.
- * Supports code blocks inside blockquotes.
+ * Two types of blockquotes:
+ * 1. Discussion Citations (Phase 6): > text with citation class
+ * 2. Standard Blockquotes (Phase 6c): 2-space indent without citation class
  *
- * Supported syntax:
+ * Discussion Citations syntax:
  * - Single-level: > text
  * - Nested: >> text, >>> text
  * - Multi-line: consecutive lines starting with >
  * - Code blocks inside quotes: > {{{ code }}}
+ *
+ * Standard Blockquotes syntax:
+ * - 2+ space indent: "  text"
+ * - Multi-line: consecutive lines with 2+ space indent
+ * - Code blocks inside quotes: "  {{{ code }}}"
  *
  * @module renderers/blockquotes
  */
@@ -239,4 +244,79 @@ export function groupBlockquotesByLevel(blocks) {
 
   grouped.push(current); // Add last group
   return grouped;
+}
+
+/**
+ * Render a standard blockquote (2-space indent syntax)
+ *
+ * Creates a <blockquote> element WITHOUT citation class for standard quotes.
+ * This differs from Discussion Citations which have className="citation".
+ *
+ * @param {string|Array|React.Element} content - Blockquote content
+ * @param {string} key - React key for the element
+ * @returns {React.Element} <blockquote> element
+ *
+ * @example
+ * renderStandardBlockquote('Simple quote', 'quote-1')
+ * // Returns: <blockquote>Simple quote</blockquote>
+ *
+ * @security
+ * - React auto-escaping prevents XSS (content passed as children)
+ * - No dangerouslySetInnerHTML used
+ * - HTML tags in content rendered as text
+ */
+export function renderStandardBlockquote(content, key) {
+  return (
+    <blockquote key={key}>
+      {content}
+    </blockquote>
+  );
+}
+
+/**
+ * Parse consecutive standard blockquote lines (2-space indent)
+ *
+ * Detects lines starting with 2+ spaces and groups them as blockquote content.
+ * Stops when encountering a line without 2+ space indent or an empty line.
+ *
+ * @param {Array<string>} lines - Array of lines to parse
+ * @param {number} startIndex - Index to start parsing from
+ * @returns {{content: string, endIndex: number}} Blockquote content and end index
+ *
+ * @example
+ * parseStandardBlockquoteLines(['  Quote line 1', '  Quote line 2', 'Normal'], 0)
+ * // Returns: {
+ * //   content: 'Quote line 1\nQuote line 2',
+ * //   endIndex: 1
+ * // }
+ */
+export function parseStandardBlockquoteLines(lines, startIndex) {
+  const contentLines = [];
+  let i = startIndex;
+
+  while (i < lines.length) {
+    const line = lines[i];
+
+    // Stop on empty line
+    if (line.trim() === '') {
+      break;
+    }
+
+    // Check if line starts with 2+ spaces (standard blockquote)
+    // Must have at least 2 leading spaces
+    if (line.length >= 2 && line[0] === ' ' && line[1] === ' ') {
+      // Remove the 2-space indent (preserve any additional indentation)
+      const content = line.substring(2);
+      contentLines.push(content);
+      i++;
+    } else {
+      // Non-blockquote line, stop parsing
+      break;
+    }
+  }
+
+  return {
+    content: contentLines.join('\n'),
+    endIndex: i - 1  // Last blockquote line index
+  };
 }
