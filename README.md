@@ -1,5 +1,7 @@
 # Compose WikiFormatting
 
+![WikiFormatting Editor Screenshot](screenshot.png)
+
 A React-based web application for composing documents in WikiFormatting syntax for WordPress Trac.
 
 ## Purpose
