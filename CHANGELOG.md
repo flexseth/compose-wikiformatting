@@ -317,7 +317,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Our implementation follows spec; Trac appears to have nesting bug
     - Action: Further testing needed against WordPress Trac
 
+- **Phase 6c: Standard Blockquotes - 2-Space Indent Syntax**
+  - Core renderer functions in `src/renderers/blockquotes.js`
+    - `renderStandardBlockquote()`: Renders `<blockquote>` WITHOUT citation class
+    - `parseStandardBlockquoteLines()`: Parse consecutive 2+ space indented lines
+    - Removes first 2 spaces from each line (preserves additional indentation)
+    - Stops parsing at empty lines or non-indented lines
+    - Pure React rendering (no dangerouslySetInnerHTML)
+  - Integration with `wikiToReact.js` renderer
+    - Detection order: Code blocks → Discussion Citations (`>`) → Standard Blockquotes (2-space) → Paragraphs
+    - Multi-line standard blockquotes with preserved newlines
+    - Formatting inside blockquotes (bold, italic, links, inline code)
+    - Code blocks inside blockquotes (Trac-compatible feature)
+    - Reuses `parseBlockquoteContent()` for consistent content parsing
+  - Enhanced code block converter in `src/converters/codeBlocks.js`
+    - Detects fenced code blocks with leading whitespace (indented code blocks)
+    - Preserves indentation on each line of WikiFormatting blocks
+    - Properly handles closing `}}}` delimiter in indented contexts
+  - Styling with `RenderedView.css`
+    - Different from Discussion Citations (no colored borders)
+    - Subtle gray background (#f9f9f9) and left border (#ccc)
+    - `blockquote:not(.citation)` selector for specificity
+    - Dark mode support (background #2a2a2a, border #555)
+    - `white-space: pre-line` for natural line breaks
+  - Markdown → WikiFormatting conversion
+    - No conversion needed (both use 2-space indent syntax)
+    - Preserved as-is during conversion
+  - Comprehensive test suite (24 unit + 10 integration tests)
+    - Unit tests in `blockquotes.test.js`: Basic rendering, line detection, edge cases
+    - Integration tests in `wikiToReact.test.js`: Full pipeline testing
+    - Security: XSS attempts properly escaped (React auto-escaping)
+    - Formatting inside quotes (bold, italic, links, code)
+    - Code blocks inside blockquotes
+    - Distinction from Discussion Citations verified
+  - Visual distinction from Discussion Citations
+    - Standard: gray background, subtle left border
+    - Citations: colored left borders, no background
+    - Both types can coexist on same page
+  - All tests passing with Phase 6c implementation
+
 ### Fixed
+- **Inline Code Protection Fix (commit 337dd31)**: Protect inline code from text formatting conversion
+  - Problem: Inline code (backticks) was not protected during text formatting conversion
+  - Example bug: `` `wp_enqueue_script()` `` became `wp''enqueue''script()` (underscores converted to italic markers)
+  - Root cause: Text formatting converter processed all underscores, including those inside backticks
+  - Solution in `src/converters/textFormatting.js`:
+    - Extract inline code blocks before applying formatting
+    - Use placeholders (`￿IC0￿`) to protect content
+    - Apply bold/italic formatting to remaining text
+    - Restore inline code unchanged
+  - Impact: Inline code now renders correctly in blockquotes and all contexts
+  - Testing: Function names, file paths, and code snippets preserve underscores
+
+
 - **Phase 4 Critical Bug Fix (commit 55c145b)**: URLs with underscores and parentheses
   - Fixed Wikipedia-style URLs being corrupted during conversion
   - Problem: `Object-oriented_programming_(OOP)` became `Object-oriented''programming''(OOP)`

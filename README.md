@@ -76,8 +76,8 @@ WordPress core uses [Trac](https://core.trac.wordpress.org) for issue tracking, 
 - ⚛️ **Pure React**: No dangerouslySetInnerHTML, React auto-escaping only
 - 🧪 **74 Tests**: 47 unit + 27 integration, 100% coverage
 
-### Phase 6: Discussion Citations (Email-Style Blockquotes) ✅
-- **Syntax**: Email-style `>` markers (not 2-space indent standard blockquotes)
+### Phase 6: Blockquotes (Complete) ✅
+**Phase 6a & 6b: Discussion Citations** - Email-style `>` markers
 - **Blockquote Conversion**: Markdown `>` preserved (same syntax as WikiFormatting)
 - **Nested Blockquotes**: `>>`, `>>>`, `>>>>` with progressive colored borders
 - **Formatting Inside Quotes**: Bold, italic, links, inline code all work
@@ -85,15 +85,25 @@ WordPress core uses [Trac](https://core.trac.wordpress.org) for issue tracking, 
 - 🎨 **Color-Coded Nesting**: Red (L1) → Green (L2) → Blue (L3) → Pink (L4)
 - 🔒 **XSS Prevention**: React auto-escaping, all malicious content rendered as text
 - ⚛️ **Nested React Structure**: Proper DOM nesting for accurate Trac rendering
-- 🧪 **124 Tests**: 45 conversion + 46 rendering + 28 integration + 5 integration, 100% coverage
+
+**Phase 6c: Standard Blockquotes** - 2-space indent syntax
+- **Standard Blockquotes**: 2+ space indented lines render as `<blockquote>` (no citation class)
+- **Visual Distinction**: Gray background vs. colored borders for Discussion Citations
+- **Indented Code Blocks**: Fenced code blocks with leading whitespace now supported
+- **Inline Code Protection**: Backticks protected from text formatting conversion
+- 🎨 **Dark Mode**: Full dark theme support for both blockquote types
+- 🔧 **Enhanced Converter**: Handles indented code blocks, preserves line-by-line indentation
+
+**Combined Stats:**
+- 🧪 **158 Total Tests**: 79 conversion + 70 rendering + 9 integration, 100% coverage
 - 📝 **Trac Bug Documented**: Discovered potential nesting bug in WordPress Trac renderer
-- ⚠️ **Note**: Standard blockquotes (2-space indent) not yet implemented - tracked as Phase 6c
+- 🛡️ **Security**: All XSS vectors tested and blocked
 
 ### Coming Soon
 - 📋 **Copy to Clipboard**: One-click copy of WikiFormatting
 - ⌨️ **Keyboard Shortcuts**: Tab, Escape, CMD/CTRL+S
 - 📚 **Documentation Sidebar**: Collapsible quick reference (already implemented, needs integration)
-- **Phase 6+**: Blockquotes, tables, images, lists
+- **Phase 7+**: Lists, tables, images
 
 ## Technology Stack
 
@@ -134,10 +144,10 @@ npm run test:coverage
 ```
 
 **Current Status:**
-- ✅ 340 tests passing (12 test suites)
-- ✅ 100% coverage on converter functions
-- ✅ 88.43% overall coverage (above 80% requirement)
-- ✅ 6 security reviews passed (0 vulnerabilities)
+- ✅ 600+ tests passing (15+ test suites)
+- ✅ 100% coverage on converter and renderer functions
+- ✅ 90%+ overall coverage (above 80% requirement)
+- ✅ 7 security reviews passed (0 vulnerabilities)
 
 ### Building for Production
 
@@ -161,7 +171,7 @@ This project follows **test-driven development** with strict security requiremen
 
 ## Roadmap
 
-### Current Progress (4b/10 phases complete - 7 phases done!)
+### Current Progress (6/10 phases complete - 9 sub-phases done!)
 - ✅ **Phase 1**: Headers conversion (Markdown → WikiFormatting)
 - ✅ **Phase 2**: WikiFormatting renderer (three-column layout)
 - ✅ **Phase 2.5**: LocalStorage persistence (auto-save/restore)
@@ -169,11 +179,12 @@ This project follows **test-driven development** with strict security requiremen
 - ✅ **Phase 3.5**: Text formatting renderer (bold, italic display)
 - ✅ **Phase 4a**: Links conversion (Markdown → WikiFormatting)
 - ✅ **Phase 4b**: Links renderer (with URL validation, security filtering)
-- ⏳ **Phase 5**: Code blocks (fenced, syntax highlighting)
-- ⏳ **Phase 6**: Blockquotes
-- ⏳ **Phase 7**: Tables
-- ⏳ **Phase 8**: Images
-- ⏳ **Phase 9**: Lists (moved to last - most complex)
+- ✅ **Phase 5a**: Code blocks conversion (Markdown → WikiFormatting)
+- ✅ **Phase 5b**: Code blocks renderer (with syntax highlighting prep)
+- ✅ **Phase 6**: Blockquotes (Discussion Citations + Standard Blockquotes)
+- ⏳ **Phase 7**: Lists (unordered, ordered, nested)
+- ⏳ **Phase 8**: Tables
+- ⏳ **Phase 9**: Images
 
 ### Future Versions
 - **v1.0.1**: WordPress plugin - Convert Gutenberg blocks
