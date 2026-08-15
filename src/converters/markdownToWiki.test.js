@@ -531,3 +531,216 @@ code block
     expect(result).toContain('}}}');
   });
 });
+
+// ============================================================================
+// Phase 7: Tables Integration Tests
+// ============================================================================
+describe('Phase 7: Tables Integration', () => {
+  test('converts simple table', () => {
+    const input = `| Header 1 | Header 2 |
+|----------|----------|
+| Cell 1   | Cell 2   |`;
+    const expected = `|| '''Header 1''' || '''Header 2''' ||
+|| Cell 1 || Cell 2 ||`;
+    expect(convertMarkdownToWiki(input)).toBe(expected);
+  });
+
+  test('table with text formatting in cells', () => {
+    const input = `| Name | Status |
+|------|--------|
+| **Bold** | *Italic* |`;
+    const result = convertMarkdownToWiki(input);
+
+    // Table structure converted
+    expect(result).toContain("|| '''Name''' || '''Status''' ||");
+
+    // Text formatting converted in cells
+    expect(result).toContain("'''Bold'''");
+    expect(result).toContain("''Italic''");
+  });
+
+  test('table with links in cells', () => {
+    const input = `| Site | URL |
+|------|-----|
+| [WordPress](https://wordpress.org) | Official |`;
+    const result = convertMarkdownToWiki(input);
+
+    // Table structure converted
+    expect(result).toContain("|| '''Site''' || '''URL''' ||");
+
+    // Link converted in cell
+    expect(result).toContain('[https://wordpress.org WordPress]');
+  });
+
+  test('table with inline code in cells', () => {
+    const input = `| Function | Type |
+|----------|------|
+| \`wp_enqueue_script()\` | Core |`;
+    const result = convertMarkdownToWiki(input);
+
+    // Table structure converted
+    expect(result).toContain("|| '''Function''' || '''Type''' ||");
+
+    // Inline code preserved
+    expect(result).toContain('`wp_enqueue_script()`');
+  });
+
+  test('table followed by header', () => {
+    const input = `| A | B |
+|---|---|
+| 1 | 2 |
+
+# Next Section`;
+    const result = convertMarkdownToWiki(input);
+
+    // Table converted
+    expect(result).toContain("|| '''A''' || '''B''' ||");
+    expect(result).toContain("|| 1 || 2 ||");
+
+    // Header converted
+    expect(result).toContain('= Next Section =');
+  });
+
+  test('header followed by table', () => {
+    const input = `# Section Title
+
+| Header |
+|--------|
+| Cell |`;
+    const result = convertMarkdownToWiki(input);
+
+    // Header converted
+    expect(result).toContain('= Section Title =');
+
+    // Table converted
+    expect(result).toContain("|| '''Header''' ||");
+    expect(result).toContain("|| Cell ||");
+  });
+
+  test('multiple tables in document', () => {
+    const input = `| Table 1 |
+|---------|
+| Data 1  |
+
+Some text
+
+| Table 2 |
+|---------|
+| Data 2  |`;
+    const result = convertMarkdownToWiki(input);
+
+    // Both tables converted
+    expect(result).toContain("|| '''Table 1''' ||");
+    expect(result).toContain("|| Data 1 ||");
+    expect(result).toContain("|| '''Table 2''' ||");
+    expect(result).toContain("|| Data 2 ||");
+
+    // Text preserved
+    expect(result).toContain('Some text');
+  });
+
+  test('table with all formatting types', () => {
+    const input = `| **Header** | *Status* | \`Code\` |
+|------------|----------|---------|
+| [Link](https://example.com) | ***Bold Italic*** | Normal |`;
+    const result = convertMarkdownToWiki(input);
+
+    // Headers converted (with bold applied by text formatting converter)
+    expect(result).toContain("'''Header'''");
+    expect(result).toContain("''Status''");
+
+    // Cell content converted
+    expect(result).toContain('[https://example.com Link]');
+    expect(result).toContain("'''''Bold Italic'''''");
+    expect(result).toContain('`Code`');
+  });
+
+  test('table with code block after it', () => {
+    const input = `| Header |
+|--------|
+| Cell |
+
+\`\`\`javascript
+const x = 1;
+\`\`\``;
+    const result = convertMarkdownToWiki(input);
+
+    // Table converted
+    expect(result).toContain("|| '''Header''' ||");
+    expect(result).toContain("|| Cell ||");
+
+    // Code block converted
+    expect(result).toContain('{{{#!javascript');
+    expect(result).toContain('const x = 1;');
+    expect(result).toContain('}}}');
+  });
+
+  test('table with blockquote after it', () => {
+    const input = `| Data |
+|------|
+| Test |
+
+> This is a quote`;
+    const result = convertMarkdownToWiki(input);
+
+    // Table converted
+    expect(result).toContain("|| '''Data''' ||");
+    expect(result).toContain("|| Test ||");
+
+    // Blockquote preserved
+    expect(result).toContain('> This is a quote');
+  });
+
+  test('complex document with tables and all other features', () => {
+    const input = `# Main Title
+
+This is an introduction.
+
+## Compatibility Table
+
+| WordPress | PHP | MySQL |
+|-----------|-----|-------|
+| 6.4 | **7.4+** | 5.7+ |
+| 6.3 | *7.4+* | 5.7+ |
+
+### Code Example
+
+\`\`\`php
+<?php wp_enqueue_script(); ?>
+\`\`\`
+
+> Note: Always check [compatibility](https://wordpress.org)
+
+## Another Section
+
+More content here.`;
+
+    const result = convertMarkdownToWiki(input);
+
+    // Headers converted
+    expect(result).toContain('= Main Title =');
+    expect(result).toContain('== Compatibility Table ==');
+    expect(result).toContain('=== Code Example ===');
+    expect(result).toContain('== Another Section ==');
+
+    // Table converted
+    expect(result).toContain("|| '''WordPress''' || '''PHP''' || '''MySQL''' ||");
+    expect(result).toContain("|| 6.4 || '''7.4+''' || 5.7+ ||");
+    expect(result).toContain("|| 6.3 || ''7.4+'' || 5.7+ ||");
+
+    // Code block converted
+    expect(result).toContain('{{{#!php');
+    expect(result).toContain('<?php wp_enqueue_script(); ?>');
+    expect(result).toContain('}}}');
+
+    // Blockquote preserved
+    expect(result).toContain('> Note:');
+
+    // Link in blockquote converted
+    expect(result).toContain('[https://wordpress.org compatibility]');
+
+    // Plain text preserved
+    expect(result).toContain('This is an introduction.');
+    expect(result).toContain('More content here.');
+  });
+});
