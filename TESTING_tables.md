@@ -42,14 +42,14 @@ Expected Column 2: `|| '''Header 1''' || '''Header 2''' ||` and `|| Cell 1 || Ce
 ### Left-Aligned
 
 | Left | Align |
-|:-----|:------|
+|:-----|:-----|
 | L    | Text  |
 
 ### Center-Aligned
 
-| Center | Align  |
-|:------:|:------:|
-| C      | Text   |
+| Center | Align |
+|:------:|:-----:|
+| C      | Text  |
 
 ### Right-Aligned
 
@@ -63,7 +63,59 @@ Expected Column 2: `|| '''Header 1''' || '''Header 2''' ||` and `|| Cell 1 || Ce
 |:-----|:------:|------:|
 | L    | C      | R     |
 
-**Note:** Alignment syntax (`:---`, `---:`, `:---:`) is preserved but Column 3 uses default left alignment (WikiFormatting limitation).
+**Note:** Alignment syntax (`:---`, `---:`, `:---:`) is converted to WikiFormatting whitespace positioning:
+- **Left** (`:---`): Text sticks to left separator with right padding → `||text    ||`
+- **Center** (`:---:`): Equal padding on both sides → `||  text  ||`
+- **Right** (`---:`): Text sticks to right separator with left padding → `||    text||`
+- **No markers** (`---`): Default spacing → `|| text ||`
+
+See Column 2 for WikiFormatting syntax and Column 3 for rendered alignment.
+
+### Alignment Comparison Table (Test All At Once)
+
+Copy this table to see all four alignment types side-by-side:
+
+| No Align | Left Align | Center Align | Right Align |
+|----------|:-----------|:------------:|------------:|
+| Default  | Left       | Center       | Right       |
+| Text     | Sticks     | Padded       | Ends        |
+| Normal   | Start      | Both Sides   | Right Side  |
+
+**What to verify in Column 2 (WikiFormatting):**
+- Column 1 (No marker `---`): `|| Default ||` - single space both sides
+- Column 2 (Left `:---`): `||Left    ||` - text touches left `||`, spaces on right
+- Column 3 (Center `:---:`): `||  Center  ||` - equal spaces both sides
+- Column 4 (Right `---:`): `||    Right||` - spaces on left, text touches right `||`
+
+**What to verify in Column 3 (Rendered):**
+- Column 1: Default left-aligned rendering
+- Column 2: Text aligned to left edge of cell
+- Column 3: Text centered in cell
+- Column 4: Text aligned to right edge of cell
+
+### Single Column Alignment Tests
+
+Test each alignment type individually:
+
+| Left Only |
+|:----------|
+| Left text |
+| L         |
+
+| Center Only |
+|:-----------:|
+| Center text |
+| C           |
+
+| Right Only |
+|-----------:|
+| Right text |
+| R          |
+
+| Default Only |
+|--------------|
+| Default text |
+| D            |
 
 ---
 

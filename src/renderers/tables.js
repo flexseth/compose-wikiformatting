@@ -33,34 +33,69 @@ export function isTableRow(line) {
 }
 
 /**
- * Parses a WikiFormatting table row into cells.
+ * Detects text alignment from WikiFormatting whitespace positioning.
  *
- * Splits row by || delimiter and trims whitespace.
- * Detects if row is a header by checking for '''Header''' syntax.
+ * Per Trac spec: "if the content of a cell sticks to one side and only one,
+ * then the text will be aligned on that side."
+ *
+ * @param {string} cellContent - Cell content with whitespace
+ * @returns {string|null} 'left', 'center', 'right', or null for default
+ *
+ * @example
+ * detectAlignment('text    ')  // 'left' - sticks to left, spaces on right
+ * detectAlignment('    text')  // 'right' - spaces on left, sticks to right
+ * detectAlignment('  text  ')  // 'center' - spaces on both sides
+ * detectAlignment(' text ')    // null - default (single space)
+ */
+export function detectAlignment(cellContent) {
+  // Check for leading/trailing whitespace
+  const hasLeadingSpace = /^\s\s+/.test(cellContent); // 2+ leading spaces
+  const hasTrailingSpace = /\s\s+$/.test(cellContent); // 2+ trailing spaces
+
+  if (hasLeadingSpace && hasTrailingSpace) {
+    return 'center'; // Spaces on both sides
+  } else if (hasLeadingSpace) {
+    return 'right'; // Spaces on left only
+  } else if (hasTrailingSpace) {
+    return 'left'; // Spaces on right only
+  }
+
+  return null; // Default alignment
+}
+
+/**
+ * Parses a WikiFormatting table row into cells with alignment detection.
+ *
+ * Splits row by || delimiter. Preserves whitespace to detect alignment,
+ * then trims for content. Detects if row is a header by checking for '''Header''' syntax.
  *
  * @param {string} row - WikiFormatting table row
- * @returns {{cells: string[], isHeader: boolean}} Parsed cells and header flag
+ * @returns {{cells: Array<{content: string, align: string|null}>, isHeader: boolean}} Parsed cells with alignment
  *
  * @example
- * parseTableRow("|| '''Header''' ||")
- * // Returns: { cells: ["'''Header'''"], isHeader: true }
+ * parseTableRow("|| '''Header'''  ||")
+ * // Returns: { cells: [{content: "'''Header'''", align: 'left'}], isHeader: true }
  *
  * @example
- * parseTableRow("|| Cell 1 || Cell 2 ||")
- * // Returns: { cells: ["Cell 1", "Cell 2"], isHeader: false }
+ * parseTableRow("||  Cell  ||")
+ * // Returns: { cells: [{content: "Cell", align: 'center'}], isHeader: false }
  */
 export function parseTableRow(row) {
   // Remove leading/trailing || and split by ||
   const trimmed = row.trim().replace(/^\|\|/, '').replace(/\|\|$/, '');
-  const rawCells = trimmed.split('||').map(cell => cell.trim());
+  const rawCells = trimmed.split('||'); // DON'T trim yet - need whitespace for alignment
+
+  // Parse each cell: detect alignment, then trim content
+  const cells = rawCells.map(cell => {
+    const align = detectAlignment(cell);
+    const content = cell.trim();
+    return { content, align };
+  });
 
   // Check if this is a header row (all cells have '''Header''' syntax)
-  const isHeader = rawCells.every(cell =>
-    cell.startsWith("'''") && cell.endsWith("'''")
+  const isHeader = cells.every(cell =>
+    cell.content.startsWith("'''") && cell.content.endsWith("'''")
   );
-
-  // If header, remove the ''' markers (parseInlineFormatting will handle it)
-  const cells = rawCells;
 
   return { cells, isHeader };
 }
@@ -111,16 +146,17 @@ export function parseTable(lines, startIndex) {
  * Header rows (with '''Header''' cells) render as <th> in <thead>.
  * Regular rows render as <td> in <tbody>.
  *
+ * Cell alignment is detected from whitespace positioning and applied as CSS.
  * Cell content is parsed for inline formatting (bold, italic, links, code).
  *
- * @param {Array<{cells: string[], isHeader: boolean}>} rows - Parsed table rows
+ * @param {Array<{cells: Array<{content: string, align: string|null}>, isHeader: boolean}>} rows - Parsed table rows
  * @param {Function} parseInlineContent - Function to parse cell content for formatting
  * @returns {React.Element} React table element
  *
  * @example
  * const rows = [
- *   { cells: ["'''Header'''"], isHeader: true },
- *   { cells: ["Cell"], isHeader: false }
+ *   { cells: [{content: "'''Header'''", align: 'left'}], isHeader: true },
+ *   { cells: [{content: "Cell", align: 'center'}], isHeader: false }
  * ];
  * renderTable(rows, parseInlineContent)
  * // Returns: <table>...</table>
@@ -137,8 +173,11 @@ export function renderTable(rows, parseInlineContent) {
           {headerRows.map((row, rowIndex) => (
             <tr key={rowIndex}>
               {row.cells.map((cell, cellIndex) => (
-                <th key={cellIndex}>
-                  {parseInlineContent(cell)}
+                <th
+                  key={cellIndex}
+                  style={cell.align ? { textAlign: cell.align } : undefined}
+                >
+                  {parseInlineContent(cell.content)}
                 </th>
               ))}
             </tr>
@@ -150,8 +189,11 @@ export function renderTable(rows, parseInlineContent) {
           {bodyRows.map((row, rowIndex) => (
             <tr key={rowIndex}>
               {row.cells.map((cell, cellIndex) => (
-                <td key={cellIndex}>
-                  {parseInlineContent(cell)}
+                <td
+                  key={cellIndex}
+                  style={cell.align ? { textAlign: cell.align } : undefined}
+                >
+                  {parseInlineContent(cell.content)}
                 </td>
               ))}
             </tr>

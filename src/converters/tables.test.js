@@ -85,7 +85,7 @@ describe('convertTables', () => {
 |:-----|
 | L |`;
       const expected = `|| '''Left''' ||
-|| L ||`;
+||L    ||`;
       expect(convertTables(input)).toBe(expected);
     });
 
@@ -94,7 +94,7 @@ describe('convertTables', () => {
 |:------:|
 | C |`;
       const expected = `|| '''Center''' ||
-|| C ||`;
+||  C  ||`;
       expect(convertTables(input)).toBe(expected);
     });
 
@@ -103,7 +103,7 @@ describe('convertTables', () => {
 |------:|
 | R |`;
       const expected = `|| '''Right''' ||
-|| R ||`;
+||    R||`;
       expect(convertTables(input)).toBe(expected);
     });
 
@@ -112,7 +112,7 @@ describe('convertTables', () => {
 |:-----|:------:|------:|
 | L | C | R |`;
       const expected = `|| '''Left''' || '''Center''' || '''Right''' ||
-|| L || C || R ||`;
+||L    ||  C  ||    R||`;
       expect(convertTables(input)).toBe(expected);
     });
   });

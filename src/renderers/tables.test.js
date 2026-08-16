@@ -52,48 +52,69 @@ describe('isTableRow', () => {
 describe('parseTableRow', () => {
   test('parses simple row', () => {
     const result = parseTableRow('|| Cell 1 || Cell 2 ||');
-    expect(result.cells).toEqual(['Cell 1', 'Cell 2']);
+    expect(result.cells).toEqual([
+      { content: 'Cell 1', align: null },
+      { content: 'Cell 2', align: null }
+    ]);
     expect(result.isHeader).toBe(false);
   });
 
   test('identifies header row', () => {
     const result = parseTableRow("|| '''Header 1''' || '''Header 2''' ||");
-    expect(result.cells).toEqual(["'''Header 1'''", "'''Header 2'''"]);
+    expect(result.cells).toEqual([
+      { content: "'''Header 1'''", align: null },
+      { content: "'''Header 2'''", align: null }
+    ]);
     expect(result.isHeader).toBe(true);
   });
 
   test('identifies non-header row with some bold cells', () => {
     const result = parseTableRow("|| '''Bold''' || Normal ||");
-    expect(result.cells).toEqual(["'''Bold'''", "Normal"]);
+    expect(result.cells).toEqual([
+      { content: "'''Bold'''", align: null },
+      { content: "Normal", align: null }
+    ]);
     expect(result.isHeader).toBe(false);
   });
 
   test('parses single cell row', () => {
     const result = parseTableRow('|| Cell ||');
-    expect(result.cells).toEqual(['Cell']);
+    expect(result.cells).toEqual([{ content: 'Cell', align: null }]);
     expect(result.isHeader).toBe(false);
   });
 
   test('handles empty cells', () => {
     const result = parseTableRow('||  || Data ||');
-    expect(result.cells).toEqual(['', 'Data']);
+    expect(result.cells).toEqual([
+      { content: '', align: 'center' },  // 2 spaces = center alignment
+      { content: 'Data', align: null }
+    ]);
     expect(result.isHeader).toBe(false);
   });
 
   test('handles cells with extra whitespace', () => {
     const result = parseTableRow('||   Cell 1   ||   Cell 2   ||');
-    expect(result.cells).toEqual(['Cell 1', 'Cell 2']);
+    expect(result.cells).toEqual([
+      { content: 'Cell 1', align: 'center' },
+      { content: 'Cell 2', align: 'center' }
+    ]);
   });
 
   test('preserves inline formatting markers', () => {
     const result = parseTableRow("|| ''italic'' || `code` ||");
-    expect(result.cells).toEqual(["''italic''", "`code`"]);
+    expect(result.cells).toEqual([
+      { content: "''italic''", align: null },
+      { content: "`code`", align: null }
+    ]);
     expect(result.isHeader).toBe(false);
   });
 
   test('preserves link syntax', () => {
     const result = parseTableRow('|| [https://example.com Link] || Text ||');
-    expect(result.cells).toEqual(['[https://example.com Link]', 'Text']);
+    expect(result.cells).toEqual([
+      { content: '[https://example.com Link]', align: null },
+      { content: 'Text', align: null }
+    ]);
   });
 });
 
@@ -184,8 +205,8 @@ describe('parseTable', () => {
 describe('renderTable', () => {
   test('renders simple table with header', () => {
     const rows = [
-      { cells: ["'''Header 1'''", "'''Header 2'''"], isHeader: true },
-      { cells: ['Cell 1', 'Cell 2'], isHeader: false }
+      { cells: [{ content: "'''Header 1'''", align: null }, { content: "'''Header 2'''", align: null }], isHeader: true },
+      { cells: [{ content: 'Cell 1', align: null }, { content: 'Cell 2', align: null }], isHeader: false }
     ];
 
     const { container } = render(renderTable(rows, simpleParser));
@@ -212,10 +233,10 @@ describe('renderTable', () => {
 
   test('renders table with multiple body rows', () => {
     const rows = [
-      { cells: ["'''Header'''"], isHeader: true },
-      { cells: ['Row 1'], isHeader: false },
-      { cells: ['Row 2'], isHeader: false },
-      { cells: ['Row 3'], isHeader: false }
+      { cells: [{ content: "'''Header'''", align: null }], isHeader: true },
+      { cells: [{ content: 'Row 1', align: null }], isHeader: false },
+      { cells: [{ content: 'Row 2', align: null }], isHeader: false },
+      { cells: [{ content: 'Row 3', align: null }], isHeader: false }
     ];
 
     const { container } = render(renderTable(rows, simpleParser));
@@ -230,8 +251,8 @@ describe('renderTable', () => {
 
   test('renders table with no header', () => {
     const rows = [
-      { cells: ['Cell 1', 'Cell 2'], isHeader: false },
-      { cells: ['Cell 3', 'Cell 4'], isHeader: false }
+      { cells: [{ content: 'Cell 1', align: null }, { content: 'Cell 2', align: null }], isHeader: false },
+      { cells: [{ content: 'Cell 3', align: null }, { content: 'Cell 4', align: null }], isHeader: false }
     ];
 
     const { container } = render(renderTable(rows, simpleParser));
@@ -248,9 +269,9 @@ describe('renderTable', () => {
 
   test('renders table with single column', () => {
     const rows = [
-      { cells: ["'''Header'''"], isHeader: true },
-      { cells: ['Cell 1'], isHeader: false },
-      { cells: ['Cell 2'], isHeader: false }
+      { cells: [{ content: "'''Header'''", align: null }], isHeader: true },
+      { cells: [{ content: 'Cell 1', align: null }], isHeader: false },
+      { cells: [{ content: 'Cell 2', align: null }], isHeader: false }
     ];
 
     const { container } = render(renderTable(rows, simpleParser));
@@ -264,8 +285,8 @@ describe('renderTable', () => {
 
   test('renders table with many columns', () => {
     const rows = [
-      { cells: ["'''A'''", "'''B'''", "'''C'''", "'''D'''"], isHeader: true },
-      { cells: ['1', '2', '3', '4'], isHeader: false }
+      { cells: [{ content: "'''A'''", align: null }, { content: "'''B'''", align: null }, { content: "'''C'''", align: null }, { content: "'''D'''", align: null }], isHeader: true },
+      { cells: [{ content: '1', align: null }, { content: '2', align: null }, { content: '3', align: null }, { content: '4', align: null }], isHeader: false }
     ];
 
     const { container } = render(renderTable(rows, simpleParser));
@@ -278,8 +299,8 @@ describe('renderTable', () => {
 
   test('renders empty cells correctly', () => {
     const rows = [
-      { cells: ["'''Header 1'''", "'''Header 2'''"], isHeader: true },
-      { cells: ['', 'Data'], isHeader: false }
+      { cells: [{ content: "'''Header 1'''", align: null }, { content: "'''Header 2'''", align: null }], isHeader: true },
+      { cells: [{ content: '', align: null }, { content: 'Data', align: null }], isHeader: false }
     ];
 
     const { container } = render(renderTable(rows, simpleParser));
@@ -292,7 +313,7 @@ describe('renderTable', () => {
 
   test('handles header-only table', () => {
     const rows = [
-      { cells: ["'''Header 1'''", "'''Header 2'''"], isHeader: true }
+      { cells: [{ content: "'''Header 1'''", align: null }, { content: "'''Header 2'''", align: null }], isHeader: true }
     ];
 
     const { container } = render(renderTable(rows, simpleParser));
@@ -314,7 +335,7 @@ describe('renderTable', () => {
 describe('Security', () => {
   test('cell content is passed to parser (not rendered directly)', () => {
     const rows = [
-      { cells: ['<script>alert("xss")</script>'], isHeader: false }
+      { cells: [{ content: '<script>alert("xss")</script>', align: null }], isHeader: false }
     ];
 
     // Parser should escape content
@@ -335,7 +356,7 @@ describe('Security', () => {
 
   test('malicious link in cell is passed to parser', () => {
     const rows = [
-      { cells: ['[javascript:alert("xss") Click]'], isHeader: false }
+      { cells: [{ content: '[javascript:alert("xss") Click]', align: null }], isHeader: false }
     ];
 
     const { container } = render(renderTable(rows, simpleParser));
@@ -347,7 +368,7 @@ describe('Security', () => {
 
   test('HTML entities in cells are preserved as text', () => {
     const rows = [
-      { cells: ['&lt;div&gt;'], isHeader: false }
+      { cells: [{ content: '&lt;div&gt;', align: null }], isHeader: false }
     ];
 
     const { container } = render(renderTable(rows, simpleParser));
@@ -363,9 +384,9 @@ describe('Security', () => {
 describe('Real-World Examples', () => {
   test('WordPress compatibility table', () => {
     const rows = [
-      { cells: ["'''WordPress'''", "'''PHP'''", "'''MySQL'''"], isHeader: true },
-      { cells: ['6.4', '7.4+', '5.7+'], isHeader: false },
-      { cells: ['6.3', '7.4+', '5.7+'], isHeader: false }
+      { cells: [{ content: "'''WordPress'''", align: null }, { content: "'''PHP'''", align: null }, { content: "'''MySQL'''", align: null }], isHeader: true },
+      { cells: [{ content: '6.4', align: null }, { content: '7.4+', align: null }, { content: '5.7+', align: null }], isHeader: false },
+      { cells: [{ content: '6.3', align: null }, { content: '7.4+', align: null }, { content: '5.7+', align: null }], isHeader: false }
     ];
 
     const { container } = render(renderTable(rows, simpleParser));
@@ -390,9 +411,9 @@ describe('Real-World Examples', () => {
 
   test('bug tracking table', () => {
     const rows = [
-      { cells: ["'''Component'''", "'''Status'''", "'''Priority'''"], isHeader: true },
-      { cells: ['Editor', 'Open', 'High'], isHeader: false },
-      { cells: ['REST API', 'Closed', 'Low'], isHeader: false }
+      { cells: [{ content: "'''Component'''", align: null }, { content: "'''Status'''", align: null }, { content: "'''Priority'''", align: null }], isHeader: true },
+      { cells: [{ content: 'Editor', align: null }, { content: 'Open', align: null }, { content: 'High', align: null }], isHeader: false },
+      { cells: [{ content: 'REST API', align: null }, { content: 'Closed', align: null }, { content: 'Low', align: null }], isHeader: false }
     ];
 
     const { container } = render(renderTable(rows, simpleParser));
