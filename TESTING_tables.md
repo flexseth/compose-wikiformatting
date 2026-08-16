@@ -117,6 +117,71 @@ Test each alignment type individually:
 | Default text |
 | D            |
 
+### Large Tables with Clear Alignment (Better Visual Test)
+
+Wide tables make alignment more visible. These examples have longer content to clearly show left/center/right positioning:
+
+#### Product Pricing Table (Mixed Alignment)
+
+| Product Name              | Description                    | Price ($) |
+|:--------------------------|:------------------------------:|----------:|
+| WordPress Premium         | Full-featured CMS solution     | 299.00    |
+| Theme Bundle              | 20 professional themes         | 149.00    |
+| Plugin Collection         | Essential WordPress plugins    | 199.00    |
+| Support Package           | Priority support for 1 year    | 499.00    |
+| Enterprise License        | Unlimited sites                | 999.00    |
+
+**Expected rendering:**
+- Column 1 (Product Name): Left-aligned - names start at left edge
+- Column 2 (Description): Center-aligned - text centered in wide column
+- Column 3 (Price): Right-aligned - numbers aligned to right edge
+
+#### Statistics Dashboard (Number Alignment)
+
+| Metric Name                    | Current Value | Previous Value | Change (%) |
+|:-------------------------------|:-------------:|:--------------:|-----------:|
+| Total Page Views               | 1,234,567     | 987,654        | +25.0      |
+| Unique Visitors                | 456,789       | 398,432        | +14.6      |
+| Average Session Duration       | 00:05:32      | 00:04:48       | +15.3      |
+| Bounce Rate                    | 42.3%         | 47.8%          | -11.5      |
+| Conversion Rate                | 3.45%         | 2.89%          | +19.4      |
+
+**Expected rendering:**
+- Column 1 (Metric Name): Left-aligned
+- Column 2 & 3 (Values): Center-aligned for easy comparison
+- Column 4 (Change): Right-aligned to show + and - symbols clearly
+
+#### Documentation Table (Technical Content)
+
+| Function / Method                          | Return Type      | Description                                  |
+|:-------------------------------------------|:----------------:|:---------------------------------------------|
+| `wp_enqueue_script($handle, $src)`         | `void`           | Enqueue a JavaScript file for inclusion      |
+| `wp_register_style($handle, $src)`         | `bool`           | Register a CSS stylesheet                    |
+| `add_action($hook, $callback, $priority)`  | `true`           | Hook a function to a specific action         |
+| `apply_filters($tag, $value, ...$args)`    | `mixed`          | Apply filters to a value                     |
+| `get_option($option, $default)`            | `mixed`          | Retrieve option value from database          |
+
+**Expected rendering:**
+- Column 1 (Function): Left-aligned - function names start at left
+- Column 2 (Return Type): Center-aligned - types centered
+- Column 3 (Description): Left-aligned - descriptions read naturally
+
+#### Comparison Table (Left vs Right Emphasis)
+
+| Feature                 | Basic Plan                           | Premium Plan                         |
+|:-----------------------:|:-------------------------------------|-------------------------------------:|
+| **Storage**             | 10 GB total storage space            | Unlimited storage                    |
+| **Bandwidth**           | 100 GB per month                     | Unlimited bandwidth                  |
+| **Domains**             | 1 domain included                    | Unlimited domains                    |
+| **Email Accounts**      | 5 email accounts                     | Unlimited email accounts             |
+| **Support**             | Community forum only                 | 24/7 priority support                |
+| **SSL Certificate**     | Basic SSL (shared)                   | Advanced SSL (dedicated)             |
+
+**Expected rendering:**
+- Column 1 (Feature): Center-aligned - feature names centered
+- Column 2 (Basic Plan): Left-aligned - details read from left
+- Column 3 (Premium Plan): Right-aligned - emphasizes premium features on right
+
 ---
 
 ## Formatting Inside Tables
