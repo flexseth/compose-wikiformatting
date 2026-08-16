@@ -12,6 +12,7 @@ import { convertTextFormatting } from './textFormatting.js';
 import { convertLinks } from './links.js';
 import { extractCodeBlocks, restoreCodeBlocks } from './codeBlocks.js';
 import { convertBlockquotes } from './blockquotes.js';
+import { convertTables } from './tables.js';
 
 /**
  * Convert Markdown text to WikiFormatting
@@ -22,13 +23,13 @@ import { convertBlockquotes } from './blockquotes.js';
  *
  * Currently supported conversions:
  * - Code blocks (fenced, language-specific)
+ * - Tables (pipe tables → || syntax)
  * - Headers (# syntax → = syntax)
  * - Blockquotes (> syntax, identical in both formats)
  * - Text formatting (bold, italic)
  * - Links (external, wiki)
  *
  * Future phases will add:
- * - Tables
  * - Images
  * - Lists (unordered, ordered, nested)
  *
@@ -69,6 +70,11 @@ export function convertMarkdownToWiki(markdown, options = {}) {
   const { text: textWithPlaceholders, blocks: codeBlocks } = extractCodeBlocks(result);
   result = textWithPlaceholders;
 
+  // Phase 7: Convert tables (| → ||)
+  // Must be done before text formatting so formatting in cells gets converted
+  // Headers in table cells won't be converted because they don't start at line beginning
+  result = convertTables(result);
+
   // Phase 1: Convert headers (# → =)
   // Must be done line-by-line to avoid conflicts with other syntax
   result = convertHeaders(result);
@@ -93,7 +99,6 @@ export function convertMarkdownToWiki(markdown, options = {}) {
   result = restoreCodeBlocks(result, codeBlocks);
 
   // Future phases: Additional conversions will be added here
-  // - Tables
   // - Images
   // - Lists (moved to last - most complex)
 

@@ -30,11 +30,15 @@
  *   - Nested blockquotes: >> text, >>> text
  *   - Formatting inside blockquotes (bold, italic, links)
  *   - React auto-escaping for XSS prevention
+ * - Tables (Phase 7b):
+ *   - WikiFormatting table syntax: || cell ||
+ *   - Header rows ('''Header''') render as <thead>
+ *   - Regular rows render as <tbody>
+ *   - Formatting inside cells (bold, italic, links, code)
+ *   - React-safe rendering (no dangerouslySetInnerHTML)
  *
  * Future phases will add:
  * - Lists
- * - Blockquotes
- * - Tables
  * - Images
  *
  * @module renderers/wikiToReact
@@ -50,6 +54,7 @@ import {
   renderStandardBlockquote,
   parseStandardBlockquoteLines
 } from './blockquotes.js';
+import { isTableRow, parseTable, renderTable } from './tables.js';
 
 /**
  * Build nested blockquote structure from grouped blocks
@@ -611,6 +616,18 @@ export function convertWikiToReact(wikiText, options = {}) {
       // Render standard blockquote (no citation class)
       const quote = renderStandardBlockquote(formattedContent, `std-quote-${i}`);
       elements.push(quote);
+
+      i = endIndex + 1;
+      continue;
+    }
+
+    // Check if line starts a table (|| ... ||)
+    if (isTableRow(line)) {
+      const { rows, endIndex } = parseTable(lines, i);
+
+      // Render table with inline content parsing
+      const table = renderTable(rows, (cellContent) => parseLinks(cellContent, 0));
+      elements.push(table);
 
       i = endIndex + 1;
       continue;
