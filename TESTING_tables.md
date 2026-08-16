@@ -41,27 +41,36 @@ Expected Column 2: `|| '''Header 1''' || '''Header 2''' ||` and `|| Cell 1 || Ce
 
 ### Left-Aligned
 
-| Left | Align |
-|:-----|:-----|
-| L    | Text  |
+| Column One          | Column Two          |
+|:--------------------|:--------------------|
+| Left aligned text   | More left text      |
+| Short               | Longer content here |
+| WordPress           | Development         |
 
 ### Center-Aligned
 
-| Center | Align |
-|:------:|:-----:|
-| C      | Text  |
+| Column One          | Column Two          |
+|:-------------------:|:-------------------:|
+| Center aligned text | More centered text  |
+| Short               | Longer content here |
+| WordPress           | Development         |
 
 ### Right-Aligned
 
-| Right | Align |
-|------:|------:|
-| R     | Text  |
+| Column One          | Column Two          |
+|--------------------:|--------------------:|
+| Right aligned text  | More right text     |
+| Short               | Longer content here |
+| WordPress           | Development         |
 
 ### Mixed Alignment
 
-| Left | Center | Right |
-|:-----|:------:|------:|
-| L    | C      | R     |
+| Left Aligned        | Center Aligned      | Right Aligned       |
+|:--------------------|:-------------------:|--------------------:|
+| Starts at left      | Centered in column  | Ends at right       |
+| WordPress           | Development         | 2024                |
+| Plugin Name         | Active Status       | 1,234               |
+| Theme Title         | Enabled             | 99.9%               |
 
 **Note:** Alignment syntax (`:---`, `---:`, `:---:`) is converted to WikiFormatting whitespace positioning:
 - **Left** (`:---`): Text sticks to left separator with right padding → `||text    ||`
